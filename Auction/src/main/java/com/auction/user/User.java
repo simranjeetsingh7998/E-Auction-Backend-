@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -88,10 +89,10 @@ public class User implements Serializable {
 
 	private boolean isActive;
 
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	private Role role;
 	
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	private BidderCategory bidderCategory;
 	
 	@OneToMany(mappedBy = "user", cascade =  {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
@@ -125,7 +126,7 @@ public class User implements Serializable {
 		userVO.setMotherFirstName(motherFirstName);
 		userVO.setMotherLastName(motherLastName);
 		userVO.setNationality(nationality);
-		userVO.setUserImage(userImage);;
+		userVO.setUserImage(userImage);
 		return userVO;
 	}
 

@@ -70,6 +70,7 @@ public class AuctionApplication {
 				addBidderCategory();
 		};
 		
+		
 	}
 
 	private void addRole() {
@@ -98,7 +99,8 @@ public class AuctionApplication {
 			      bidderCategory.setActive(true);
 			      bidderCategory.setBCategory("General");
 			      bidderCategory.setBidderType(bidderType);
-			      this.bidderCategoryDao.save(bidderCategory);
+			      bidderType.getBidderCategories().add(bidderCategory);
+			      this.bidderTypeDao.save(bidderType);
 		  });
 	}
 

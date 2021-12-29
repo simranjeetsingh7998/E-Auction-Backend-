@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auction.address.Address;
+import com.auction.bidder.category.BidderCategory;
+import com.auction.bidder.category.BidderCategoryVO;
+import com.auction.global.exception.ResourceNotFoundException;
 
 @Service
 public class UserService implements IUserService {
@@ -48,6 +51,28 @@ public class UserService implements IUserService {
 		} else
 			throw new Exception("Old password is not correct");
 	}
+	
+	@Override
+	public UserVO findFullUserDetailsById(Long id) {
+		User user = this.userDao.findFullUserDetailById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		UserVO userVO = user.userToUserVO();
+		userVO.setAddresses(user.getAddresses().stream().map(Address::addressToAddressVO).toList());
+		userVO.setRole(user.getRole().roleToRoleVO());
+		BidderCategory bidderCategory = user.getBidderCategory();
+		BidderCategoryVO bidderCategoryVO = bidderCategory.bidderCategoryToBidderCategoryVO();
+		bidderCategoryVO.setBidderType(bidderCategory.getBidderType().bidderTypeToBidderTypeVO());
+		userVO.setBidderCategory(bidderCategoryVO);
+		return userVO;
+	}
+	
+	@Override
+	public void disableUserById(Long id) {
+		User user = findUserById(id);
+		user.setActive(false);
+		this.userDao.save(user);
+	}
+	
+	
 
 	@Override
 	public User findUserById(Long userId) {

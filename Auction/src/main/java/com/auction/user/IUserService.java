@@ -11,5 +11,9 @@ public interface IUserService {
 	void changePassword(Long userId, ChangePasswordVO changePasswordVO) throws Exception;
 
 	User findUserById(Long userId);
+	
+	UserVO findFullUserDetailsById(Long id);
+	
+	void disableUserById(Long id);
 
 }

@@ -1,8 +1,9 @@
 package com.auction.user;
 
 import java.sql.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -21,6 +22,7 @@ public class UserVO {
 
 	@Schema(defaultValue = "First Name", description = "enter first name of user")
 	@JsonProperty("first_name")
+	@NotBlank(message = "{first_name}")
 	private String firstName;
 	
 	@Schema(defaultValue = "Last Name", description = "enter last name of user")
@@ -92,7 +94,7 @@ public class UserVO {
 	private BidderCategoryVO bidderCategory;
 	
 	@Schema(description = "enter addresses of user")
-	private Set<AddressVO> addresses = new HashSet<>();
+	private List<AddressVO> addresses = new ArrayList<>();
 
 	public User userVOToUser() {
 		User user = new User();

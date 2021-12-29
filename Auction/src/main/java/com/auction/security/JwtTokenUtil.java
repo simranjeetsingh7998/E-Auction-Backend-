@@ -41,7 +41,7 @@ public class JwtTokenUtil {
 
 	private String doGenerateToken(UserDetails userDetails) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
 		long currentTimeInMillSeconds = System.currentTimeMillis();
-		long expireTimeInMillSeconds = currentTimeInMillSeconds + (1000);
+		long expireTimeInMillSeconds = currentTimeInMillSeconds + (1000 * 60 * 60 * 24);
 		Date date = new Date(currentTimeInMillSeconds);
 		Map<String, Object> claimsMap = new HashMap<>();
 		claimsMap.put("username", userDetails.getUsername());
