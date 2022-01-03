@@ -61,7 +61,7 @@ public class UserController {
 				this.userService.createUser(userVO), null), HttpStatus.OK);
 	}
 
-	@PostMapping("/user/login")
+	@PostMapping("/login")
 	public ResponseEntity<ApiResponse> userLogin(@RequestBody UserVO userVO) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 
 		this.authenticationManager.authenticate(

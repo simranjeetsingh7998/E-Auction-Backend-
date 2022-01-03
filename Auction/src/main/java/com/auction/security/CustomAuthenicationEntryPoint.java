@@ -1,10 +1,7 @@
 package com.auction.security;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -15,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -31,7 +29,6 @@ public class CustomAuthenicationEntryPoint implements AuthenticationEntryPoint {
 		        response.setContentType("application/json");
 		        response.setCharacterEncoding("UTF-8");
 		        response.getWriter().write(mapper.writeValueAsString(map));
-		    //    throw new JwtExecption(request.getAttribute("expired").toString());
 		} else {
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Worng Credentials");
 	}

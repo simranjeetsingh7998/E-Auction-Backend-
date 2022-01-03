@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,7 @@ public class JwtTokenUtil {
 		Date date = new Date(currentTimeInMillSeconds);
 		Map<String, Object> claimsMap = new HashMap<>();
 		claimsMap.put("username", userDetails.getUsername());
+		claimsMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray());
 		Claims claims = Jwts.claims(claimsMap);
 		return Jwts.builder().setClaims(claims).setIssuedAt(date).setExpiration(new Date(expireTimeInMillSeconds))
 				.signWith(getSignedKey()).compact();

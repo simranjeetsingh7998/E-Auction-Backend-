@@ -6,12 +6,22 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import com.auction.bid.submission.placement.BidSubmissionPlacement;
+import com.auction.bid.submission.placement.IBidSubmissionPlacementDao;
 import com.auction.bidder.BidderType;
 import com.auction.bidder.IBidderTypeDao;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.IBidderCategoryDao;
+import com.auction.category.AuctionCategory;
+import com.auction.category.IAuctionCategoryDao;
 import com.auction.mail.IMailSender;
 import com.auction.mail.MailSender;
+import com.auction.method.AuctionMethod;
+import com.auction.method.IAuctionMethodDao;
+import com.auction.process.AuctionProcess;
+import com.auction.process.IAuctionProcessDao;
+import com.auction.type.AuctionType;
+import com.auction.type.IAuctionTypeDao;
 import com.auction.user.IRoleDao;
 import com.auction.user.Role;
 
@@ -26,10 +36,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme.In;
 
 @SpringBootApplication
 public class AuctionApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(AuctionApplication.class, args);
-	}
 	
 	@Autowired
 	private IRoleDao roleDao;
@@ -40,11 +46,39 @@ public class AuctionApplication {
 	@Autowired
 	private IBidderCategoryDao bidderCategoryDao;
 	
+	@Autowired
+	private IAuctionTypeDao auctionTypeDao;
+	
+	@Autowired
+	private IAuctionCategoryDao auctionCategoryDao;
+	
+	@Autowired
+	private IAuctionMethodDao auctionMethodDao;
+	
+	@Autowired
+	private IAuctionProcessDao auctionProcessDao;
+	
+	@Autowired
+	private IBidSubmissionPlacementDao bidSubmissionPlacementDao;
+
+	public static void main(String[] args) {
+		SpringApplication.run(AuctionApplication.class, args);
+	}
 	
 	@Bean
 	public IMailSender mailSender() {
 		return new MailSender();
 	}
+	
+//	@Bean 
+//	public CorsConfiguration cors() {
+//		 CorsConfiguration configuration = new CorsConfiguration();
+//		 configuration.setAllowedHeaders(List.of("*"));
+//		 configuration.setAllowedMethods(List.of(HttpMethod.GET.name(),HttpMethod.PUT.name(),HttpMethod.POST.name(),
+//				 HttpMethod.DELETE.name(),HttpMethod.PATCH.name(),HttpMethod.OPTIONS.name(), HttpMethod.TRACE.name()));
+//		 configuration.setAllowedOrigins(List.of("*"));
+//		 return configuration;
+//	}
 
 	@Bean
 	public OpenAPI ecommerceBackend() {
@@ -61,20 +95,29 @@ public class AuctionApplication {
 
 	@Bean
 	CommandLineRunner commandLine() {
-		return (args) -> {
+		return args -> {
 			if (this.roleDao.count() == 0)
 				addRole();
 			if(this.bidderTypeDao.count() == 0)
 				addBidderType();
 			if(this.bidderCategoryDao.count() == 0)
 				addBidderCategory();
-		};
-		
-		
+			if(this.auctionTypeDao.count() == 0)
+				 addAuctionType();
+			if(this.auctionCategoryDao.count() == 0)
+				 addAuctionCategory();
+			if(this.auctionMethodDao.count() == 0)
+				 addAuctionMethod();
+			if(this.auctionProcessDao.count() == 0)
+				 addAuctionProcess();
+			if(this.bidSubmissionPlacementDao.count() == 0)
+				 addBidSubmissionPlacement();
+	
+		};	
 	}
 
 	private void addRole() {
-		String roles[] = { "Admin", "User" };
+		String roles[] = { "Admin", "Bidder" };
 		for (String role : roles) {
 			Role roleObj = new Role();
 			roleObj.setRole(role);
@@ -102,6 +145,57 @@ public class AuctionApplication {
 			      bidderType.getBidderCategories().add(bidderCategory);
 			      this.bidderTypeDao.save(bidderType);
 		  });
+	}
+	
+	private void addAuctionType() {
+		String auctionTypes[] = { "Open", "Limited" };
+		for (String at : auctionTypes) {
+			AuctionType auctionType = new AuctionType();
+			auctionType.setId(null);
+			auctionType.setAType(at);
+			auctionType.setActive(true);
+		    this.auctionTypeDao.save(auctionType);	
+		}
+	}
+	
+	private void addAuctionCategory() {
+		String auctionCategories[] = { "Residental", "Commercial", "Industrail" };
+		for (String ac : auctionCategories) {
+			AuctionCategory auctionCategory = new AuctionCategory();
+			auctionCategory.setActive(true);
+			auctionCategory.setCategory(ac);
+			this.auctionCategoryDao.save(auctionCategory);
+		}
+	}
+	
+	private void addAuctionMethod() {
+		String auctionMethods[] = { "Normal", "Roundwise","H1 Bidding Rule" };
+		for (String am: auctionMethods) {
+			AuctionMethod auctionMethod = new AuctionMethod();
+			auctionMethod.setActive(true);
+			auctionMethod.setMethod(am);
+			this.auctionMethodDao.save(auctionMethod);
+		}
+	}
+	
+	private void addAuctionProcess() {
+		String auctionProcesses[] = { "Forward Auction", "Backward Auction"};
+		for (String ap : auctionProcesses) {
+			AuctionProcess auctionProcess = new AuctionProcess();
+			auctionProcess.setActive(true);
+			auctionProcess.setProcess(ap);
+			this.auctionProcessDao.save(auctionProcess);
+		}
+	}
+	
+	private void addBidSubmissionPlacement() {
+		String bidSubmissionPlacements[] = { "Bid factore", "Bid Price" };
+		for (String bsp : bidSubmissionPlacements) {
+			BidSubmissionPlacement bidSubmissionPlacement = new BidSubmissionPlacement();
+			bidSubmissionPlacement.setActive(true);
+			bidSubmissionPlacement.setBidSubmissionPlacementType(bsp);
+			this.bidSubmissionPlacementDao.save(bidSubmissionPlacement);
+		}
 	}
 
 }

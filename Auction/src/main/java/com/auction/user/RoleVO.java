@@ -10,11 +10,11 @@ public class RoleVO {
 	private boolean enabled;
 
 	public Role roleVOToRole() {
-		Role role = new Role();
-		role.setId(id);
-		role.setRole(this.role);
-		role.setEnabled(enabled);
-		return role;
+		Role rolee = new Role();
+		rolee.setId(id);
+		rolee.setRole(this.role);
+		rolee.setEnabled(enabled);
+		return rolee;
 	}
 
 }
