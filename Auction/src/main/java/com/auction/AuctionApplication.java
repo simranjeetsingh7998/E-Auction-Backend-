@@ -14,6 +14,12 @@ import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.IBidderCategoryDao;
 import com.auction.category.AuctionCategory;
 import com.auction.category.IAuctionCategoryDao;
+import com.auction.emd.applied.EMDAppliedFor;
+import com.auction.emd.applied.IEMDAppliedForDao;
+import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
+import com.auction.emd.fee.payment.mode.IEMDFeePaymentModeDao;
+import com.auction.event.processing.fee.mode.EventProcessingFeeMode;
+import com.auction.event.processing.fee.mode.IEventProcessingFeeModeDao;
 import com.auction.mail.IMailSender;
 import com.auction.mail.MailSender;
 import com.auction.method.AuctionMethod;
@@ -60,6 +66,15 @@ public class AuctionApplication {
 	
 	@Autowired
 	private IBidSubmissionPlacementDao bidSubmissionPlacementDao;
+	
+	@Autowired
+	private IEventProcessingFeeModeDao eventProcessingFeeModeDao;
+	
+	@Autowired
+	private IEMDAppliedForDao appliedForDao;
+	
+	@Autowired
+	private IEMDFeePaymentModeDao feePaymentModeDao;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);
@@ -112,6 +127,12 @@ public class AuctionApplication {
 				 addAuctionProcess();
 			if(this.bidSubmissionPlacementDao.count() == 0)
 				 addBidSubmissionPlacement();
+			if(this.eventProcessingFeeModeDao.count() == 0)
+				 this.addEventProcessingFeeMode();
+			if(this.feePaymentModeDao.count() == 0)
+				 this.addEmdFeePaymentMode();
+			if(this.appliedForDao.count() == 0)
+				this.addEmdAppliedFor();
 	
 		};	
 	}
@@ -189,12 +210,44 @@ public class AuctionApplication {
 	}
 	
 	private void addBidSubmissionPlacement() {
-		String bidSubmissionPlacements[] = { "Bid factore", "Bid Price" };
+		String bidSubmissionPlacements [] = { "Bid factore", "Bid Price" };
 		for (String bsp : bidSubmissionPlacements) {
 			BidSubmissionPlacement bidSubmissionPlacement = new BidSubmissionPlacement();
 			bidSubmissionPlacement.setActive(true);
 			bidSubmissionPlacement.setBidSubmissionPlacementType(bsp);
 			this.bidSubmissionPlacementDao.save(bidSubmissionPlacement);
+		}
+	}
+	
+	private void addEventProcessingFeeMode() {
+		String eventProcessingFeeModes [] = { "online", "offline", "Not Required"};
+		for (String epfm : eventProcessingFeeModes) {
+			EventProcessingFeeMode eventProcessingFeeMode = new EventProcessingFeeMode();
+			eventProcessingFeeMode.setActive(true);
+			eventProcessingFeeMode.setEpfMode(epfm);
+		  	this.eventProcessingFeeModeDao.save(eventProcessingFeeMode);
+		}
+		
+	}
+	
+	private void addEmdFeePaymentMode() {
+		String emdFeePaymentModes [] = {"online", "offline", "Not Required"};
+		for (String efpm : emdFeePaymentModes) {
+			EMDFeePaymentMode emdFeePaymentMode = new EMDFeePaymentMode();
+			emdFeePaymentMode.setActive(true);
+			emdFeePaymentMode.setEmdfpMode(efpm);
+			this.feePaymentModeDao.save(emdFeePaymentMode);
+		}
+	}
+	
+	
+	private void addEmdAppliedFor() {
+		String emdAppliedFor [] = {"Auction and item wise", "Item wise"};
+		for (String eaf : emdAppliedFor) {
+			EMDAppliedFor appliedFor = new EMDAppliedFor();
+			appliedFor.setActive(true);
+			appliedFor.setEmdFor(eaf);
+			this.appliedForDao.save(appliedFor);
 		}
 	}
 

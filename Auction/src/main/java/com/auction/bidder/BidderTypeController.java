@@ -25,7 +25,7 @@ public class BidderTypeController {
 				null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/active/bidder/types")
+	@GetMapping("/bidder/types")
 	public ResponseEntity<ApiResponse> activeBidderTypes(){
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Bidder Types fetched successfully",
 				this.bidderTypeService.findAllActiveBidderTypes(), null), HttpStatus.OK);

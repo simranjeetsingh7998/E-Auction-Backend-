@@ -1,0 +1,1 @@
+package com.auction.event.processing.fee.mode;
