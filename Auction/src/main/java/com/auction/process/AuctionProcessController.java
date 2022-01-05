@@ -32,27 +32,27 @@ public class AuctionProcessController {
 				  this.messageResolver.getMessage("auction.process.create") , null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/active/auction/processes")
-	public ResponseEntity<ApiResponse> activeAuctionprocesss(){
+	@GetMapping("/auction/processes")
+	public ResponseEntity<ApiResponse> activeAuctionProcesss(){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.process.fetchs") , this.auctionProcessService.findAllByIsActiveTrue(), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/auction/process/{id}")
-	public ResponseEntity<ApiResponse> auctionprocessById(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> auctionProcessById(@PathVariable Integer id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.process.fetch") , this.auctionProcessService.findById(id), null), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/auction/process/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveAuctionprocess(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveAuctionProcess(@PathVariable Integer id){
 		  this.auctionProcessService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.process.delete") ,null, null), HttpStatus.OK);
 	}
 	
 	@PutMapping("/auction/process/modify")
-	public ResponseEntity<ApiResponse> modifyAuctionprocess(@RequestBody @Valid AuctionProcessVO auctionProcessVO){
+	public ResponseEntity<ApiResponse> modifyAuctionProcess(@RequestBody @Valid AuctionProcessVO auctionProcessVO){
 		  this.auctionProcessService.addOrUpdate(auctionProcessVO);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.process.update") ,null, null), HttpStatus.OK);

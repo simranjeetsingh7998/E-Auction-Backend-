@@ -32,27 +32,27 @@ public class EventProcessingFeeModeController {
 				  this.messageResolver.getMessage("event.processing.fee.mode.create") , null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/active/event/processing/fee/modes")
-	public ResponseEntity<ApiResponse> activeAuctionTypes(){
+	@GetMapping("/event/processing/fee/modes")
+	public ResponseEntity<ApiResponse> activeEventProcessingFeeModes(){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("event.processing.fee.mode.fetchs") , this.eventProcessingFeeModeService.findAllByIsActiveTrue(), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/event/processing/fee/mode/{id}")
-	public ResponseEntity<ApiResponse> auctionTypeById(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> eventProcessingFeeModeById(@PathVariable Integer id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("event.processing.fee.mode.fetch") , this.eventProcessingFeeModeService.findById(id), null), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/event/processing/fee/mode/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveAuctionType(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveEventProcessingFeeMode(@PathVariable Integer id){
 		  this.eventProcessingFeeModeService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("event.processing.fee.mode.delete") ,null, null), HttpStatus.OK);
 	}
 	
 	@PutMapping("/event/processing/fee/mode/modify")
-	public ResponseEntity<ApiResponse> modifyAuctionType(@RequestBody @Valid EventProcessingFeeModeVO eventProcessingFeeModeVO){
+	public ResponseEntity<ApiResponse> modifyEventProcessingFeeMode(@RequestBody @Valid EventProcessingFeeModeVO eventProcessingFeeModeVO){
 		  this.eventProcessingFeeModeService.addOrUpdate(eventProcessingFeeModeVO);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("event.processing.fee.mode.update") ,null, null), HttpStatus.OK);

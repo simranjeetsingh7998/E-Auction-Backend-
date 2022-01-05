@@ -45,14 +45,14 @@ public class AuctionCategoryController {
 	}
 	
 	@DeleteMapping("/auction/category/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveAuctionMethod(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveAuctionCategory(@PathVariable Integer id){
 		  this.auctionCategoryService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.category.delete") ,null, null), HttpStatus.OK);
 	}
 	
 	@PutMapping("/auction/category/modify")
-	public ResponseEntity<ApiResponse> modifyAuctionMethod(@RequestBody @Valid AuctionCategoryVO auctionCategoryVO){
+	public ResponseEntity<ApiResponse> modifyAuctionCategory(@RequestBody @Valid AuctionCategoryVO auctionCategoryVO){
 		  this.auctionCategoryService.addOrUpdate(auctionCategoryVO);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.category.update") ,null, null), HttpStatus.OK);

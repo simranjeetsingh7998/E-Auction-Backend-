@@ -33,26 +33,26 @@ public class EMDAppliedForController {
 	}
 	
 	@GetMapping("/emd/applied/fors")
-	public ResponseEntity<ApiResponse> activeAuctionTypes(){
+	public ResponseEntity<ApiResponse> emdAppliedFors(){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("emd.applied.for.fetchs") , this.emdAppliedForService.findAllByIsActiveTrue(), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/emd/applied/for/{id}")
-	public ResponseEntity<ApiResponse> auctionTypeById(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> emdAppliedForById(@PathVariable Integer id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("emd.applied.for.fetch") , this.emdAppliedForService.findById(id), null), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/emd/applied/for/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveAuctionType(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveEMDAppliedFor(@PathVariable Integer id){
 		  this.emdAppliedForService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("emd.applied.for.delete") ,null, null), HttpStatus.OK);
 	}
 	
 	@PutMapping("/emd/applied/for/modify")
-	public ResponseEntity<ApiResponse> modifyAuctionType(@RequestBody @Valid EMDAppliedForVO emdAppliedForVO){
+	public ResponseEntity<ApiResponse> modifyEMDAppliedFor(@RequestBody @Valid EMDAppliedForVO emdAppliedForVO){
 		  this.emdAppliedForService.addOrUpdate(emdAppliedForVO);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("emd.applied.for.update") ,null, null), HttpStatus.OK);

@@ -32,27 +32,27 @@ public class BidSubmissionPlacementController {
 				  this.messageResolver.getMessage("bid.submission.placement.create") , null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/active/bid/submission/placements")
-	public ResponseEntity<ApiResponse> activeAuctionTypes(){
+	@GetMapping("/bid/submission/placements")
+	public ResponseEntity<ApiResponse> activeBidSubmissionPlacement(){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("bid.submission.placement.fetchs") , this.bidSubmissionPlacementService.findAllByIsActiveTrue(), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/bid/submission/placement/{id}")
-	public ResponseEntity<ApiResponse> auctionTypeById(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> bidSubmissionPlacementById(@PathVariable Integer id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("bid.submission.placement.fetch") , this.bidSubmissionPlacementService.findById(id), null), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/bid/submission/placement/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveAuctionType(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveBidSubmissionPlacement(@PathVariable Integer id){
 		  this.bidSubmissionPlacementService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("bid.submission.placement.delete") ,null, null), HttpStatus.OK);
 	}
 	
 	@PutMapping("/bid/submission/placement/modify")
-	public ResponseEntity<ApiResponse> modifyAuctionType(@RequestBody @Valid BidSubmissionPlacementVO bidSubmissionPlacementVO){
+	public ResponseEntity<ApiResponse> modifyBidSubmissionPlacement(@RequestBody @Valid BidSubmissionPlacementVO bidSubmissionPlacementVO){
 		  this.bidSubmissionPlacementService.addOrUpdate(bidSubmissionPlacementVO);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("bid.submission.placement.update") ,null, null), HttpStatus.OK);

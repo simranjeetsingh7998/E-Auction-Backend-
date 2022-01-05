@@ -138,7 +138,7 @@ public class AuctionApplication {
 	}
 
 	private void addRole() {
-		String roles[] = { "Admin", "Bidder" };
+		String roles [] = { "Admin", "Bidder" };
 		for (String role : roles) {
 			Role roleObj = new Role();
 			roleObj.setRole(role);
@@ -148,7 +148,7 @@ public class AuctionApplication {
 	}
 	
 	private void addBidderType() {
-		String bidderTypes[] = { "Indivisiual", "Company" };
+		String bidderTypes [] = { "Indivisiual", "Company" };
 		for (String bt : bidderTypes) {
 			BidderType bidderType = new BidderType();
 			bidderType.setBType(bt);
@@ -169,7 +169,7 @@ public class AuctionApplication {
 	}
 	
 	private void addAuctionType() {
-		String auctionTypes[] = { "Open", "Limited" };
+		String auctionTypes [] = { "Open", "Limited" };
 		for (String at : auctionTypes) {
 			AuctionType auctionType = new AuctionType();
 			auctionType.setId(null);
@@ -180,7 +180,7 @@ public class AuctionApplication {
 	}
 	
 	private void addAuctionCategory() {
-		String auctionCategories[] = { "Residental", "Commercial", "Industrail" };
+		String auctionCategories [] = { "Residental", "Commercial", "Industrail" };
 		for (String ac : auctionCategories) {
 			AuctionCategory auctionCategory = new AuctionCategory();
 			auctionCategory.setActive(true);
@@ -190,7 +190,7 @@ public class AuctionApplication {
 	}
 	
 	private void addAuctionMethod() {
-		String auctionMethods[] = { "Normal", "Roundwise","H1 Bidding Rule" };
+		String auctionMethods [] = { "Normal", "Roundwise","H1 Bidding Rule" };
 		for (String am: auctionMethods) {
 			AuctionMethod auctionMethod = new AuctionMethod();
 			auctionMethod.setActive(true);
@@ -200,7 +200,7 @@ public class AuctionApplication {
 	}
 	
 	private void addAuctionProcess() {
-		String auctionProcesses[] = { "Forward Auction", "Backward Auction"};
+		String auctionProcesses [] = { "Forward Auction", "Backward Auction"};
 		for (String ap : auctionProcesses) {
 			AuctionProcess auctionProcess = new AuctionProcess();
 			auctionProcess.setActive(true);

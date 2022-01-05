@@ -32,7 +32,7 @@ public class AuctionMethodController {
 				  this.messageResolver.getMessage("auction.method.create") , null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/active/auction/methods")
+	@GetMapping("/auction/methods")
 	public ResponseEntity<ApiResponse> activeAuctionMethods(){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("auction.method.fetchs") , this.auctionMethodService.findAllByIsActiveTrue(), null), HttpStatus.OK);
