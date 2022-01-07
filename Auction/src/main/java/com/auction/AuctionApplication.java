@@ -1,10 +1,16 @@
 package com.auction;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.bid.submission.placement.IBidSubmissionPlacementDao;
@@ -84,16 +90,6 @@ public class AuctionApplication {
 	public IMailSender mailSender() {
 		return new MailSender();
 	}
-	
-//	@Bean 
-//	public CorsConfiguration cors() {
-//		 CorsConfiguration configuration = new CorsConfiguration();
-//		 configuration.setAllowedHeaders(List.of("*"));
-//		 configuration.setAllowedMethods(List.of(HttpMethod.GET.name(),HttpMethod.PUT.name(),HttpMethod.POST.name(),
-//				 HttpMethod.DELETE.name(),HttpMethod.PATCH.name(),HttpMethod.OPTIONS.name(), HttpMethod.TRACE.name()));
-//		 configuration.setAllowedOrigins(List.of("*"));
-//		 return configuration;
-//	}
 
 	@Bean
 	public OpenAPI ecommerceBackend() {

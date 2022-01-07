@@ -1,5 +1,7 @@
 package com.auction.security;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -32,11 +36,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().configurationSource(source -> new CorsConfiguration().applyPermitDefaultValues()).and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+		http.cors().configurationSource(cors()).and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
 				.and().authorizeRequests().antMatchers("/login","/user","/bidder/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(perRequestFilter(), UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+	}
+	
+	@Bean 
+	public CorsConfigurationSource cors() {
+		 CorsConfiguration configuration = new CorsConfiguration();
+		 configuration.setAllowedHeaders(List.of("*"));
+		 configuration.setAllowedMethods(List.of("GET","POST","OPTION","DELETE","PUT","PATCH"));
+		 configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+		 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		 source.registerCorsConfiguration("/**", configuration);
+		 return source;
 	}
 
 	@Bean
