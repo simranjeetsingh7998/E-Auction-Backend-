@@ -49,6 +49,14 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
 	}
 	
+	@ExceptionHandler(ResourceAlreadyExist.class)
+	public ResponseEntity<Object> resourceAlreadyExistExceptionHandler(Exception ex, WebRequest request) {
+		ApiResponse apiResponse = new ApiResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), ex,
+				request.getDescription(false).replace("uri=", ""));
+		printLog(request.getDescription(false).replace("uri=", ""), ex);
+		return new ResponseEntity<>(apiResponse, HttpStatus.CONFLICT);
+	}
+	
 	@ExceptionHandler(JwtExecption.class)
 	public ResponseEntity<Object> jwtTokenExpired(Exception ex, WebRequest request) {
 		ApiResponse apiResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), ex,

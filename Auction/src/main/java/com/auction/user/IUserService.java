@@ -1,6 +1,7 @@
 package com.auction.user;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IUserService {
 
@@ -15,5 +16,13 @@ public interface IUserService {
 	UserVO findFullUserDetailsById(Long id);
 	
 	void disableUserById(Long id);
+	
+	void sendEmailOtp(String to) throws Exception;
+	
+	void sendPhoneOtp(String to);
+	
+	void verifyEmailOtp(Map<String, String> verificationMap) throws Exception;
+	
+	void verifyPhoneOtp(Map<String, String> verificationMap);
 
 }

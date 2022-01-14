@@ -112,4 +112,33 @@ public class UserController {
 				new ApiResponse(HttpStatus.OK.value(), "Mail sent Successfully", null, null), HttpStatus.OK);
 	}
 
+	@PostMapping("/user/send/email/otp/{to}")
+	public ResponseEntity<ApiResponse> sendEmailOtp(@PathVariable("to") String to) throws Exception{
+		 this.userService.sendEmailOtp(to);
+		 return new ResponseEntity<>(
+					new ApiResponse(HttpStatus.OK.value(), "Verification email sent Successfully", null, null), HttpStatus.OK);	 
+	}
+	
+	@PostMapping("/user/verify/email/otp")
+	public ResponseEntity<ApiResponse> verifyEmailOtp(@RequestBody Map<String, String> verificationMap) throws Exception{
+		 this.userService.verifyEmailOtp(verificationMap);
+		 return new ResponseEntity<>(
+					new ApiResponse(HttpStatus.OK.value(), "Email verified Successfully", null, null), HttpStatus.OK);	 
+	}
+	
+	@PostMapping("/user/send/mobile/otp/{to}")
+	public ResponseEntity<ApiResponse> sendMobileOtp(@PathVariable("to") String to) throws Exception{
+		 this.userService.sendPhoneOtp(to);
+		 return new ResponseEntity<>(
+					new ApiResponse(HttpStatus.OK.value(), "Verification mobile number sent Successfully", null, null), HttpStatus.OK);	 
+	}
+	
+	@PostMapping("/user/verify/mobile/otp")
+	public ResponseEntity<ApiResponse> verifyMobileOtp(@RequestBody Map<String, String> verificationMap) throws Exception{
+		 this.userService.verifyPhoneOtp(verificationMap);
+		 return new ResponseEntity<>(
+					new ApiResponse(HttpStatus.OK.value(), "Mobile number verified Successfully", null, null), HttpStatus.OK);	 
+	}
+	
+	
 }

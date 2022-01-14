@@ -37,7 +37,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().configurationSource(cors()).and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-				.and().authorizeRequests().antMatchers("/login","/user","/bidder/**").permitAll().and()
+				.and().authorizeRequests().antMatchers("/login","/user",
+						"/user/send/email/otp/**","/user/verify/email/otp",
+						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
+						"/bidder/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(perRequestFilter(), UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -48,7 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		 CorsConfiguration configuration = new CorsConfiguration();
 		 configuration.setAllowedHeaders(List.of("*"));
 		 configuration.setAllowedMethods(List.of("GET","POST","OPTION","DELETE","PUT","PATCH"));
-		 configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+		 configuration.setAllowedOrigins(List.of("*"));
 		 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		 source.registerCorsConfiguration("/**", configuration);
 		 return source;
