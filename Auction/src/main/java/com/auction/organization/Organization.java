@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.auction.organization.item.label.master.ItemLabelMaster;
+import com.auction.user.User;
 
 import lombok.Data;
 
@@ -37,6 +38,9 @@ public class Organization implements Serializable {
 	
 	@OneToMany(mappedBy = "organization", cascade =  CascadeType.ALL, orphanRemoval =  true)
 	private Set<ItemLabelMaster> itemLabelMasters = new HashSet<>();
+	
+	@OneToMany(mappedBy = "organization", cascade =  CascadeType.MERGE, orphanRemoval =  true)
+	private Set<User> users = new HashSet<>();
 	
     public OrganizationVO organizationToOrganizationVO() {
     	OrganizationVO organizationVO = new OrganizationVO();

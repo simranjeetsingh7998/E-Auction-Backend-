@@ -75,6 +75,8 @@ public class AuctionApplication {
 	
 	@Autowired
 	private IEMDFeePaymentModeDao feePaymentModeDao;
+	
+	private static final  String URL = "/v3/api-docs";
 
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);
@@ -89,9 +91,9 @@ public class AuctionApplication {
 	public OpenAPI ecommerceBackend() {
 		return new OpenAPI()
 				.info(new Info().title("Auction API").description("Auction api expose by Swagger").version("v0.0.1")
-						.license(new License().name("Apache 2.0").url("")))
+						.license(new License().name("Apache 2.0").url(URL)))
 				.externalDocs(new ExternalDocumentation().description("")
-						.url(""))
+						.url(URL))
 				.components(new Components().addSecuritySchemes("bearer-key",
 						new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
 								.in(In.HEADER).name("Authorization")))

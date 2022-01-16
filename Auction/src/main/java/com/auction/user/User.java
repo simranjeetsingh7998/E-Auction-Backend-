@@ -24,13 +24,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
+import com.auction.organization.Organization;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "users", indexes =  { @Index(columnList = "email", unique = true),
-		@Index(columnList = "mobileNumber", unique = true),@Index(columnList = "aadharNumber", unique = true)})
+		@Index(columnList = "mobileNumber", unique = true),@Index(columnList = "aadharNumber", unique = true),
+		@Index(columnList = "panCardNumber", unique = true)})
 @Data
 @EqualsAndHashCode(of = {"id"})
 public class User implements Serializable {
@@ -87,6 +89,19 @@ public class User implements Serializable {
 	
 	private Date birthDay;
 	
+	@Column(length = 20)
+	private String maritalStatus;
+	
+	@Column(length=20)
+	private String gender;
+	private String companyFirmName;
+	@Column(length = 20)
+	private String panCardNumber;
+	private String panCardFile;
+	private String legalStatus;
+	@Column(length = 50)
+	private String designation;
+	
 	private boolean acknowledge;
 
 	private boolean isActive;
@@ -99,6 +114,9 @@ public class User implements Serializable {
 	
 	@OneToMany(mappedBy = "user", cascade =  {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
 	private Set<Address> addresses = new HashSet<>();
+	
+	@ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+	private Organization organization;
 
 	public List<GrantedAuthority> getUserGrantedAuthority() {
 		return Collections.singletonList(new SimpleGrantedAuthority(this.getRole().getRole()));
@@ -129,6 +147,12 @@ public class User implements Serializable {
 		userVO.setMotherLastName(motherLastName);
 		userVO.setNationality(nationality);
 		userVO.setUserImage(userImage);
+		userVO.setLegalStatus(legalStatus);
+		userVO.setDesignation(designation);
+		userVO.setGender(gender);
+		userVO.setCompanyFirmName(companyFirmName);
+		userVO.setPanCardNumber(panCardNumber);
+		userVO.setPanCardFile(panCardFile);
 		return userVO;
 	}
 

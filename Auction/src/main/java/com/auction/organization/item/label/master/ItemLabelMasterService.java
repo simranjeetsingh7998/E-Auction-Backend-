@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,10 @@ public class ItemLabelMasterService implements IItemLabelMasterService {
 		this.itemLabelMasterDao.save(itemLabelMaster);
 	}
 	
+	@Override
+	public List<ItemLabelMasterVO> findAllByOrganizationId(Integer organizationId){
+		return this.itemLabelMasterDao.findAllByOrganizationIdAndIsActiveTrue(organizationId, Sort.by(Sort.Direction.ASC,"labelOrder")).stream().map(ItemLabelMaster::itemLabelMasterToItemLabelMasterVO).toList();
+	}
 	
 	private ItemLabelMaster findItemLabelMasterById(Integer id) {
 		return this.itemLabelMasterDao.findById(id).orElseThrow(()->

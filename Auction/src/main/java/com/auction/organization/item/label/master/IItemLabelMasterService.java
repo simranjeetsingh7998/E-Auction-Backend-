@@ -12,4 +12,6 @@ public interface IItemLabelMasterService {
 	
 	void deActivate(Integer id);
 
+	List<ItemLabelMasterVO> findAllByOrganizationId(Integer organizationId);
+
 }

@@ -1,6 +1,8 @@
 package com.auction.organization.item;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,9 +12,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.auction.organization.item.label.master.ItemLabelMaster;
+import com.auction.preparation.AuctionItem;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,11 +34,15 @@ public class OrganizationItem implements Serializable {
 	private static final long serialVersionUID = 1601115037102857855L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 	@Column(length = 50)
 	private String itemValue;
-	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private ItemLabelMaster itemLabelMaster;
+	
+	@OneToMany(mappedBy = "organizationItem", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<AuctionItem>  auctionItems = new HashSet<>();
+	
 	private boolean isActive;
 	
     public OrganizationItemVO organizationItemToOrganizationItemVO() {

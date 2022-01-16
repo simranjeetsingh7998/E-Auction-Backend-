@@ -3,6 +3,7 @@ package com.auction.user;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.mail.MessagingException;
 
@@ -19,6 +20,8 @@ import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.mail.MailSender;
+import com.auction.organization.IOrganizationDao;
+import com.auction.organization.Organization;
 import com.auction.util.GenerateOtp;
 
 @Service
@@ -34,6 +37,9 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	private JavaMailSender javaMailSender;
+	
+	@Autowired
+	private IOrganizationDao organizationDao;
 
 	@Transactional
 	@Override
@@ -47,6 +53,11 @@ public class UserService implements IUserService {
 			  user.addAddress(address);
 		});
 		user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
+		Organization organization = userVO.getOrganization().organizationVOToOrganization();
+		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
+			organization = this.organizationDao.save(organization);
+		}
+		user.setOrganization(organization);
 		return this.userDao.save(user).userToUserVO();
 	}
 

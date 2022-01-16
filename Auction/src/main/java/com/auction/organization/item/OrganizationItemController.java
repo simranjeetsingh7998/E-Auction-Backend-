@@ -32,20 +32,26 @@ public class OrganizationItemController {
 				  this.messageResolver.getMessage("organization.item.create") , null, null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/organization/items")
-	public ResponseEntity<ApiResponse> activeOrganizationItems(){
+//	@GetMapping("/organization/items")
+//	public ResponseEntity<ApiResponse> activeOrganizationItems(){
+//		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
+//				  this.messageResolver.getMessage("organization.item.fetchs") , null, null), HttpStatus.OK);
+//	}
+//	
+	@GetMapping("/organization/items/label/{id}")
+	public ResponseEntity<ApiResponse> organizationItemsByItemLabel(@PathVariable("id") Integer itemLabelMasterId){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
-				  this.messageResolver.getMessage("organization.item.fetchs") , null, null), HttpStatus.OK);
+				  this.messageResolver.getMessage("organization.item.fetchs") , this.organizationItemService.findAllByItemLabelMasterId(itemLabelMasterId), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/organization/item/{id}")
-	public ResponseEntity<ApiResponse> organizationItemById(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> organizationItemById(@PathVariable Long id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("organization.item.fetch") , this.organizationItemService.findById(id), null), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/organization/item/{id}/deactivate")
-	public ResponseEntity<ApiResponse> deactiveOrganizationItem(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse> deactiveOrganizationItem(@PathVariable Long id){
 		  this.organizationItemService.deActivate(id);
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				  this.messageResolver.getMessage("organization.item.delete") ,null, null), HttpStatus.OK);

@@ -6,8 +6,10 @@ public interface IOrganizationItemService {
 	
 	void addOrUpdate(OrganizationItemVO organizationItemVO);
 	
-	OrganizationItemVO findById(Integer id);
+	OrganizationItemVO findById(Long id);
 	
-	void deActivate(Integer id);
+	void deActivate(Long id);
+	
+	List<OrganizationItemVO> findAllByItemLabelMasterId(Integer itemLabelMasterId);
 
 }

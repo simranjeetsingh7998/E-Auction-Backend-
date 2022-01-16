@@ -52,6 +52,8 @@ public class Address implements Serializable {
 	@Column(length = 10)
 	private Integer pinCode;
 	
+	private AddressType addressType;
+	
 	@ManyToOne(fetch = FetchType.LAZY, cascade  = CascadeType.ALL)
 	private User user;
 
@@ -66,6 +68,7 @@ public class Address implements Serializable {
 		addressVO.setPinCode(pinCode);
 		addressVO.setState(state);
 		addressVO.setTehsil(tehsil);
+		addressVO.setAddressType(addressType);
 	return addressVO;
    }
 }

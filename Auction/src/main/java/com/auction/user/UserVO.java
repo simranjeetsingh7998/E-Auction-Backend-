@@ -4,11 +4,15 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
 import com.auction.address.AddressVO;
 import com.auction.bidder.category.BidderCategoryVO;
+import com.auction.organization.OrganizationVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,22 +31,27 @@ public class UserVO {
 	
 	@Schema(defaultValue = "Last Name", description = "enter last name of user")
 	@JsonProperty("last_name")
+	@NotBlank(message = "{last_name}")
 	private String lastName;
 	
 	@Schema(defaultValue = "Father/Husband First Name", description = "enter Father/Husband First Name of user")
 	@JsonProperty("father_husband_first_name")
+	@NotBlank(message = "{father_husband_first_name}")
 	private String fatherHusbandFirstName;
 	
 	@Schema(defaultValue = "Father/Husband Last Name", description = "enter Father/Husband Last name of user")
 	@JsonProperty("father_husband_last_name")
+	@NotBlank(message = "{father_husband_last_name}")
 	private String fatherHusbandLastName;
 	
 	@Schema(defaultValue = "Mother First Name", description = "enter mother first name of user")
 	@JsonProperty("mother_first_name")
+	@NotBlank(message = "{mother_first_name}")
 	private String motherFirstName;
 	
 	@Schema(defaultValue = "Mother Last Name", description = "enter mother last name of user")
 	@JsonProperty("mother_last_name")
+	@NotBlank(message = "{mother_last_name}")
 	private String motherLastName;
 	
 	@Schema(defaultValue = "User image", description = "upload image of user")
@@ -51,10 +60,14 @@ public class UserVO {
 	
 	@Schema(defaultValue = "3754547374", description = "enter mobile number of user")
 	@JsonProperty("mobile_number")
+//	@NotBlank(message = "{mobile_number}")
+//	@Size(min = 10, max = 10, message = "{mobile_number_size}")
 	private String mobileNumber;
 	
 	@Schema(defaultValue = "796355645643", description = "enter aadhar number of user")
 	@JsonProperty("aadhar_number")
+//	@NotBlank(message = "{aadhar_number}")
+//	@Size(min = 16, max = 16, message = "{aadhar_number_size}")
 	private String aadharNumber;
 	
 	@Schema(defaultValue = "aadhar file ", description = "upload aadhar image of user")
@@ -65,20 +78,47 @@ public class UserVO {
 	private String nationality;
 
 	@Schema(defaultValue = "md@gmail.com", description = "enter email of user")
+//	@NotBlank(message = "{email}")
+//	@Email(message = "{email_pattern}")
 	private String email;
+
+	@Schema(defaultValue = "manojd", description = "enter password of user", minLength = 6)
+//	@NotBlank(message = "{password}")
+//	@Size(min = 6, message = "{password_size}")
+	private String password;
+	
+	@Schema(defaultValue = "manojd", description = "enter confirm password of user", minLength = 6)
+//	@NotBlank(message = "confirm_password")
+//	@Size(min = 6, message = "{confirm_password_size}")
+	private String confirmPassword;
+	
+	@Schema(defaultValue = "1992-02-20", description = "enter date of birth of user")
+	@JsonProperty("birth_day")
+ //   @NotBlank(message = "{birth_day}")
+//	@Past(message = "{past_date}")
+	private Date birthDay;
+	
+	@JsonProperty("marital_status")
+    @NotBlank(message = "{martial_status}")
+	private String maritalStatus;
+	
+	@NotBlank(message = "{gender}")
+	private String gender;
+	@JsonProperty("comapany_name")
+	private String companyFirmName;
+	@NotBlank(message = "{pan_card_number}")
+//	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
+	@JsonProperty("pan_number")
+	private String panCardNumber;
+	@JsonProperty("pan_file")
+	private String panCardFile;
+	@JsonProperty("legal_status")
+	private String legalStatus;
+	private String designation;
 	
 	@Schema(defaultValue = "GFRJR34757334326", description = "enter gst number of user")
 	@JsonProperty("gst_number")
 	private String gstNumber;
-
-	@Schema(defaultValue = "manojd", description = "enter password of user", minLength = 6)
-	@NotBlank(message = "Password is required")
-	@Size(min = 6, message = "Password must have six digits")
-	private String password;
-	
-	@Schema(defaultValue = "1992-02-20", description = "enter date of birth of user")
-	@JsonProperty("birth_day")
-	private Date birthDay;
 	
 	private boolean acknowledge;
 
@@ -93,6 +133,9 @@ public class UserVO {
 	@JsonProperty("bidder_category")
 	private BidderCategoryVO bidderCategory;
 	
+	private OrganizationVO organization;
+	
+//	@Valid
 	@Schema(description = "enter addresses of user")
 	private List<AddressVO> addresses = new ArrayList<>();
 
@@ -116,6 +159,13 @@ public class UserVO {
 		user.setMotherLastName(motherLastName);
 		user.setNationality(nationality);
 		user.setUserImage(userImage);
+		user.setLegalStatus(legalStatus);
+		user.setDesignation(designation);
+		user.setGender(gender);
+		user.setCompanyFirmName(companyFirmName);
+		user.setPanCardNumber(panCardNumber);
+		user.setPanCardFile(panCardFile);
+		
 		return user;
 	}
 

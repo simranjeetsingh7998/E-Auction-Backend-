@@ -113,10 +113,10 @@ public class UserController {
 	}
 
 	@PostMapping("/user/send/email/otp/{to}")
-	public ResponseEntity<ApiResponse> sendEmailOtp(@PathVariable("to") String to) throws Exception{
-		 this.userService.sendEmailOtp(to);
+	public ResponseEntity<ApiResponse> sendEmailOtp(@PathVariable("to") String email) throws Exception{
+		 this.userService.sendEmailOtp(email);
 		 return new ResponseEntity<>(
-					new ApiResponse(HttpStatus.OK.value(), "Verification email sent Successfully", null, null), HttpStatus.OK);	 
+					new ApiResponse(HttpStatus.OK.value(), "Otp has been sent on email Successfully", null, null), HttpStatus.OK);	 
 	}
 	
 	@PostMapping("/user/verify/email/otp")
@@ -127,10 +127,10 @@ public class UserController {
 	}
 	
 	@PostMapping("/user/send/mobile/otp/{to}")
-	public ResponseEntity<ApiResponse> sendMobileOtp(@PathVariable("to") String to) throws Exception{
-		 this.userService.sendPhoneOtp(to);
+	public ResponseEntity<ApiResponse> sendMobileOtp(@PathVariable("to") String mobileNumber) throws Exception{
+		 this.userService.sendPhoneOtp(mobileNumber);
 		 return new ResponseEntity<>(
-					new ApiResponse(HttpStatus.OK.value(), "Verification mobile number sent Successfully", null, null), HttpStatus.OK);	 
+					new ApiResponse(HttpStatus.OK.value(), "Otp has been sent on mobile number Successfully", null, null), HttpStatus.OK);	 
 	}
 	
 	@PostMapping("/user/verify/mobile/otp")

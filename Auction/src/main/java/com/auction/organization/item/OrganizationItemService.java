@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auction.global.exception.ResourceNotFoundException;
-import com.auction.organization.item.label.master.IItemLabelMasterDao;
-import com.auction.organization.item.label.master.ItemLabelMaster;
 
 @Service
 public class OrganizationItemService implements IOrganizationItemService {
@@ -23,22 +21,27 @@ public class OrganizationItemService implements IOrganizationItemService {
 		organizationItem.setItemLabelMaster(organizationItemVO.getItemLabelMasterVO().itemLabelMasterVOToItemLabelMaster());
 		this.organizationItemDao.save(organizationItem);
 	}
+	
+	@Override
+	public List<OrganizationItemVO> findAllByItemLabelMasterId(Integer itemLabelMasterId) {
+		return this.organizationItemDao.findAllByItemLabelMasterIdAndIsActiveTrue(itemLabelMasterId)
+				.stream().map(OrganizationItem::organizationItemToOrganizationItemVO).toList();
+	}
 
 	@Override
-	public OrganizationItemVO findById(Integer id) {
+	public OrganizationItemVO findById(Long id) {
 		return findOrganizationItemById(id).organizationItemToOrganizationItemVO();
 	}
 	
 	@Transactional
 	@Override
-	public void deActivate(Integer id) {
+	public void deActivate(Long id) {
 		OrganizationItem organizationItem = this.findOrganizationItemById(id);
 		organizationItem.setActive(false);
 		this.organizationItemDao.save(organizationItem);
 	}
 	
-	
-	private OrganizationItem findOrganizationItemById(Integer id) {
+	private OrganizationItem findOrganizationItemById(Long id) {
 		return this.organizationItemDao.findById(id).orElseThrow(()->
 		new ResourceNotFoundException("Organization Item not found"));
 	}

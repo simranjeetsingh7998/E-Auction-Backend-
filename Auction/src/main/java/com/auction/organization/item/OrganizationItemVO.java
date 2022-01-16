@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class OrganizationItemVO {
 	
-	private Integer id;
+	private Long id;
 	@Schema(defaultValue = "Sonipat", description = "enter value of Organization item")
 	@NotBlank(message = "{itemValue.required}")
 	@JsonProperty("value")

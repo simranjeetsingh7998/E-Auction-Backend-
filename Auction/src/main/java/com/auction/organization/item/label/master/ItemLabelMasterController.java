@@ -38,6 +38,12 @@ public class ItemLabelMasterController {
 				  this.messageResolver.getMessage("item.label.master.fetchs") , this.itemLabelMasterService.findAllByIsActiveTrue(), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/item/label/masters/organization/{id}")
+	public ResponseEntity<ApiResponse> itemLabelMastersByOrganizationId(@PathVariable("id") Integer organizationId){
+		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
+				  this.messageResolver.getMessage("item.label.master.fetchs") , this.itemLabelMasterService.findAllByOrganizationId(organizationId), null), HttpStatus.OK);
+	}
+	
 	@GetMapping("/item/label/master/{id}")
 	public ResponseEntity<ApiResponse> itemLabelMasterById(@PathVariable Integer id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
