@@ -4,11 +4,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Size;
 
 import com.auction.address.AddressVO;
 import com.auction.bidder.category.BidderCategoryVO;
@@ -86,11 +82,6 @@ public class UserVO {
 //	@NotBlank(message = "{password}")
 //	@Size(min = 6, message = "{password_size}")
 	private String password;
-	
-	@Schema(defaultValue = "manojd", description = "enter confirm password of user", minLength = 6)
-//	@NotBlank(message = "confirm_password")
-//	@Size(min = 6, message = "{confirm_password_size}")
-	private String confirmPassword;
 	
 	@Schema(defaultValue = "1992-02-20", description = "enter date of birth of user")
 	@JsonProperty("birth_day")

@@ -1,7 +1,10 @@
 package com.auction.user;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IUserService {
 
@@ -24,5 +27,7 @@ public interface IUserService {
 	void verifyEmailOtp(Map<String, String> verificationMap) throws Exception;
 	
 	void verifyPhoneOtp(Map<String, String> verificationMap);
+	
+	void uploadDocument(Long userId, String documentType, MultipartFile multipartFile) throws IOException;
 
 }

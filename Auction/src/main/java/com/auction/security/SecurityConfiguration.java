@@ -40,6 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.and().authorizeRequests().antMatchers("/login","/user",
 						"/user/send/email/otp/**","/user/verify/email/otp",
 						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
+						"/upload/document/user/**",
 						"/bidder/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(perRequestFilter(), UsernamePasswordAuthenticationFilter.class).sessionManagement()

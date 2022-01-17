@@ -1,20 +1,10 @@
 package com.auction.security;
 
-import java.io.IOException;
 import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.core.io.FileSystemResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -85,7 +75,7 @@ public class JwtTokenUtil {
 		long expireTimeInMillSeconds = currentTimeInMillSeconds + (1000 * 60 * 60 * 24);
 		Date date = new Date(currentTimeInMillSeconds);
 
-		Map<String, Object> claimsMap = new HashMap<String, Object>();
+		Map<String, Object> claimsMap = new HashMap<>();
 		claimsMap.put("username", userDetails.getUsername());
 		claimsMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray());
 		Claims claims = Jwts.claims(claimsMap);

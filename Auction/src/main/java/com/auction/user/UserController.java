@@ -1,10 +1,6 @@
 package com.auction.user;
 
 import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +9,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.ApiResponseMessageResolver;
 import com.auction.api.response.ApiResponse;
@@ -48,6 +47,9 @@ public class UserController {
 
 	@Autowired
 	private IUserService userService;
+	
+	@Autowired
+	private IRoleService roleService;
 
 	@Autowired
 	private JavaMailSender javaMailSender;
@@ -55,14 +57,31 @@ public class UserController {
 	@Autowired
 	private ApiResponseMessageResolver messageResolver;
 
-	@PostMapping("/user")
-	public ResponseEntity<ApiResponse> createUser(@Valid @RequestBody UserVO userVO) {
+	@PostMapping("/user/bidder")
+	public ResponseEntity<ApiResponse> createBidder(@Valid @RequestBody UserVO userVO) {
+		userVO.setRole(this.roleService.findByRole(RoleEnum.BIDDER.getRole()));
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), messageResolver.getMessage("user.controller.create"),
 				this.userService.createUser(userVO), null), HttpStatus.OK);
 	}
+	
+	@PostMapping("/user/admin")
+	public ResponseEntity<ApiResponse> createAdmin(@Valid @RequestBody UserVO userVO) {
+		userVO.setRole(this.roleService.findByRole(RoleEnum.ADMIN.getRole()));
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), messageResolver.getMessage("user.controller.create"),
+				this.userService.createUser(userVO), null), HttpStatus.OK);
+	}
+	
+	@PostMapping(path = "/upload/document/user/{id}/{documentType}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ApiResponse> addUserDocument(@PathVariable("id") Long userId, @PathVariable String documentType, 
+			@RequestPart("document") MultipartFile multipartFile) throws IOException{
+		 this.userService.uploadDocument(userId, documentType, multipartFile);
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" uploaded successfully",
+					null, null), HttpStatus.OK);
+	}
+	
 
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse> userLogin(@RequestBody UserVO userVO) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public ResponseEntity<ApiResponse> userLogin(@RequestBody UserVO userVO) {
 
 		this.authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(userVO.getEmail(), userVO.getPassword(), null));

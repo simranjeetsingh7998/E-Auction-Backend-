@@ -125,7 +125,6 @@ public class AuctionApplication {
 				 this.addEmdFeePaymentMode();
 			if(this.appliedForDao.count() == 0)
 				this.addEmdAppliedFor();
-	
 		};	
 	}
 

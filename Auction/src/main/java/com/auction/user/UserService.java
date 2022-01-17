@@ -1,9 +1,12 @@
 package com.auction.user;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.mail.MessagingException;
 
@@ -14,14 +17,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.global.exception.ResourceNotFoundException;
+import com.auction.global.exception.UserNotVerifiedException;
 import com.auction.mail.MailSender;
 import com.auction.organization.IOrganizationDao;
 import com.auction.organization.Organization;
+import com.auction.util.FileUpload;
 import com.auction.util.GenerateOtp;
 
 @Service
@@ -40,10 +46,16 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	private IOrganizationDao organizationDao;
+	
+	@Autowired
+	private FileUpload fileUpload;
 
 	@Transactional
 	@Override
 	public UserVO createUser(UserVO userVO) {
+		if(userVO.getRole().getRole().equals(RoleEnum.BIDDER.getRole())) {
+			isVerified(userVO.getEmail(), userVO.getMobileNumber());
+		}
 		User user = userVO.userVOToUser();
 		user.setPassword(PASSWORDENCODER.encode(user.getPassword()));
 		Role role = userVO.getRole().roleVOToRole();
@@ -59,6 +71,38 @@ public class UserService implements IUserService {
 		}
 		user.setOrganization(organization);
 		return this.userDao.save(user).userToUserVO();
+	}
+	
+	private void isVerified(String email, String phone) {
+	    Optional<UserVerification> userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(phone);
+	    if(!userVerification.isPresent())
+	    	 throw new UserNotVerifiedException("Phone number is not verified");
+	     userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(email);
+	    if(!userVerification.isPresent())
+	    	 throw new UserNotVerifiedException("Email is not verified");
+	}
+	
+	@Transactional
+	@Override
+	public void uploadDocument(Long userId, String documentType, MultipartFile multipartFile) throws IOException {
+		User user = this.findUserById(userId);
+		StringBuilder directory = new StringBuilder();
+		directory.append( FileUpload.USERDIRECTORY);
+		directory.append(File.separator);
+		directory.append(user.getId());
+		StringBuilder fileName = new StringBuilder(documentType);
+		fileName.append(".jpeg");
+		if(UserDocumenType.AADHARCARD.name().equalsIgnoreCase(documentType)) {
+			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+			 user.setAadharFile(directory.append(File.separator).toString()+fileName.toString());
+		} else if(UserDocumenType.PANCARD.name().equalsIgnoreCase(documentType)) {
+			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+			 user.setPanCardFile(directory.append(File.separator).toString()+fileName.toString());
+		} else if(UserDocumenType.PROFILE.name().equalsIgnoreCase(documentType)) {
+			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+			 user.setUserImage(directory.append(File.separator).toString()+fileName.toString());
+		}
+		this.userDao.save(user);
 	}
 
 	@Override
