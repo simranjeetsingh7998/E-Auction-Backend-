@@ -12,8 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class FileUpload {
 	
-	public final static String USERDIRECTORY="user"+File.separator+"documents";
-	public final static String AUCTIONDIRECTORY = "auction"+File.separator+"document";
+	public static final  String USERDIRECTORY="user"+File.separator+"documents";
+	public static final String AUCTIONDIRECTORY = "auction"+File.separator+"document";
 	
 	public void uploadMultipartDocument(String filePath, String name, MultipartFile multipartFile) throws IOException { 
 		 Path path = Path.of(filePath+File.separator+name);

@@ -37,7 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().configurationSource(cors()).and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-				.and().authorizeRequests().antMatchers("/login","/user",
+				.and().authorizeRequests().antMatchers("/login","/user/bidder","/user/admin",
 						"/user/send/email/otp/**","/user/verify/email/otp",
 						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
 						"/upload/document/user/**",

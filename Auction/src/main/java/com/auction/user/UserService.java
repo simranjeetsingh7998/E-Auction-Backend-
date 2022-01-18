@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-
-import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,7 +21,6 @@ import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
-import com.auction.mail.MailSender;
 import com.auction.organization.IOrganizationDao;
 import com.auction.organization.Organization;
 import com.auction.util.FileUpload;
@@ -65,10 +61,11 @@ public class UserService implements IUserService {
 			  user.addAddress(address);
 		});
 		user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
-		Organization organization = userVO.getOrganization().organizationVOToOrganization();
-		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
-			organization = this.organizationDao.save(organization);
-		}
+		Organization organization = this.organizationDao.findById(1).get();
+//		Organization organization = userVO.getOrganization().organizationVOToOrganization();
+//		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
+//			organization = this.organizationDao.save(organization);
+//		}
 		user.setOrganization(organization);
 		return this.userDao.save(user).userToUserVO();
 	}
@@ -91,7 +88,8 @@ public class UserService implements IUserService {
 		directory.append(File.separator);
 		directory.append(user.getId());
 		StringBuilder fileName = new StringBuilder(documentType);
-		fileName.append(".jpeg");
+		String fileOriginalName = multipartFile.getOriginalFilename();
+		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
 		if(UserDocumenType.AADHARCARD.name().equalsIgnoreCase(documentType)) {
 			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
 			 user.setAadharFile(directory.append(File.separator).toString()+fileName.toString());
@@ -156,11 +154,11 @@ public class UserService implements IUserService {
 	public void sendEmailOtp(String to) throws Exception {
         String otp = GenerateOtp.emailOtp();
         this.userVerificationDao.save(new UserVerification(to, otp, false, null));
-        try {
-			new MailSender().sendPlainMail(javaMailSender, to, otp);
-		} catch (MessagingException e) {
-		   throw new Exception("Error while sending otp");
-		}
+//        try {
+//			new MailSender().sendPlainMail(javaMailSender, to, otp);
+//		} catch (MessagingException e) {
+//		   throw new Exception("Error while sending otp");
+//		}
 	}
 	
 	@Override
