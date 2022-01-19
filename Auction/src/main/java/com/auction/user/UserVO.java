@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 
 import com.auction.address.AddressVO;
+import com.auction.bidder.BidderTypeVO;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.organization.OrganizationVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -120,9 +121,12 @@ public class UserVO {
 	@JsonProperty("user_role")
 	private RoleVO role;
 	
-	@Schema(description = "enter bidder type of user")
-	@JsonProperty("bidder_category")
-	private BidderCategoryVO bidderCategory;
+//	@Schema(description = "enter bidder type of user")
+//	@JsonProperty("bidder_category")
+//	private BidderCategoryVO bidderCategory;
+	
+	@JsonProperty("bidder_type")
+	private BidderTypeVO bidderType;
 	
 	private OrganizationVO organization;
 	

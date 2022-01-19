@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
+import com.auction.bidder.category.IBidderCategoryDao;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
 import com.auction.organization.IOrganizationDao;
@@ -44,6 +45,9 @@ public class UserService implements IUserService {
 	private IOrganizationDao organizationDao;
 	
 	@Autowired
+	private IBidderCategoryDao bidderCategoryDao;
+	
+	@Autowired
 	private FileUpload fileUpload;
 
 	@Transactional
@@ -60,7 +64,8 @@ public class UserService implements IUserService {
 			  Address address = addressVO.addressVOToAddress();
 			  user.addAddress(address);
 		});
-		user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
+		//user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
+		user.setBidderCategory(this.bidderCategoryDao.findAllByIsActiveTrueAndBidderTypeId(userVO.getBidderType().getId()).get(0));
 		Organization organization = this.organizationDao.findById(1).get();
 //		Organization organization = userVO.getOrganization().organizationVOToOrganization();
 //		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
@@ -127,7 +132,7 @@ public class UserService implements IUserService {
 		BidderCategory bidderCategory = user.getBidderCategory();
 		BidderCategoryVO bidderCategoryVO = bidderCategory.bidderCategoryToBidderCategoryVO();
 		bidderCategoryVO.setBidderType(bidderCategory.getBidderType().bidderTypeToBidderTypeVO());
-		userVO.setBidderCategory(bidderCategoryVO);
+		//userVO.setBidderCategory(bidderCategoryVO);
 		return userVO;
 	}
 	

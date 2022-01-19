@@ -43,7 +43,7 @@ public class AddressVO {
     @Size(min = 6, message = "{pin_code}")
 	private Integer pinCode;
     
-    @Schema(defaultValue = "CURRENT | CORRESPONDENCE", description = "enter address type of user")
+    @Schema(defaultValue = "PERMANENT | CORRESPONDENCE", description = "enter address type of user")
     @JsonProperty("address_type")
     private AddressType addressType;
 	
