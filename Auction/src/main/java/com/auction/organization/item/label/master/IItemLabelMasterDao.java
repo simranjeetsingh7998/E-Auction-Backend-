@@ -12,7 +12,7 @@ public interface IItemLabelMasterDao extends JpaRepository<ItemLabelMaster, Inte
 	
 	List<ItemLabelMaster> findAllByIsActiveTrue();
 	
-	Optional<ItemLabelMaster> findByLabelOrderAndOrganizationIdAndIsActiveTrue(Integer orderId, Integer organizationId);
+	Optional<ItemLabelMaster> findByItemLabelAndOrganizationIdAndIsActiveTrue(String itemLabel, Integer organizationId);
 	
 	List<ItemLabelMaster> findAllByOrganizationIdAndIsActiveTrue(Integer organizationId, Sort orderBy);
 

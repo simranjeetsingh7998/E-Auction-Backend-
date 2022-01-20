@@ -34,11 +34,7 @@ public class Address implements Serializable {
 	@GeneratedValue(strategy =  GenerationType.IDENTITY)
 	private Long id;
 	
-	private String addressLine1;
-	
-	private String addressLine2;
-	
-	private String addressLine3;
+	private String addressArea;
 	
 	@Column(length = 20)
 	private String state;
@@ -61,9 +57,7 @@ public class Address implements Serializable {
 	public AddressVO addressToAddressVO() {
 		AddressVO addressVO = new AddressVO();
 		addressVO.setId(id);
-		addressVO.setAddressLine1(addressLine1);
-		addressVO.setAddressLine2(addressLine2);
-		addressVO.setAddressLine3(addressLine3);
+		addressVO.setAddressArea(addressArea);
 		addressVO.setDistrict(district);
 		addressVO.setPinCode(pinCode);
 		addressVO.setState(state);

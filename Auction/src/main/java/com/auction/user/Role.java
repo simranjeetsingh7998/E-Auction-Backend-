@@ -16,6 +16,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "roles")
@@ -37,6 +38,7 @@ public class Role implements Serializable {
 	@ColumnDefault("true")
 	private boolean enabled;
 
+	@Exclude
 	@OneToMany(mappedBy = "role", cascade = CascadeType.MERGE, orphanRemoval = true)
 	private Set<User> users = new HashSet<>();
 

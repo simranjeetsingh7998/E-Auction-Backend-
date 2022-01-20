@@ -1,6 +1,7 @@
 package com.auction.organization.item.label.master;
 
-import javax.validation.constraints.Min;
+import java.util.Objects;
+
 import javax.validation.constraints.NotBlank;
 
 import com.auction.organization.OrganizationVO;
@@ -17,10 +18,12 @@ public class ItemLabelMasterVO {
 	@NotBlank(message = "{itemLabelMaster.required}")
 	@JsonProperty("label_name")
 	private String labelName;
-	@Schema(defaultValue = "1", description = "enter Item Label Order")
-	@Min(message = "{itemLabelMasterOrder.required}",value = 1)
-	@JsonProperty("order")
-	private Integer order;
+//	@Schema(defaultValue = "1", description = "enter Item Label Order")
+//	@Min(message = "{itemLabelMasterOrder.required}",value = 1)
+//	@JsonProperty("order")
+//	private Integer order;
+	@JsonProperty("parent_item_label_id")
+	private Integer parentItemLabelMasterId;
 	@JsonProperty("active")
 	private boolean isActive;
     @JsonProperty("organization")
@@ -30,7 +33,9 @@ public class ItemLabelMasterVO {
     	 ItemLabelMaster itemLabelMaster = new ItemLabelMaster();
     	 itemLabelMaster.setActive(isActive);
     	 itemLabelMaster.setItemLabel(labelName);
-    	 itemLabelMaster.setLabelOrder(order);
+    	 if(!Objects.isNull(parentItemLabelMasterId) && parentItemLabelMasterId !=0)
+    	           itemLabelMaster.setParentItemLabelMasterId(parentItemLabelMasterId);
+    	// itemLabelMaster.setLabelOrder(order);
     	 itemLabelMaster.setId(id);
     	return itemLabelMaster; 
     }

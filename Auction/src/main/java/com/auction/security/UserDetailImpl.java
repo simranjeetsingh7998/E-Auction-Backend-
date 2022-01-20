@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.auction.organization.Organization;
 import com.auction.user.User;
 
 public class UserDetailImpl implements UserDetails {
@@ -61,7 +62,11 @@ public class UserDetailImpl implements UserDetails {
 	}
 	
 	public Integer getOrganizationId() {
-		return this.user.getOrganization().getId();
+		return this.getOrganization().getId();
+	}
+	
+	public Organization getOrganization() {
+		return this.user.getOrganization();
 	}
 
 }

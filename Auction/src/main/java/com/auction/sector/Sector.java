@@ -10,14 +10,18 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.auction.jpa.audit.AuditMetadata;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "sector", uniqueConstraints = {
 		@UniqueConstraint(columnNames = {"sectorName"})
 })
 @Data
-public class Sector implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class Sector extends AuditMetadata implements Serializable {
 	
 
 	/**
@@ -30,6 +34,7 @@ public class Sector implements Serializable {
 	@Column(length = 50)
 	private String sectorName;
 	private boolean isActive;
+	
 	
     public SectorVO sectorToSectorVO() {
    	 SectorVO sectorVO = new SectorVO();

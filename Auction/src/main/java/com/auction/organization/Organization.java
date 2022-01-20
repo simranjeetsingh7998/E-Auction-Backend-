@@ -17,12 +17,15 @@ import com.auction.organization.item.label.master.ItemLabelMaster;
 import com.auction.user.User;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "organizations", uniqueConstraints = {
 		@UniqueConstraint(columnNames = {"orgName"})
 })
 @Data
+@EqualsAndHashCode(of = {"id"})
 public class Organization implements Serializable {
 	
 
@@ -36,9 +39,11 @@ public class Organization implements Serializable {
 	private String orgName;
 	private boolean isActive;
 	
+	@Exclude
 	@OneToMany(mappedBy = "organization", cascade =  CascadeType.ALL, orphanRemoval =  true)
 	private Set<ItemLabelMaster> itemLabelMasters = new HashSet<>();
 	
+	@Exclude
 	@OneToMany(mappedBy = "organization", cascade =  CascadeType.MERGE, orphanRemoval =  true)
 	private Set<User> users = new HashSet<>();
 	

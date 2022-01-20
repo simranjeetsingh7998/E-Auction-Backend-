@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 
 import com.auction.address.AddressVO;
 import com.auction.bidder.BidderTypeVO;
-import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.organization.OrganizationVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

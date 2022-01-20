@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
+import com.auction.organization.Organization;
+import com.auction.util.LoggedInUser;
 
 @Service
 public class ItemLabelMasterService implements IItemLabelMasterService {
@@ -24,13 +26,14 @@ public class ItemLabelMasterService implements IItemLabelMasterService {
 
 	@Override
 	public void addOrUpdate(ItemLabelMasterVO itemLabelMasterVO) {
-		Optional<ItemLabelMaster> optionalItemLableMaster = this.itemLabelMasterDao.findByLabelOrderAndOrganizationIdAndIsActiveTrue(itemLabelMasterVO.getOrder(),
-				itemLabelMasterVO.getOrganizationVO().getId());
+		Organization organization = LoggedInUser.getLoggedInUserDetails().getOrganization();
+		Optional<ItemLabelMaster> optionalItemLableMaster = this.itemLabelMasterDao.findByItemLabelAndOrganizationIdAndIsActiveTrue(itemLabelMasterVO.getLabelName(),
+				organization.getId());
 		if(!optionalItemLableMaster.isPresent()) {
 			ItemLabelMaster itemLabelMaster = itemLabelMasterVO.itemLabelMasterVOToItemLabelMaster();
-			itemLabelMaster.setOrganization(itemLabelMasterVO.getOrganizationVO().organizationVOToOrganization());
+			itemLabelMaster.setOrganization(organization);
 	    	this.itemLabelMasterDao.save(itemLabelMaster);
-		} else throw new ResourceAlreadyExist("Item Label Already exist with Order "+itemLabelMasterVO.getOrder()+ " for "+ itemLabelMasterVO.getOrganizationVO().getName());
+		} else throw new ResourceAlreadyExist(itemLabelMasterVO.getLabelName()+ " already exist for "+ organization.getOrgName());
 	}
 
 	@Override

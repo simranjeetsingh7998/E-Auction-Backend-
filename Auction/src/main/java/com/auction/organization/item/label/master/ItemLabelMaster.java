@@ -41,7 +41,8 @@ public class ItemLabelMaster implements Serializable {
 	private Integer id;
 	@Column(length = 50)
 	private String itemLabel;
-	private Integer labelOrder;
+	//private Integer labelOrder;
+	private Integer parentItemLabelMasterId;
 	private boolean isActive;
 	
 	@ManyToOne(fetch =  FetchType.LAZY)
@@ -59,7 +60,8 @@ public class ItemLabelMaster implements Serializable {
    	 ItemLabelMasterVO itemLabelMasterVO = new ItemLabelMasterVO();
    	 itemLabelMasterVO.setActive(isActive);
    	 itemLabelMasterVO.setLabelName(itemLabel);
-   	 itemLabelMasterVO.setOrder(labelOrder);
+   	// itemLabelMasterVO.setOrder(labelOrder);
+   	 itemLabelMasterVO.setParentItemLabelMasterId(parentItemLabelMasterId);
    	 itemLabelMasterVO.setId(id);
    	return itemLabelMasterVO;
    }

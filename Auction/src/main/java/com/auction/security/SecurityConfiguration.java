@@ -25,6 +25,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private CustomAuthenicationEntryPoint jwtAuthenticationEntryPoint;
+	
+	@Autowired
+	private JWTAuthorizationFilter jwtAuthorizationFilter;
 
 	public SecurityConfiguration(CustomAuthenicationEntryPoint jwtAuthenticationEntryPoint) {
 		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
@@ -43,7 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						"/upload/document/user/**",
 						"/bidder/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
-				.addFilterBefore(perRequestFilter(), UsernamePasswordAuthenticationFilter.class).sessionManagement()
+				.addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 	
@@ -58,10 +61,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		 return source;
 	}
 
-	@Bean
-	public JWTAuthorizationFilter perRequestFilter() {
-		return new JWTAuthorizationFilter();
-	}
+//	@Bean
+//	public JWTAuthorizationFilter perRequestFilter() {
+//		return new JWTAuthorizationFilter();
+//	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {

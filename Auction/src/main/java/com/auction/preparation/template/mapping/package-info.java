@@ -1,0 +1,1 @@
+package com.auction.preparation.template.mapping;
