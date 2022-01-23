@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,11 +20,14 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.auction.JpaAuditConfig;
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.category.AuctionCategory;
 import com.auction.emd.applied.EMDAppliedFor;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
 import com.auction.event.processing.fee.mode.EventProcessingFeeMode;
+import com.auction.item.template.AuctionItemTemplate;
+import com.auction.jpa.audit.AuditMetadata;
 import com.auction.method.AuctionMethod;
 import com.auction.process.AuctionProcess;
 import com.auction.type.AuctionType;
@@ -34,8 +38,9 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "auctionPreparation")
 @Data
-@EqualsAndHashCode(of = {"id"})
-public class AuctionPreparation implements Serializable {
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
+@EntityListeners(value = JpaAuditConfig.class)
+public class AuctionPreparation extends AuditMetadata implements Serializable {
 	
 	/**
 	 * 
@@ -44,6 +49,8 @@ public class AuctionPreparation implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	private String auctionName;
 	
 	private String referenceNumber;
 	
@@ -90,6 +97,9 @@ public class AuctionPreparation implements Serializable {
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private EMDAppliedFor emdAppliedFor;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	private AuctionItemTemplate auctionItemTemplate;
 	
 	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<AuctionItem> auctionItems = new HashSet<>();

@@ -29,12 +29,12 @@ public class AuctionItemLabelTemplateMapping implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	private Integer order;
+	private Integer labelOrder;
 	
     @ManyToOne(fetch = FetchType.LAZY)
     private AuctionItemTemplate auctionItemTemplate;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private ItemLabelMaster itemLabelMaster;
 
 }

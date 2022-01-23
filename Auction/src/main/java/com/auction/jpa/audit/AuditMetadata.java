@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class AuditMetadata {
+public abstract class AuditMetadata {
 
   @CreatedBy
   private Long createdBy;

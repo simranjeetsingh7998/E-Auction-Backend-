@@ -40,5 +40,12 @@ public class AuctionItemTemplate implements Serializable {
 	
 	private boolean isActive;
 	
-
+	public AuctionItemTemplateVO auctionItemTemplateToAuctionItemTemplateVO() {
+		 AuctionItemTemplateVO auctionItemTemplateVO = new AuctionItemTemplateVO();
+		 auctionItemTemplateVO.setActive(isActive);
+		 auctionItemTemplateVO.setId(id);
+		 auctionItemTemplateVO.setTName(tName);
+		return auctionItemTemplateVO; 
+	}
+	
 }

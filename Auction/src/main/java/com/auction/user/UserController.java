@@ -81,11 +81,11 @@ public class UserController {
 	
 
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse> userLogin(@RequestBody UserVO userVO) {
+	public ResponseEntity<ApiResponse> userLogin(@RequestBody Login login) {
 
 		this.authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(userVO.getEmail(), userVO.getPassword(), null));
-		UserDetailImpl userDetails = this.userServiceDetailImpl.loadUserByUsername(userVO.getEmail());
+				new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword(), null));
+		UserDetailImpl userDetails = this.userServiceDetailImpl.loadUserByUsername(login.getEmail());
 		String token = this.jwtTokenUtility.generateToken(userDetails);
 		Map<String, Object> response = new HashMap<>(2);
 		response.put("access_token", token);

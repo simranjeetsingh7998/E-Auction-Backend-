@@ -9,10 +9,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
+
+import com.auction.organization.Organization;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,6 +44,9 @@ public class Role implements Serializable {
 	@Exclude
 	@OneToMany(mappedBy = "role", cascade = CascadeType.MERGE, orphanRemoval = true)
 	private Set<User> users = new HashSet<>();
+	
+	@ManyToOne
+	private Organization organization;
 
 	public RoleVO roleToRoleVO() {
 		RoleVO roleVO = new RoleVO();

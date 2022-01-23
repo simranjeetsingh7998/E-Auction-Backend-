@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,13 +32,13 @@ public class UserService implements IUserService {
 	@Autowired
 	private IUserDao userDao;
 
-	private final PasswordEncoder PASSWORDENCODER = new BCryptPasswordEncoder();
+	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
 	@Autowired
 	private IUserVerificationDao userVerificationDao;
 	
-	@Autowired
-	private JavaMailSender javaMailSender;
+//	@Autowired
+//	private JavaMailSender javaMailSender;
 	
 	@Autowired
 	private IOrganizationDao organizationDao;
@@ -57,7 +56,7 @@ public class UserService implements IUserService {
 			isVerified(userVO.getEmail(), userVO.getMobileNumber());
 		}
 		User user = userVO.userVOToUser();
-		user.setPassword(PASSWORDENCODER.encode(user.getPassword()));
+		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 		Role role = userVO.getRole().roleVOToRole();
 		user.setRole(role);
 		userVO.getAddresses().forEach(addressVO -> {
@@ -66,7 +65,7 @@ public class UserService implements IUserService {
 		});
 		//user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
 		user.setBidderCategory(this.bidderCategoryDao.findAllByIsActiveTrueAndBidderTypeId(userVO.getBidderType().getId()).get(0));
-		Organization organization = this.organizationDao.findById(1).get();
+		Organization organization = this.organizationDao.findById(1).orElseThrow(() -> new ResourceNotFoundException("Organization not found"));
 //		Organization organization = userVO.getOrganization().organizationVOToOrganization();
 //		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
 //			organization = this.organizationDao.save(organization);
@@ -116,8 +115,8 @@ public class UserService implements IUserService {
 	@Override
 	public void changePassword(Long userId, ChangePasswordVO changePasswordVO) throws Exception {
 		User user = this.findUserById(userId);
-		if (this.PASSWORDENCODER.matches(changePasswordVO.getOldPassword(), user.getPassword())) {
-			user.setPassword(this.PASSWORDENCODER.encode(changePasswordVO.getNewPassword()));
+		if (this.passwordEncoder.matches(changePasswordVO.getOldPassword(), user.getPassword())) {
+			user.setPassword(this.passwordEncoder.encode(changePasswordVO.getNewPassword()));
 			this.userDao.save(user);
 		} else
 			throw new Exception("Old password is not correct");

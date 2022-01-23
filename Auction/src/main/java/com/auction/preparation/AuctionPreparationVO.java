@@ -9,6 +9,7 @@ import com.auction.category.AuctionCategoryVO;
 import com.auction.emd.applied.EMDAppliedForVO;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentModeVO;
 import com.auction.event.processing.fee.mode.EventProcessingFeeModeVO;
+import com.auction.item.template.AuctionItemTemplateVO;
 import com.auction.method.AuctionMethodVO;
 import com.auction.process.AuctionProcessVO;
 import com.auction.type.AuctionTypeVO;
@@ -79,6 +80,9 @@ public class AuctionPreparationVO {
 	
 	@JsonProperty("status")
 	private AuctionStatus auctionStatus;
+	
+	@JsonProperty("template")
+	private AuctionItemTemplateVO auctionItemTemplateVO;
 	
 	@JsonProperty("active")
 	private boolean isActive;
