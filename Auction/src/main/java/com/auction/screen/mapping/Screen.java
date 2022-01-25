@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "screens")
@@ -38,6 +39,7 @@ public class Screen implements Serializable {
 	
 	private Integer menuId;
 	
+	@Exclude
 	@OneToMany(mappedBy = "screen", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
 	private Set<ScreenRoleMapping> screenRoleMappings = new HashSet<>();
 	

@@ -128,6 +128,7 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 		   auctionPreparationVO.setRegistrationEndDateTime(registrationEndDateTime);
 		   auctionPreparationVO.setRegistrationStartDateTime(registrationStartDateTime);
 		   auctionPreparationVO.setUnitDivision(unitDivision);
+		   auctionPreparationVO.setAuctionName(auctionName);
 		   return auctionPreparationVO;
 	}
 }

@@ -14,11 +14,14 @@ import com.auction.user.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "screenRole")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ScreenRoleMapping implements Serializable {
 	
 	/**
@@ -33,6 +36,7 @@ public class ScreenRoleMapping implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Role role;
 	
+	@Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Screen screen;
 	

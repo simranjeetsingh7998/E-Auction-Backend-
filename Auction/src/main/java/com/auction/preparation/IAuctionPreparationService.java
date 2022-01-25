@@ -1,9 +1,15 @@
 package com.auction.preparation;
 
+import java.util.List;
+
 public interface IAuctionPreparationService {
 	
-	void save(AuctionPreparationVO auctionPreparationVO);
+	AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO);
 	
 	void mapToTemplate(Long id, Integer templateId);
+	
+	List<AuctionPreparationVO> searchAuctionPreparation(AuctionPreparationSearchParam auctionPreparationSearchParam);
+	
+	List<AuctionPreparationVO> findAllDetailsById(Long id);
 
 }

@@ -23,6 +23,9 @@ public class AuctionPreparationVO {
 	
 	private Long id;
 	
+	@JsonProperty("auction_name")
+	private String auctionName;
+	
 	@JsonProperty("auction_type")
 	private AuctionTypeVO auctionType;
 
@@ -101,6 +104,7 @@ public class AuctionPreparationVO {
 		   auctionPreparation.setRegistrationEndDateTime(registrationEndDateTime);
 		   auctionPreparation.setRegistrationStartDateTime(registrationStartDateTime);
 		   auctionPreparation.setUnitDivision(unitDivision);
+		   auctionPreparation.setAuctionName(auctionName);
 		   return auctionPreparation;
 	}
 

@@ -1,15 +1,12 @@
 package com.auction.preparation;
 
-import java.text.DateFormat;
 import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
-import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +30,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Transactional
 	@Override
-	public void save(AuctionPreparationVO auctionPreparationVO) {
+	public AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO) {
 		AuctionPreparation auctionPreparation = auctionPreparationVO.auctionPreparationVOToAuctionPreparation();
 		// adding auction item to auction preparation
 		  for(AuctionItemVO auctionItemVO : auctionPreparationVO.getAuctionItems()) {
@@ -68,6 +65,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
         		getCountOfMonth(month, year, createdAt, organization.getId()), month));
         this.auctionPreparationDao.save(auctionPreparation);
        }
+        auctionPreparationVO.setId(auctionPreparation.getId());
+       return auctionPreparationVO; 
 	}
 	
 	private long getCountOfMonth(int month, int year, Instant to, Integer organizationId) {
@@ -85,6 +84,18 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	      AuctionItemTemplate auctionItemTemplate = this.auctionItemTemplateDao.findById(templateId).orElseThrow(() -> new ResourceNotFoundException("Template not found"));
 	      auctionPreparation.setAuctionItemTemplate(auctionItemTemplate);
 	      this.auctionPreparationDao.save(auctionPreparation);
+	}
+	
+	@Override
+	public List<AuctionPreparationVO> searchAuctionPreparation(AuctionPreparationSearchParam auctionPreparationSearchParam) {
+		  return this.auctionPreparationDao.findAll(AuctionPreparationSpecification.search(auctionPreparationSearchParam))
+		   .stream().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
+		  
+	}
+	
+	@Override
+	public List<AuctionPreparationVO> findAllDetailsById(Long id) {
+		return null;
 	}
 	
 

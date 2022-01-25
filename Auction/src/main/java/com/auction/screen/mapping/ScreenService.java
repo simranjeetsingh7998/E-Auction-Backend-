@@ -36,35 +36,48 @@ public class ScreenService implements IScreenService {
 	@Override
 	public List<ScreenVO> findByRole() {
 		Role role = LoggedInUser.getLoggedInUserDetails().getUser().getRole();
-		List<Screen> screens = this.screenDao.findAllByScreenRoleMappings_Role(role);
-		Map<Integer, List<Screen>> screenMapByMenuId = screens.stream().filter(screen -> screen.getMenuId()!= null && screen.getMenuId()!=0)
-		 .collect(Collectors.groupingBy(Screen::getMenuId));
-		if(screenMapByMenuId.isEmpty())
-			 return screens.stream().map(Screen::screenToScreenVO).toList();
+		List<Screen> assignedScreens = this.screenDao.findAllByScreenRoleMappings_Role(role);
+		Map<Integer, List<Screen>> screenMapByMenuId = assignedScreens.stream().collect(Collectors.groupingBy(Screen::getMenuId));
+		if(screenMapByMenuId.size() <= 1 && (screenMapByMenuId.containsKey(null) || screenMapByMenuId.containsKey(0)))
+			 return assignedScreens.stream().map(Screen::screenToScreenVO).toList();
 		else {
-			List<ScreenVO> screenVOs = new ArrayList<>();
-			for (Screen screen : screens) {
-				if(screen.getMenuId()==null && screen.getMenuId() == 0) {
-					ScreenVO screenVO = screen.screenToScreenVO();
-					List<Screen> subMenus = screenMapByMenuId.get(screen.getId());
-					if(!Objects.isNull(subMenus)) {
-						List<ScreenVO> subMenusVO = new ArrayList<>();
-						for (Screen subMenu : subMenus) {
-							ScreenVO subMenuVO = subMenu.screenToScreenVO();
-							if(subMenu.getMenuId() != null && subMenu.getMenuId() !=0) {
-								List<Screen> nextSubMenus = screenMapByMenuId.get(subMenu.getId());
-								if(!Objects.isNull(nextSubMenus))
-								    subMenuVO.setScreenVOs(nextSubMenus.stream().map(Screen::screenToScreenVO).toList());
-							}
-						  subMenusVO.add(subMenuVO);	
-						}
-					}
-				  screenVOs.add(screenVO);
-				}
-			}
-		  return screenVOs;		
+			return this.userHasSubMenu(screenMapByMenuId);
 		}
 	}
+	
+	private List<ScreenVO> userHasSubMenu(Map<Integer, List<Screen>> screenMapByMenuId) {
+		List<Screen> screens = this.screenDao.findAll();
+		List<ScreenVO> screenVOs = new ArrayList<>();
+		screenMapByMenuId.forEach((key,value) -> {
+			  List<ScreenVO> screenVOListByKey =  value.stream().map(Screen::screenToScreenVO).toList();
+			  if(Objects.isNull(key) || key == 0)
+				    screenVOs.addAll(screenVOListByKey);
+			  else { 
+				  ScreenVO screenVO  =  null;
+				  while(key != null && key !=0) {
+					  screenVO =  getParentMenu(screens, key);
+					  screenVO.getScreenVOs().addAll(screenVOListByKey);
+					  screenVOListByKey = List.of(screenVO);
+					  key = screenVO.getParentMenuId();		
+				  }
+				  screenVOs.add(screenVO);	  
+			  }
+		});
+	  return screenVOs;	
+	}
+	
+	private ScreenVO getParentMenu(List<Screen> screens, Integer parentMenuId) {
+		  Screen parentScreen =  screens.stream().filter(sc -> sc.getId().equals(parentMenuId)).findAny().get(); 
+		  return parentScreen.screenToScreenVO();
+//		  if(Objects.isNull(parentScreen.getMenuId())||parentScreen.getMenuId() == 0) {
+//		   Optional<ScreenVO> filterFromScreenVO = screenVOs.stream().filter(screen -> screen.getId().equals(parentScreen.getId())).findFirst();
+//	       System.out.println(filterFromScreenVO.isPresent());
+//		   if(filterFromScreenVO.isPresent())
+//	    	   screenVO = filterFromScreenVO.get();
+//		  }
+	}
+	
+	
 	
 	
 	@Override
@@ -72,8 +85,6 @@ public class ScreenService implements IScreenService {
 	  Role role =	this.roleDao.findByIdAndOrganization(roleId, LoggedInUser.getLoggedInUserDetails().getOrganization())
 				.orElseThrow(() -> new ResourceNotFoundException("Role not found for your organization"));
 		List<Screen> screens = this.screenDao.findAll();
-	//	Role role = new Role();
-	//	role.setId(roleId);
 		List<ScreenRole> screenRoles = this.screenRoleMappingDao.findAllByRole(role);
 		Map<Integer, List<Screen>> screenMapByMenuId = screens.stream().filter(screen -> screen.getMenuId()!= null && screen.getMenuId()!=0)
 				 .collect(Collectors.groupingBy(Screen::getMenuId));
@@ -87,7 +98,7 @@ public class ScreenService implements IScreenService {
 				else {
 					List<ScreenVO> screenVOs = new ArrayList<>();
 					for (Screen screen : screens) {
-						if(screen.getMenuId()==null && screen.getMenuId() == 0) {
+						if(screen.getMenuId()==null || screen.getMenuId() == 0) {
 							ScreenVO screenVO = screen.screenToScreenVO();
 							this.isPreSelected(screenVO, screenRoles);
 							List<Screen> subMenus = screenMapByMenuId.get(screen.getId());
@@ -107,6 +118,7 @@ public class ScreenService implements IScreenService {
 									}
 								  subMenusVO.add(subMenuVO);	
 								}
+								screenVO.setScreenVOs(subMenusVO);
 							}
 						  screenVOs.add(screenVO);
 						}
@@ -116,7 +128,7 @@ public class ScreenService implements IScreenService {
 	}
 	
 	private void isPreSelected(ScreenVO screenVO, List<ScreenRole> screenRoles) {
-		  Optional<ScreenRole> filteredScreenRole = screenRoles.stream().filter(screenRole -> screenRole.getScreenId()== screenVO.getId()).findFirst();
+		  Optional<ScreenRole> filteredScreenRole = screenRoles.stream().filter(screenRole -> screenRole.getScreenId() == screenVO.getId()).findFirst();
 	      if(filteredScreenRole.isPresent()) {
 	    	  Integer mappedId = filteredScreenRole.get().getId();
 	    	  screenVO.setMappedId(mappedId);
@@ -127,21 +139,24 @@ public class ScreenService implements IScreenService {
 	@Transactional
 	@Override
 	public void mapScreensToRole(ScreenRoleMappingVO screenRoleMappingVO) {
-		Role role = //LoggedInUser.getLoggedInUserDetails().getUser().getRole();
+		Role role =//oggedInUser.getLoggedInUserDetails().getUser().getRole();
 				this.roleDao.findByIdAndOrganization(screenRoleMappingVO.getRoleId(), LoggedInUser.getLoggedInUserDetails().getOrganization())
 				.orElseThrow(() -> new ResourceNotFoundException("Role not found for your organization"));
 		
 		List<ScreenVO> screenVOs = screenRoleMappingVO.getScreens();
 		
 		List<Integer> deleteByIds = screenVOs.stream().filter(screenVO ->
-		(!Objects.isNull(screenVO.getMappedId()) && screenVO.getMappedId()!=0)&& !screenVO.isMappingStatus())
+		(!Objects.isNull(screenVO.getMappedId()) && screenVO.getMappedId()!=0) && !screenVO.isMappingStatus())
 				.map(ScreenVO::getMappedId).toList();
 		if(!deleteByIds.isEmpty()) {
-			    deleteByIds.forEach(id ->{
+			    deleteByIds.forEach(id -> {
 		        	this.screenRoleMappingDao.deleteAllByIdIn(id.toString());
 			    });
-		}  	
-	    List<ScreenRoleMapping> screensToSave =  screenVOs.stream().filter(screenVO -> (Objects.isNull(screenVO.getMappedId()) || screenVO.getMappedId()==0) && screenVO.isMappingStatus())
+		} 
+		
+		
+	    List<ScreenRoleMapping> screensToSave =  screenVOs.stream().filter(screenVO ->
+	    (Objects.isNull(screenVO.getMappedId()) || screenVO.getMappedId()==0) && screenVO.isMappingStatus())
 	    .map(screenVO -> new ScreenRoleMapping(null, role, screenVO.screenVOToScreen())).toList();
 	    if(!screensToSave.isEmpty()) {
 	    	 this.screenRoleMappingDao.saveAllAndFlush(screensToSave);
