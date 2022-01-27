@@ -16,6 +16,8 @@ public class OrganizationItemVO {
 	@NotBlank(message = "{itemValue.required}")
 	@JsonProperty("value")
 	private String itemValue;
+	@JsonProperty("parent_item_id")
+	private Long itemId;
     
 	@JsonProperty("item_label_master")
 	private ItemLabelMasterVO itemLabelMasterVO;
@@ -28,6 +30,7 @@ public class OrganizationItemVO {
     	 organizationItem.setActive(isActive);
     	 organizationItem.setItemValue(itemValue);
     	 organizationItem.setId(id);
+    	 organizationItem.setItemId(itemId);
     	return organizationItem; 
     }
 

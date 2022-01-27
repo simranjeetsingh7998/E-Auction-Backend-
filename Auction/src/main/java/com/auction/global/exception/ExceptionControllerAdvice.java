@@ -57,6 +57,22 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(apiResponse, HttpStatus.CONFLICT);
 	}
 	
+	@ExceptionHandler(DataMisMatchException.class)
+	public ResponseEntity<Object> dataMisMatchExceptionHandler(Exception ex, WebRequest request) {
+		ApiResponse apiResponse = new ApiResponse(HttpStatus.NOT_ACCEPTABLE.value(), ex.getMessage(), ex,
+				request.getDescription(false).replace("uri=", ""));
+		printLog(request.getDescription(false).replace("uri=", ""), ex);
+		return new ResponseEntity<>(apiResponse, HttpStatus.NOT_ACCEPTABLE);
+	}
+	
+	@ExceptionHandler(FileStorageException.class)
+	public ResponseEntity<Object> fileStorageExceptionHandler(Exception ex, WebRequest request) {
+		ApiResponse apiResponse = new ApiResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex,
+				request.getDescription(false).replace("uri=", ""));
+		printLog(request.getDescription(false).replace("uri=", ""), ex);
+		return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+	}
+	
 	@ExceptionHandler(JwtExecption.class)
 	public ResponseEntity<Object> jwtTokenExpired(Exception ex, WebRequest request) {
 		ApiResponse apiResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), ex,

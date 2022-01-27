@@ -44,6 +44,13 @@ public class OrganizationItemController {
 				  this.messageResolver.getMessage("organization.item.fetchs") , this.organizationItemService.findAllByItemLabelMasterId(itemLabelMasterId), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/organization/items/label/{id}/item/{parentItemId}")
+	public ResponseEntity<ApiResponse> organizationItemsByItemLabelAndItemId(@PathVariable("id") Integer itemLabelMasterId,
+			@PathVariable("parentItemId") Long parentItemId){
+		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
+				  this.messageResolver.getMessage("organization.item.fetchs") , this.organizationItemService.findAllByItemLabelMasterAndItemId(itemLabelMasterId, parentItemId), null), HttpStatus.OK);
+	}
+	
 	@GetMapping("/organization/item/{id}")
 	public ResponseEntity<ApiResponse> organizationItemById(@PathVariable Long id){
 		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 

@@ -21,5 +21,8 @@ public interface IAuctionItemLabelTemplateMappingDao extends JpaRepository<Aucti
 			ItemLabelMaster itemLabelMaster);
 	
 	List<AuctionItemLabelTemplateMapping> findAllByAuctionItemTemplate(AuctionItemTemplate auctionItemTemplate, Sort orderBy);
+	
+//	@Query("select lt.itemLabelMaster from AuctionItemLabelTemplateMapping lt where lt.auctionItemTemplate.id = ?1 order by labelOrder asc")
+//	List<ItemLabelMaster> findAllByTemplate(Integer templateId);
 
 }

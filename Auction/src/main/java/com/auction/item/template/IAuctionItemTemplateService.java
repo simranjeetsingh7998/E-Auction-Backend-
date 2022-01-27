@@ -15,5 +15,7 @@ public interface IAuctionItemTemplateService {
 	void deActivateById(Integer id);
 	
 	boolean existsByIdAndOrganizationAndIsActiveTrue(Integer id, Organization organization);
+	
+
 
 }

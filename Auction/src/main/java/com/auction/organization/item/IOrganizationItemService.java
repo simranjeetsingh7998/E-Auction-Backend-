@@ -11,5 +11,7 @@ public interface IOrganizationItemService {
 	void deActivate(Long id);
 	
 	List<OrganizationItemVO> findAllByItemLabelMasterId(Integer itemLabelMasterId);
+	
+	List<OrganizationItemVO> findAllByItemLabelMasterAndItemId(Integer itemLabelMasterId, Long itemId);
 
 }

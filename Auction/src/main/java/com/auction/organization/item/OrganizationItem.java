@@ -37,6 +37,7 @@ public class OrganizationItem implements Serializable {
 	private Long id;
 	@Column(length = 50)
 	private String itemValue;
+    private Long itemId;
 	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private ItemLabelMaster itemLabelMaster;
 	
@@ -50,6 +51,7 @@ public class OrganizationItem implements Serializable {
    	 organizationItemVO.setActive(isActive);
    	 organizationItemVO.setItemValue(itemValue);
    	 organizationItemVO.setId(id);
+   	 organizationItemVO.setItemId(itemId);
    	return organizationItemVO; 
    }
 

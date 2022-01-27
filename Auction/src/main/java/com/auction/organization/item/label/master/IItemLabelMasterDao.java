@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.auction.organization.Organization;
+
 @Repository
 public interface IItemLabelMasterDao extends JpaRepository<ItemLabelMaster, Integer> {
 	
@@ -15,5 +17,7 @@ public interface IItemLabelMasterDao extends JpaRepository<ItemLabelMaster, Inte
 	Optional<ItemLabelMaster> findByItemLabelAndOrganizationIdAndIsActiveTrue(String itemLabel, Integer organizationId);
 	
 	List<ItemLabelMaster> findAllByOrganizationIdAndIsActiveTrue(Integer organizationId, Sort orderBy);
+	
+	boolean existsByIdAndOrganization(Integer id, Organization organization);
 
 }
