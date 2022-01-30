@@ -42,8 +42,10 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		        auctionPreparation.setAuctionType(auctionPreparationVO.getAuctionType().auctionTypeVOToAuctionType());
 		if(!Objects.isNull(auctionPreparationVO.getAuctionMethod()))
 		        auctionPreparation.setAuctionMethod(auctionPreparationVO.getAuctionMethod().auctionMethodVOToAuctionMethod());
-		if(!Objects.isNull(auctionPreparationVO.getAuctionCategory()))
-		        auctionPreparation.setAuctionCategory(auctionPreparationVO.getAuctionCategory().auctionCategoryVOToAuctionCategory());
+//		if(!Objects.isNull(auctionPreparationVO.getAuctionCategory()))
+//		        auctionPreparation.setAuctionCategory(auctionPreparationVO.getAuctionCategory().auctionCategoryVOToAuctionCategory());
+		if(!Objects.isNull(auctionPreparationVO.getPropertyTypeVO()))
+	        auctionPreparation.setPropertyType(auctionPreparationVO.getPropertyTypeVO().propertyTypeVOToPropertyType());
 		if(!Objects.isNull(auctionPreparationVO.getAuctionProcess()))
 		         auctionPreparation.setAuctionProcess(auctionPreparationVO.getAuctionProcess().auctionProcessVOToAuctionProcess());
 		if(!Objects.isNull(auctionPreparationVO.getBidSubmissionPlacement()))
@@ -54,7 +56,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		        auctionPreparation.setEmdFeePaymentMode(auctionPreparationVO.getEmdFeePaymentMode().emdFeePaymentModeVOToEMDFeePaymentMode());
 		if(!Objects.isNull(auctionPreparationVO.getEventProcessingFeeMode()))
 		        auctionPreparation.setEventProcessingFeeMode(auctionPreparationVO.getEventProcessingFeeMode().eventProcessingFeeModeVOToEventProcessingFeeMode());
-        auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
+        if(!Objects.isNull(auctionPreparationVO.getAuctionItemTemplateVO()))
+        	    auctionPreparation.setAuctionItemTemplate(auctionPreparationVO.getAuctionItemTemplateVO().auctionItemTemplateVOToAuctionItemTemplate());
+		auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
         Instant createdAt = auctionPreparation.getCreatedDate();
         if(auctionPreparation.getAuctionName() == null && createdAt !=null) {
         Organization organization =	LoggedInUser.getLoggedInUserDetails().getOrganization();	

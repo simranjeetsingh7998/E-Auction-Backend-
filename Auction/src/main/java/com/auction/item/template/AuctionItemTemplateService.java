@@ -1,6 +1,7 @@
 package com.auction.item.template;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.organization.Organization;
+import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.util.LoggedInUser;
 
 @Service
@@ -16,14 +18,21 @@ public class AuctionItemTemplateService implements IAuctionItemTemplateService {
 	@Autowired
 	private IAuctionItemTemplateDao auctionItemTemplateDao;
 	
+	@Autowired IAuctionPreparationDao auctionPreparationDao;
+	
 	@Override
 	public void save(AuctionItemTemplateVO auctionItemTemplateVO) {
+
 		Organization organization =  LoggedInUser.getLoggedInUserDetails().getOrganization();
 		String templateName = auctionItemTemplateVO.getTName();
 		if(this.existByTemplateNameAndOrganizationId(templateName, organization.getId())) {
 			throw new ResourceAlreadyExist(templateName+" already exists for "+organization.getOrgName()+". Please try with different name");
 		}
 		AuctionItemTemplate auctionItemTemplate = auctionItemTemplateVO.auctionItemTemplateVOToAuctionItemTemplate();
+		Integer id = auctionItemTemplateVO.getId();
+		if((!Objects.isNull(id) && id > 0) && this.auctionPreparationDao.countByAuctionItemTemplate(auctionItemTemplate)>0) {
+		     throw new ResourceAlreadyExist("Template can't be modified because Auction preparation is created with this template");
+		}
 		auctionItemTemplate.setOrganization(organization);
 		this.auctionItemTemplateDao.save(auctionItemTemplate);
 	}

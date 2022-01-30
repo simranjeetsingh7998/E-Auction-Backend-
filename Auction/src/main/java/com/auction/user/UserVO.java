@@ -1,20 +1,23 @@
 package com.auction.user;
 
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import com.auction.address.AddressVO;
 import com.auction.bidder.BidderTypeVO;
 import com.auction.organization.OrganizationVO;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-@Schema
 @Data
 public class UserVO {
 
@@ -56,14 +59,14 @@ public class UserVO {
 	
 	@Schema(defaultValue = "3754547374", description = "enter mobile number of user")
 	@JsonProperty("mobile_number")
-//	@NotBlank(message = "{mobile_number}")
-//	@Size(min = 10, max = 10, message = "{mobile_number_size}")
+	@NotBlank(message = "{mobile_number}")
+	@Size(min = 10, max = 10, message = "{mobile_number_size}")
 	private String mobileNumber;
 	
 	@Schema(defaultValue = "796355645643", description = "enter aadhar number of user")
 	@JsonProperty("aadhar_number")
-//	@NotBlank(message = "{aadhar_number}")
-//	@Size(min = 16, max = 16, message = "{aadhar_number_size}")
+	@NotBlank(message = "{aadhar_number}")
+	@Size(min = 16, max = 16, message = "{aadhar_number_size}")
 	private String aadharNumber;
 	
 	@Schema(defaultValue = "aadhar file ", description = "upload aadhar image of user")
@@ -74,17 +77,18 @@ public class UserVO {
 	private String nationality;
 
 	@Schema(defaultValue = "md@gmail.com", description = "enter email of user")
-//	@NotBlank(message = "{email}")
-//	@Email(message = "{email_pattern}")
+	@NotBlank(message = "{email}")
+	@Email(message = "{email_pattern}")
 	private String email;
 
 	@Schema(defaultValue = "manojd", description = "enter password of user", minLength = 6)
-//	@NotBlank(message = "{password}")
-//	@Size(min = 6, message = "{password_size}")
+	@NotBlank(message = "{password}")
+	@Size(min = 6, message = "{password_size}")
 	private String password;
 	
+	@JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
 	@Schema(defaultValue = "1992-02-20", description = "enter date of birth of user")
-	@JsonProperty("birth_day")
+	@JsonProperty(value ="birth_day",required = false)
  //   @NotBlank(message = "{birth_day}")
 //	@Past(message = "{past_date}")
 	private Date birthDay;
@@ -98,7 +102,7 @@ public class UserVO {
 	@JsonProperty("comapany_name")
 	private String companyFirmName;
 	@NotBlank(message = "{pan_card_number}")
-//	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
+	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
 	@JsonProperty("pan_number")
 	private String panCardNumber;
 	@JsonProperty("pan_file")
@@ -142,7 +146,7 @@ public class UserVO {
 		user.setAadharNumber(aadharNumber);
 		user.setAcknowledge(acknowledge);
 		user.setActive(isActive);
-		user.setBirthDay(birthDay);
+        user.setBirthDay(birthDay);
 		user.setFatherHusbandFirstName(fatherHusbandFirstName);
 		user.setFatherHusbandLastName(fatherHusbandLastName);
 		user.setFirstName(firstName);

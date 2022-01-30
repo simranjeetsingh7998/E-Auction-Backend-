@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						"/user/send/email/otp/**","/user/verify/email/otp",
 						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
 						"/upload/document/user/**",
-						"/bidder/**").permitAll().and()
+						"/bidder/**","/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacementVO;
-import com.auction.category.AuctionCategoryVO;
 import com.auction.emd.applied.EMDAppliedForVO;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentModeVO;
 import com.auction.event.processing.fee.mode.EventProcessingFeeModeVO;
 import com.auction.item.template.AuctionItemTemplateVO;
 import com.auction.method.AuctionMethodVO;
 import com.auction.process.AuctionProcessVO;
+import com.auction.property.type.PropertyTypeVO;
 import com.auction.type.AuctionTypeVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,8 +37,11 @@ public class AuctionPreparationVO {
 	
 	private String description;
 	
-	@JsonProperty("auction_category")
-	private AuctionCategoryVO auctionCategory;
+//	@JsonProperty("auction_category")
+//	private AuctionCategoryVO auctionCategory;
+	
+	@JsonProperty("property_type")
+	private PropertyTypeVO propertyTypeVO;
 	
 	@JsonProperty("auction_process")
 	private AuctionProcessVO auctionProcess;

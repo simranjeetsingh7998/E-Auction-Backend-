@@ -22,7 +22,6 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.auction.JpaAuditConfig;
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
-import com.auction.category.AuctionCategory;
 import com.auction.emd.applied.EMDAppliedFor;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
 import com.auction.event.processing.fee.mode.EventProcessingFeeMode;
@@ -30,6 +29,7 @@ import com.auction.item.template.AuctionItemTemplate;
 import com.auction.jpa.audit.AuditMetadata;
 import com.auction.method.AuctionMethod;
 import com.auction.process.AuctionProcess;
+import com.auction.property.type.PropertyType;
 import com.auction.type.AuctionType;
 
 import lombok.Data;
@@ -80,8 +80,11 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private AuctionMethod auctionMethod;
 	
+//	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+//	private AuctionCategory auctionCategory;
+	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-	private AuctionCategory auctionCategory;
+	private PropertyType propertyType;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private AuctionProcess auctionProcess;

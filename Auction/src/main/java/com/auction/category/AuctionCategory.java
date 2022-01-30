@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.auction.preparation.AuctionPreparation;
+import com.auction.property.type.PropertyType;
 
 import lombok.Data;
 
@@ -38,7 +38,7 @@ public class AuctionCategory implements Serializable {
 	private boolean isActive;
 	
 	@OneToMany(mappedBy = "auctionCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<AuctionPreparation> auctionPreparations = new HashSet<>();
+	private Set<PropertyType> propertyTypes = new HashSet<>();
 	
 	public AuctionCategoryVO auctionCategoryToAuctionCategoryVO() {
 		AuctionCategoryVO auctionCategoryVO = new AuctionCategoryVO();

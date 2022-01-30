@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import com.auction.item.template.AuctionItemTemplate;
 
 @Repository
 public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation, Long>, JpaSpecificationExecutor<AuctionPreparation> {
@@ -14,5 +15,7 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 			+ " where auctionpre0_.created_date between ?1 and ?2 and u.organization_id = ?3",
 			nativeQuery = true)
 	long countByCreatedDateBetween(Instant from, Instant to, Integer organizationId);
+	
+	long countByAuctionItemTemplate(AuctionItemTemplate auctionItemTemplate);
 
 }
