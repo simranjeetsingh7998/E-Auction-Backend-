@@ -1,7 +1,7 @@
 package com.auction.preparation;
 
 public enum AuctionStatus {
-    DRAFT("Draft"),PUBLISH("Publish");
+    DRAFT("Draft"),RETURN("Return"),APPROVE("Approve"),PUBLISH("Publish");
 
 	private String status;
 	private AuctionStatus(String status) {
@@ -12,3 +12,4 @@ public enum AuctionStatus {
 		return status;
 	}
 }
+

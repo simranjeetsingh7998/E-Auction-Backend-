@@ -3,6 +3,8 @@ package com.auction.preparation;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import javax.persistence.criteria.JoinType;
+
 import org.springframework.data.jpa.domain.Specification;
 
 public class AuctionPreparationSpecification {
@@ -41,6 +43,24 @@ public class AuctionPreparationSpecification {
 		    		  specification = descriptionLike(description);
 		      }
 		   return specification;
+	 }
+	 
+	 
+	 public static Specification<AuctionPreparation> fullDetailsById(Long id) {
+		 return (root,query,builder) -> {
+			 root.fetch("auctionType",JoinType.LEFT);
+			 root.fetch("auctionMethod",JoinType.LEFT);
+			 root.fetch("propertyType",JoinType.LEFT)
+			 .fetch("auctionPreparations", JoinType.LEFT);
+			 root.fetch("auctionProcess",JoinType.LEFT);
+			 root.fetch("bidSubmissionPlacement",JoinType.LEFT);
+			 root.fetch("eventProcessingFeeMode",JoinType.LEFT);
+			 root.fetch("emdFeePaymentMode",JoinType.LEFT);
+			 root.fetch("emdAppliedFor",JoinType.LEFT);
+			 root.fetch("auctionItemTemplate",JoinType.LEFT);
+			 root.fetch("auctionItems",JoinType.LEFT);
+			return builder.equal(root.get("id"), id);
+		 };
 	 }
 
 }

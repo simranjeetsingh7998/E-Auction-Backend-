@@ -107,6 +107,9 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<AuctionItem> auctionItems = new HashSet<>();
 	
+	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ReturnReason> returnReasons = new HashSet<>();
+	
 	private AuctionStatus auctionStatus;
 	
 	@ColumnDefault("true")
@@ -115,6 +118,11 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	public void addAuctionItem(AuctionItem auctionItem) {
 		this.auctionItems.add(auctionItem);
 		auctionItem.setAuctionPreparation(this);
+	}
+	
+	public void addReturnReason(ReturnReason returnReason) {
+		this.returnReasons.add(returnReason);
+		returnReason.setAuctionPreparation(this);
 	}
 	
 	public AuctionPreparationVO auctionPreparationToAuctionPreparationVO() {

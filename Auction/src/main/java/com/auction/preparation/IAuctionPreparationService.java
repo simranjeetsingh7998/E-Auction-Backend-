@@ -10,6 +10,12 @@ public interface IAuctionPreparationService {
 	
 	List<AuctionPreparationVO> searchAuctionPreparation(AuctionPreparationSearchParam auctionPreparationSearchParam);
 	
-	List<AuctionPreparationVO> findAllDetailsById(Long id);
+	AuctionPreparationVO findAllDetailsById(Long id);
+	
+	void publish(Long id);
+
+	void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO);
+	
+	List<ReturnReasonVO> returnReasonsByAuctionId(Long auctionId);
 
 }

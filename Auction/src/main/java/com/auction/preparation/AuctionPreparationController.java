@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +41,26 @@ public class AuctionPreparationController {
 	public ResponseEntity<ApiResponse> auctionPreparationById(@PathVariable Long id){
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction fetched successfully",
 				this.auctionPreparationService.findAllDetailsById(id), null), HttpStatus.OK);
+	}
+	
+	@PutMapping("/auction/preparation/{id}/publish")
+	public ResponseEntity<ApiResponse> publishAuctionById(@PathVariable Long id){
+		this.auctionPreparationService.publish(id);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction published successfully",
+				null, null), HttpStatus.OK);
+	}
+	
+	@PutMapping("/auction/preparation/{id}/return")
+	public ResponseEntity<ApiResponse> returnAuctionById(@PathVariable Long id, @RequestBody ReturnReasonVO returnReasonVO){
+		this.auctionPreparationService.returnAuction(id, returnReasonVO);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction returned successfully",
+				null, null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/preparation/{id}/return/reasons")
+	public ResponseEntity<ApiResponse> returnReasonsByAuctionId(@PathVariable Long id){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction return reasons fetched successfully",
+				this.auctionPreparationService.returnReasonsByAuctionId(id), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/auction/preparation/filter")
