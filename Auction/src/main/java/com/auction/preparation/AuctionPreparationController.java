@@ -1,9 +1,11 @@
 package com.auction.preparation;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.api.response.ApiResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,6 +32,22 @@ public class AuctionPreparationController {
 	public ResponseEntity<ApiResponse> create(@RequestBody AuctionPreparationVO auctionPreparationVO){
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.CREATED.value(), "Auction prepared successfully",
 				this.auctionPreparationService.save(auctionPreparationVO), null), HttpStatus.OK);
+	}
+	
+	@PostMapping(path="/auction/preparation/{id}/add/item", consumes = {
+			MediaType.MULTIPART_FORM_DATA_VALUE})
+	public ResponseEntity<ApiResponse> addItemInAuction(@PathVariable("id") Long id,
+			@RequestPart("auctionItem") String auctionItem, 
+			@RequestPart("file") MultipartFile multipartFile) throws IOException{
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Item added in auction successfully",
+				this.auctionPreparationService.addAuctionItem(id, auctionItem, multipartFile), null), HttpStatus.OK);
+	}
+	
+	@PostMapping(path = "/upload/document/auction/preparation/{id}/{documentType}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ApiResponse> addUserDocument(@PathVariable("id") Long auctionPreparationId, @PathVariable String documentType, 
+			@RequestPart("document") MultipartFile multipartFile) throws IOException{
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" uploaded successfully",
+					this.auctionPreparationService.uploadDocument(auctionPreparationId, documentType, multipartFile), null), HttpStatus.OK);
 	}
 	
 	@PostMapping("/auction/preparation/template/mapping")

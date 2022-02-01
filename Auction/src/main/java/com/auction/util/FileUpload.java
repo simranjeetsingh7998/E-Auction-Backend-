@@ -14,6 +14,7 @@ public class FileUpload {
 	
 	public static final  String USERDIRECTORY="user"+File.separator+"documents";
 	public static final String AUCTIONDIRECTORY = "auction"+File.separator+"document";
+
 	
 	public void uploadMultipartDocument(String filePath, String name, MultipartFile multipartFile) throws IOException { 
 		 Path path = Path.of(filePath+File.separator+name);

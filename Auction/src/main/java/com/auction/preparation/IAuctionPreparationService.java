@@ -1,6 +1,10 @@
 package com.auction.preparation;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IAuctionPreparationService {
 	
@@ -17,5 +21,9 @@ public interface IAuctionPreparationService {
 	void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO);
 	
 	List<ReturnReasonVO> returnReasonsByAuctionId(Long auctionId);
+	
+	AuctionItemVO addAuctionItem(Long auctionPreparationId, String auctionItem, MultipartFile multipartFile) throws IOException;
+	
+	Map<String, String> uploadDocument(Long auctionPreparationId, String documentType, MultipartFile multipartFile) throws IOException;
 
 }

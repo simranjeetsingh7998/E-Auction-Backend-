@@ -1,17 +1,23 @@
 package com.auction.preparation;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
@@ -20,7 +26,9 @@ import com.auction.item.template.IAuctionItemTemplateDao;
 import com.auction.organization.Organization;
 import com.auction.property.type.PropertyType;
 import com.auction.property.type.PropertyTypeVO;
+import com.auction.util.FileUpload;
 import com.auction.util.LoggedInUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class AuctionPreparationService implements IAuctionPreparationService {
@@ -28,11 +36,17 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Autowired
 	private IAuctionPreparationDao auctionPreparationDao;
 	
+	@Autowired 
+	private IAuctionItemDao auctionItemDao;
+	
 	@Autowired
 	private IAuctionItemTemplateDao auctionItemTemplateDao;
 	
 	@Autowired 
 	private IReturnReasonDao returnReasonDao;
+	
+	@Autowired
+	private FileUpload fileUpload;
 	
 	@Transactional
 	@Override
@@ -64,7 +78,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		        auctionPreparation.setEventProcessingFeeMode(auctionPreparationVO.getEventProcessingFeeMode().eventProcessingFeeModeVOToEventProcessingFeeMode());
         if(!Objects.isNull(auctionPreparationVO.getAuctionItemTemplateVO()))
         	    auctionPreparation.setAuctionItemTemplate(auctionPreparationVO.getAuctionItemTemplateVO().auctionItemTemplateVOToAuctionItemTemplate());
-		auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
+		
+        auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
         Instant createdAt = auctionPreparation.getCreatedDate();
         if(auctionPreparation.getAuctionName() == null && createdAt !=null) {
         Organization organization =	LoggedInUser.getLoggedInUserDetails().getOrganization();	
@@ -87,6 +102,54 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	private String generateAuctionName(String organizationName,Long count, int month) {
 		return organizationName+"/"+new DateFormatSymbols().getShortMonths()[month-1]+"/"+count;
+	}
+	
+	
+	@Override
+	public AuctionItemVO addAuctionItem(Long auctionPreparationId, String auctionItemString ,
+			MultipartFile multipartFile) throws IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		AuctionItemVO auctionItemVO = objectMapper.readValue(auctionItemString, AuctionItemVO.class);
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		StringBuilder directory = new StringBuilder();
+		directory.append( FileUpload.AUCTIONDIRECTORY);
+		directory.append(File.separator);
+		directory.append(auctionPreparationId);
+		directory.append(File.separator);
+		directory.append("items");
+		StringBuilder fileName = new StringBuilder(UUID.randomUUID().toString());
+		String fileOriginalName = multipartFile.getOriginalFilename();
+		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
+		this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+		auctionItemVO.setItemDocument(directory.append(File.separator).toString()+fileName.toString());
+		AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
+		auctionItem.setAuctionPreparation(auctionPreparation);
+		return this.auctionItemDao.save(auctionItem).auctionItemToAuctionItemVO();
+	}
+	
+	@Override
+	public Map<String, String> uploadDocument(Long auctionPreparationId, String documentType,
+			MultipartFile multipartFile) throws IOException {
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		StringBuilder directory = new StringBuilder();
+		directory.append(FileUpload.AUCTIONDIRECTORY);
+		directory.append(File.separator);
+		directory.append(auctionPreparationId);
+		StringBuilder fileName = new StringBuilder(documentType);
+		String fileOriginalName = multipartFile.getOriginalFilename();
+		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
+		Map<String, String> responseMap = new HashMap<>();
+		if(AuctionDocumentType.NOTICE.name().equalsIgnoreCase(documentType)) {
+			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+			 auctionPreparation.setNoticeDocument(directory.append(File.separator).toString()+fileName.toString());
+			 responseMap.put("path", auctionPreparation.getNoticeDocument());
+		} else if(AuctionDocumentType.AUCTION.name().equalsIgnoreCase(documentType)) {
+			 this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
+			 auctionPreparation.setAuctionDocument(directory.append(File.separator).toString()+fileName.toString());
+			 responseMap.put("path", auctionPreparation.getAuctionDocument());
+		}
+		this.auctionPreparationDao.save(auctionPreparation);
+		return responseMap;
 	}
 	
 	@Override
