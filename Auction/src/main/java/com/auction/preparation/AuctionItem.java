@@ -3,6 +3,7 @@ package com.auction.preparation;
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,7 @@ import javax.persistence.Table;
 import com.auction.organization.item.OrganizationItem;
 
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "auctionItems")
@@ -30,6 +32,9 @@ public class AuctionItem implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column(length = 20)
+	private String emdLimit;
+	
 	private Double reservedPrice;
 	
 	private Double earnestMoney;
@@ -40,10 +45,12 @@ public class AuctionItem implements Serializable {
 	
 	private String itemDocument;
 	
-	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@Exclude
+	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "organization_item_id")
 	private OrganizationItem organizationItem;
 	
+	@Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	private AuctionPreparation auctionPreparation;
 	
@@ -55,6 +62,7 @@ public class AuctionItem implements Serializable {
 		auctionItemVO.setModifierValue(modifierValue);
 		auctionItemVO.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItemVO.setReservedPrice(reservedPrice);
+		auctionItemVO.setEmdLimit(emdLimit);
 	  return auctionItemVO;
 	}
 

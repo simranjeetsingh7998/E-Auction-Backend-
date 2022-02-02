@@ -104,7 +104,7 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private AuctionItemTemplate auctionItemTemplate;
 	
-	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "auctionPreparation", cascade = {CascadeType.ALL}, orphanRemoval = false)
 	private Set<AuctionItem> auctionItems = new HashSet<>();
 	
 	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -15,6 +15,8 @@ public interface IAuctionItemLabelTemplateMappingService {
 	
 	void deleteById(Integer id);
 	
+	void deleteByTemplateIdAndLabelId(Integer templateId, Integer labelId);
+	
 	List<ItemLabelMasterVO> findAllByAuctionItemTemplate(Integer auctionItemTemplateId);
 	
 }

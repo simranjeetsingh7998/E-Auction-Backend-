@@ -24,6 +24,8 @@ public interface IAuctionPreparationService {
 	
 	AuctionItemVO addAuctionItem(Long auctionPreparationId, String auctionItem, MultipartFile multipartFile) throws IOException;
 	
+	void deleteAuctionItem(Long auctionPreparationId, Long auctionItemId);
+	
 	Map<String, String> uploadDocument(Long auctionPreparationId, String documentType, MultipartFile multipartFile) throws IOException;
 
 }

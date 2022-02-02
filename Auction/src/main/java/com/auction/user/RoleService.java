@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.util.LoggedInUser;
 
 @Service
@@ -21,20 +22,22 @@ public class RoleService implements IRoleService {
 	@Override
 	public void save(RoleVO roleVO) {
 		Role role = roleVO.roleVOToRole();
-		if(role.getId() ==0)
-			 role.setOrganization(LoggedInUser.getLoggedInUserDetails().getOrganization());
+		role.setOrganization(LoggedInUser.getLoggedInUserDetails().getOrganization());
 		this.roleDao.save(role);
 	}
 	
 	@Override
 	public void deleteRole(Integer id) {
-		this.roleDao.deleteById(id);
+		Role role = this.roleDao.findByIdAndOrganization(id, LoggedInUser.getLoggedInUserDetails().getOrganization())
+		.orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+		role.setEnabled(false);
+		this.roleDao.save(role);
 	}
 	
 	@Override
 	public List<RoleVO> findAllByOrganization() {
 		return this.roleDao.findAllByOrganizationOrOrganizationIsNull(LoggedInUser.getLoggedInUserDetails().getOrganization())
-				.stream().map(Role::roleToRoleVO).toList();
+				.stream().filter(Role::isEnabled).map(Role::roleToRoleVO).toList();
 	}
 
 }

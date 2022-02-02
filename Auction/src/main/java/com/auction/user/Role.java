@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -45,7 +46,7 @@ public class Role implements Serializable {
 	@OneToMany(mappedBy = "role", cascade = CascadeType.MERGE, orphanRemoval = true)
 	private Set<User> users = new HashSet<>();
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Organization organization;
 
 	public RoleVO roleToRoleVO() {

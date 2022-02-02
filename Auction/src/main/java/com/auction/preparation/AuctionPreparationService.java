@@ -106,11 +106,13 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	
 	@Override
-	public AuctionItemVO addAuctionItem(Long auctionPreparationId, String auctionItemString ,
+	public AuctionItemVO addAuctionItem(Long auctionPreparationId, String auctionItemString,
 			MultipartFile multipartFile) throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		AuctionItemVO auctionItemVO = objectMapper.readValue(auctionItemString, AuctionItemVO.class);
-		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() 
+				-> new ResourceNotFoundException("Auction not found"));
+	 if(!Objects.isNull(multipartFile)) {
 		StringBuilder directory = new StringBuilder();
 		directory.append( FileUpload.AUCTIONDIRECTORY);
 		directory.append(File.separator);
@@ -122,9 +124,21 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
 		this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
 		auctionItemVO.setItemDocument(directory.append(File.separator).toString()+fileName.toString());
+	   }
 		AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
 		auctionItem.setAuctionPreparation(auctionPreparation);
+	   if(!Objects.isNull(auctionItemVO.getOrganizationItem())) {
+		auctionItem.setOrganizationItem(auctionItemVO.getOrganizationItem().organizationItemVOToOrganizationItem());
+	   }
 		return this.auctionItemDao.save(auctionItem).auctionItemToAuctionItemVO();
+	}
+	
+	@Transactional
+	@Override
+	public void deleteAuctionItem(Long auctionPreparationId, Long auctionItemId) {
+		AuctionPreparation auctionPreparation = new AuctionPreparation();
+		auctionPreparation.setId(auctionPreparationId);
+		this.auctionItemDao.deleteByIdAndAuctionPreparation(auctionItemId, auctionPreparation);
 	}
 	
 	@Override

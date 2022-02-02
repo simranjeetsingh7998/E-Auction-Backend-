@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import com.auction.item.template.AuctionItemTemplate;
 import com.auction.item.template.IAuctionItemTemplateDao;
 import com.auction.organization.item.label.master.ItemLabelMaster;
 import com.auction.organization.item.label.master.ItemLabelMasterVO;
+import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.util.LoggedInUser;
 
 @Service
@@ -23,6 +25,9 @@ public class AuctionItemLabelTemplateMappingService implements IAuctionItemLabel
 	
 	@Autowired
 	private IAuctionItemTemplateDao auctionItemTemplateDao;
+	
+	@Autowired
+	private IAuctionPreparationDao auctionPreparationDao;
 	
 	@Override
 	public void save(AuctionItemLabelTemplateMappingVO auctionItemLabelTemplateMappingVO) {
@@ -60,6 +65,18 @@ public class AuctionItemLabelTemplateMappingService implements IAuctionItemLabel
 	@Override
 	public void deleteById(Integer id) {
 		this.auctionItemLabelTemplateMappingDao.deleteById(id);
+	}
+	
+	@Transactional
+	@Override
+	public void deleteByTemplateIdAndLabelId(Integer templateId, Integer labelId) {
+		AuctionItemTemplate auctionItemTemplate = new AuctionItemTemplate();
+		auctionItemTemplate.setId(templateId);
+		if(this.auctionPreparationDao.countByAuctionItemTemplate(auctionItemTemplate) > 0)
+			throw new ResourceAlreadyExist("Template Mapping can't be deleted because Auction preparation is created with this template");
+		ItemLabelMaster itemLabelMaster = new ItemLabelMaster();
+		itemLabelMaster.setId(labelId);
+		this.auctionItemLabelTemplateMappingDao.deleteByAuctionItemTemplateAndItemLabelMaster(auctionItemTemplate, itemLabelMaster);
 	}
 	
 	@Override

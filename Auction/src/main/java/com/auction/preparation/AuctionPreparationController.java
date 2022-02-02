@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,9 +39,17 @@ public class AuctionPreparationController {
 			MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<ApiResponse> addItemInAuction(@PathVariable("id") Long id,
 			@RequestPart("auctionItem") String auctionItem, 
-			@RequestPart("file") MultipartFile multipartFile) throws IOException{
+			@RequestPart(name =  "file", required = false) MultipartFile multipartFile) throws IOException{
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Item added in auction successfully",
 				this.auctionPreparationService.addAuctionItem(id, auctionItem, multipartFile), null), HttpStatus.OK);
+	}
+	
+	@DeleteMapping(path="/auction/preparation/{id}/delete/item/{itemId}")
+	public ResponseEntity<ApiResponse> deleteItemFromAuction(@PathVariable("id") Long auctionPreparationId,
+			@PathVariable("itemId") Long auctionItemId){
+		 this.auctionPreparationService.deleteAuctionItem(auctionPreparationId, auctionItemId);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Item deleted from auction successfully",
+				null, null), HttpStatus.OK);
 	}
 	
 	@PostMapping(path = "/upload/document/auction/preparation/{id}/{documentType}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -50,7 +50,7 @@ public class UserDetailImpl implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return this.user.isActive();
+		return this.user.isActive() && this.user.getRole().isEnabled();
 	}
 	
 	public User getUser() {

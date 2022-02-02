@@ -50,5 +50,13 @@ public class AuctionItemLabelTemplateMappingController {
 				this.messageResolver.getMessage("auction.item.label.template.mapping.delete"), null , null), HttpStatus.OK);
 	}
 	
+	@DeleteMapping("/template/{templateId}/label/{labelId}/delete")
+	public ResponseEntity<ApiResponse> deleteMappingByTemplateIdAndLabelId(
+			@PathVariable("templateId") Integer templateId,@PathVariable("labelId") Integer labelId){
+		this.auctionItemLabelTemplateMappingService.deleteByTemplateIdAndLabelId(templateId, labelId);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
+				this.messageResolver.getMessage("auction.item.label.template.mapping.delete"), null , null), HttpStatus.OK);
+	}
+	
 
 }

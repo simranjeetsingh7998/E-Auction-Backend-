@@ -9,6 +9,9 @@ import lombok.Data;
 public class AuctionItemVO {
 	
     private Long id;
+    
+    @JsonProperty("emd_limit")
+    private String emdLimit;
 	
     @JsonProperty("reserved_price")
 	private Double reservedPrice;
@@ -36,6 +39,7 @@ public class AuctionItemVO {
 		auctionItem.setModifierValue(modifierValue);
 		auctionItem.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItem.setReservedPrice(reservedPrice);
+		auctionItem.setEmdLimit(emdLimit);
 	  return auctionItem;
 	}
 
