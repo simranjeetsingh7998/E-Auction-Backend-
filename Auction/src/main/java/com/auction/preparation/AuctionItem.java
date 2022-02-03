@@ -3,7 +3,6 @@ package com.auction.preparation;
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -32,9 +31,6 @@ public class AuctionItem implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(length = 20)
-	private String emdLimit;
-	
 	private Double reservedPrice;
 	
 	private Double earnestMoney;
@@ -62,7 +58,6 @@ public class AuctionItem implements Serializable {
 		auctionItemVO.setModifierValue(modifierValue);
 		auctionItemVO.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItemVO.setReservedPrice(reservedPrice);
-		auctionItemVO.setEmdLimit(emdLimit);
 	  return auctionItemVO;
 	}
 

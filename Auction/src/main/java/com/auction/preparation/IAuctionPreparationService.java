@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.organization.item.OrganizationItemVO;
+
 public interface IAuctionPreparationService {
 	
 	AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO);
@@ -27,5 +29,9 @@ public interface IAuctionPreparationService {
 	void deleteAuctionItem(Long auctionPreparationId, Long auctionItemId);
 	
 	Map<String, String> uploadDocument(Long auctionPreparationId, String documentType, MultipartFile multipartFile) throws IOException;
+	
+	List<AuctionPreparationVO> findAuctionByStatus(String status);
+	
+	Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId);
 
 }

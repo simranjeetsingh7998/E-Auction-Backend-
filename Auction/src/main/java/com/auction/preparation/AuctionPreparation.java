@@ -1,6 +1,7 @@
 package com.auction.preparation;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +9,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,17 +20,16 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.auction.JpaAuditConfig;
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.emd.applied.EMDAppliedFor;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
 import com.auction.event.processing.fee.mode.EventProcessingFeeMode;
 import com.auction.item.template.AuctionItemTemplate;
-import com.auction.jpa.audit.AuditMetadata;
 import com.auction.method.AuctionMethod;
 import com.auction.process.AuctionProcess;
 import com.auction.property.type.PropertyType;
 import com.auction.type.AuctionType;
+import com.auction.user.User;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,9 +37,8 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "auctionPreparation")
 @Data
-@EqualsAndHashCode(of = {"id"}, callSuper = false)
-@EntityListeners(value = JpaAuditConfig.class)
-public class AuctionPreparation extends AuditMetadata implements Serializable {
+@EqualsAndHashCode(of = {"id"})
+public class AuctionPreparation implements Serializable {
 	
 	/**
 	 * 
@@ -56,6 +54,9 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	
 	@Column(columnDefinition = "text")
 	private String description;
+	
+	@Column(length = 20)
+	private String emdLimit;
 	
 	private String unitDivision;
 	
@@ -115,6 +116,12 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 	@ColumnDefault("true")
 	private boolean isActive;
 	
+	private Instant createdDate;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "createdBy")
+	private User createdBy;
+	
 	public void addAuctionItem(AuctionItem auctionItem) {
 		this.auctionItems.add(auctionItem);
 		auctionItem.setAuctionPreparation(this);
@@ -131,6 +138,7 @@ public class AuctionPreparation extends AuditMetadata implements Serializable {
 		   auctionPreparationVO.setAuctionDocument(auctionDocument);
 		   auctionPreparationVO.setAuctionStatus(auctionStatus);
 		   auctionPreparationVO.setDescription(description);
+		   auctionPreparationVO.setEmdLimit(emdLimit);
 		   auctionPreparationVO.setEmdFeeAmount(emdFeeAmount);
 		   auctionPreparationVO.setEventProcessingFeeAmount(eventProcessingFeeAmount);
 		   auctionPreparationVO.setId(id);

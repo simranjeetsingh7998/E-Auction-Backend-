@@ -24,6 +24,9 @@ import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.item.template.AuctionItemTemplate;
 import com.auction.item.template.IAuctionItemTemplateDao;
 import com.auction.organization.Organization;
+import com.auction.organization.item.IOrganizationItemDao;
+import com.auction.organization.item.OrganizationItem;
+import com.auction.organization.item.OrganizationItemVO;
 import com.auction.property.type.PropertyType;
 import com.auction.property.type.PropertyTypeVO;
 import com.auction.util.FileUpload;
@@ -46,6 +49,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	private IReturnReasonDao returnReasonDao;
 	
 	@Autowired
+	private IOrganizationItemDao organizationItemDao;
+	
+	@Autowired
 	private FileUpload fileUpload;
 	
 	@Transactional
@@ -53,11 +59,11 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO) {
 		AuctionPreparation auctionPreparation = auctionPreparationVO.auctionPreparationVOToAuctionPreparation();
 		// adding auction item to auction preparation
-		  for(AuctionItemVO auctionItemVO : auctionPreparationVO.getAuctionItems()) {
-			  AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
-			  auctionItem.setOrganizationItem(auctionItemVO.getOrganizationItem().organizationItemVOToOrganizationItem());
-			  auctionPreparation.addAuctionItem(auctionItem);
-		}
+//		  for(AuctionItemVO auctionItemVO : auctionPreparationVO.getAuctionItems()) {
+//			  AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
+//			  auctionItem.setOrganizationItem(auctionItemVO.getOrganizationItem().organizationItemVOToOrganizationItem());
+//			  auctionPreparation.addAuctionItem(auctionItem);
+//		}
 		if(!Objects.isNull(auctionPreparationVO.getAuctionType()))  
 		        auctionPreparation.setAuctionType(auctionPreparationVO.getAuctionType().auctionTypeVOToAuctionType());
 		if(!Objects.isNull(auctionPreparationVO.getAuctionMethod()))
@@ -133,6 +139,23 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		return this.auctionItemDao.save(auctionItem).auctionItemToAuctionItemVO();
 	}
 	
+	@Override
+	public Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId) {
+		AuctionPreparation auctionPreparation = new AuctionPreparation();
+		auctionPreparation.setId(auctionId);
+		AuctionItem auctionItem = this.auctionItemDao.findByIdAndAuctionPreparation(itemId, auctionPreparation).orElseThrow(() -> new ResourceNotFoundException("Auction item not found"));
+		OrganizationItem organizationItem = auctionItem.getOrganizationItem();
+		Long organizationItemParentItemId = organizationItem.getItemId();
+        Map<Integer, OrganizationItemVO> organizationItemByLabelIdMap = new HashMap<>();
+        organizationItemByLabelIdMap.put(organizationItem.getItemLabelMaster().getId(), organizationItem.organizationItemToOrganizationItemVO());
+		while (!Objects.isNull(organizationItemParentItemId)) {
+			 OrganizationItem item =  this.organizationItemDao.getWithItemLabelMasterById(organizationItemParentItemId);
+			 organizationItemByLabelIdMap.put(item.getItemLabelMaster().getId(), item.organizationItemToOrganizationItemVO());
+			 organizationItemParentItemId = item.getItemId();
+		}
+		return organizationItemByLabelIdMap;
+	}
+	
 	@Transactional
 	@Override
 	public void deleteAuctionItem(Long auctionPreparationId, Long auctionItemId) {
@@ -191,7 +214,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Override
 	public void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO) {
 		 AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		 if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())) {
+		 if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.DRAFT.getStatus())) {
 		 auctionPreparation.setAuctionStatus(AuctionStatus.RETURN);
 		 ReturnReason returnReason = returnReasonVO.returnReasonVOToReturnReason();
 		 returnReason.setReturnBy(LoggedInUser.getLoggedInUserDetails().getUser());
@@ -218,6 +241,12 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		    return this.checkAndAddAssociation(auctionPreparations.get(0));
 		}
 		throw new ResourceNotFoundException("Auction preparation not found");
+	}
+	
+	@Override
+	public List<AuctionPreparationVO> findAuctionByStatus(String status) {
+		return this.auctionPreparationDao.findAllByAuctionStatus(AuctionStatus.valueOf(status))
+		.stream().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {

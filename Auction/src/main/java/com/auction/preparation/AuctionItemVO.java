@@ -1,17 +1,17 @@
 package com.auction.preparation;
 
 import com.auction.organization.item.OrganizationItemVO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
+
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AuctionItemVO {
 	
     private Long id;
-    
-    @JsonProperty("emd_limit")
-    private String emdLimit;
 	
     @JsonProperty("reserved_price")
 	private Double reservedPrice;
@@ -39,7 +39,6 @@ public class AuctionItemVO {
 		auctionItem.setModifierValue(modifierValue);
 		auctionItem.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItem.setReservedPrice(reservedPrice);
-		auctionItem.setEmdLimit(emdLimit);
 	  return auctionItem;
 	}
 

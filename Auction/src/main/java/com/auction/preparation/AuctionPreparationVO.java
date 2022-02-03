@@ -37,6 +37,9 @@ public class AuctionPreparationVO {
 	
 	private String description;
 	
+    @JsonProperty("emd_limit")
+    private String emdLimit;
+	
 //	@JsonProperty("auction_category")
 //	private AuctionCategoryVO auctionCategory;
 	
@@ -108,6 +111,7 @@ public class AuctionPreparationVO {
 		   auctionPreparation.setRegistrationStartDateTime(registrationStartDateTime);
 		   auctionPreparation.setUnitDivision(unitDivision);
 		   auctionPreparation.setAuctionName(auctionName);
+		   auctionPreparation.setEmdLimit(emdLimit);
 		   return auctionPreparation;
 	}
 

@@ -44,6 +44,15 @@ public class AuctionPreparationController {
 				this.auctionPreparationService.addAuctionItem(id, auctionItem, multipartFile), null), HttpStatus.OK);
 	}
 	
+	@GetMapping(path="/auction/preparation/{auctionId}/item/{itemId}/organization/items")
+	public ResponseEntity<ApiResponse> getOrganizationItemsByAuctionItemId(
+			@PathVariable("auctionId") Long auctionId,
+			@PathVariable("itemId") Long itemId){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Item added in auction successfully",
+				this.auctionPreparationService.findOrganizationItemsByAuctionIdAndItemId(auctionId, itemId), null), HttpStatus.OK);
+	}
+
+	
 	@DeleteMapping(path="/auction/preparation/{id}/delete/item/{itemId}")
 	public ResponseEntity<ApiResponse> deleteItemFromAuction(@PathVariable("id") Long auctionPreparationId,
 			@PathVariable("itemId") Long auctionItemId){
@@ -103,6 +112,13 @@ public class AuctionPreparationController {
 		auctionPreparationSearchParam.setRegistrationStartDateTime(registrationStartDateTime);
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auctions fetched successfully",
 				this.auctionPreparationService.searchAuctionPreparation(auctionPreparationSearchParam), null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/preparation")
+	public ResponseEntity<ApiResponse> auctionPreparationByStatus(
+			@RequestParam("status") String status){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auctions fetched successfully",
+				this.auctionPreparationService.findAuctionByStatus(status), null), HttpStatus.OK);
 	}
 
 }
