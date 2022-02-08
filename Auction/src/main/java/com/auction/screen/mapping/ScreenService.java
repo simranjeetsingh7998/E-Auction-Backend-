@@ -30,7 +30,10 @@ public class ScreenService implements IScreenService {
 	
 	@Override
 	public void save(ScreenVO screenVO) {
-		this.screenDao.save(screenVO.screenVOToScreen());
+		Screen screen = screenVO.screenVOToScreen();
+		if(Objects.isNull(screen.getMenuId()))
+				 screen.setMenuId(0);
+		this.screenDao.save(screen);
 	}
 	
 	@Override

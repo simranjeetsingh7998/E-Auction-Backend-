@@ -24,26 +24,26 @@ public class ScreenController {
 	@PostMapping("/screen")
 	public ResponseEntity<ApiResponse> create(@RequestBody ScreenVO screenVO){
 		 this.screenService.save(screenVO);
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("") ,
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("screen.create") ,
 				null, null), HttpStatus.OK); 
 	}
 	
 	@GetMapping("/screen/role/{id}/mapping")
 	public ResponseEntity<ApiResponse> getScreensForMappingByRole(@PathVariable("id") int id){
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("") ,
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("screen.mapped.fetch") ,
 				this.screenService.findAllWithMappedByRole(id), null), HttpStatus.OK); 
 	}
 	
 	@PostMapping("/screen/role/mapping")
 	public ResponseEntity<ApiResponse> screenRoleMapping(@RequestBody ScreenRoleMappingVO screenRoleMapping){
 		 this.screenService.mapScreensToRole(screenRoleMapping);
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("") ,
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("screen.role.mapped") ,
 				null, null), HttpStatus.OK); 
 	}
 	
 	@GetMapping("/user/screens")
 	public ResponseEntity<ApiResponse> getScreensForUser(){
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("") ,
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("screen.users") ,
 				this.screenService.findByRole(), null), HttpStatus.OK); 
 	}
 

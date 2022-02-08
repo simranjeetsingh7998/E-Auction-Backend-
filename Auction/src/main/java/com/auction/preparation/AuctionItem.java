@@ -42,7 +42,7 @@ public class AuctionItem implements Serializable {
 	private String itemDocument;
 	
 	@Exclude
-	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "organization_item_id")
 	private OrganizationItem organizationItem;
 	

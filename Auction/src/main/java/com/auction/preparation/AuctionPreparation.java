@@ -16,11 +16,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
+import com.auction.bidder.enrollment.BidderAuctionEnrollment;
 import com.auction.emd.applied.EMDAppliedFor;
 import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
 import com.auction.event.processing.fee.mode.EventProcessingFeeMode;
@@ -108,8 +110,11 @@ public class AuctionPreparation implements Serializable {
 	@OneToMany(mappedBy = "auctionPreparation", cascade = {CascadeType.ALL}, orphanRemoval = false)
 	private Set<AuctionItem> auctionItems = new HashSet<>();
 	
-	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL)
 	private Set<ReturnReason> returnReasons = new HashSet<>();
+	
+	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL)
+	private Set<BidderAuctionEnrollment> bidderAuctionEnrollments = new HashSet<>();
 	
 	private AuctionStatus auctionStatus;
 	
@@ -130,6 +135,11 @@ public class AuctionPreparation implements Serializable {
 	public void addReturnReason(ReturnReason returnReason) {
 		this.returnReasons.add(returnReason);
 		returnReason.setAuctionPreparation(this);
+	}
+	
+	@PrePersist
+	public void setCreatedAt() {
+		 this.createdDate = Instant.now();
 	}
 	
 	public AuctionPreparationVO auctionPreparationToAuctionPreparationVO() {

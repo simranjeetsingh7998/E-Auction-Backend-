@@ -18,7 +18,9 @@ public interface IAuctionPreparationService {
 	
 	AuctionPreparationVO findAllDetailsById(Long id);
 	
-	void publish(Long id);
+	void publish(Long id, AuctionPreparationVO auctionPreparationVO);
+	
+	void schedule(Long id);
 
 	void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO);
 	

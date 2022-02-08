@@ -54,6 +54,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Autowired
 	private FileUpload fileUpload;
 	
+	private static final String AUCTIONNOTFOUND = "Auction not found";
+	
 	@Transactional
 	@Override
 	public AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO) {
@@ -84,10 +86,11 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		        auctionPreparation.setEventProcessingFeeMode(auctionPreparationVO.getEventProcessingFeeMode().eventProcessingFeeModeVOToEventProcessingFeeMode());
         if(!Objects.isNull(auctionPreparationVO.getAuctionItemTemplateVO()))
         	    auctionPreparation.setAuctionItemTemplate(auctionPreparationVO.getAuctionItemTemplateVO().auctionItemTemplateVOToAuctionItemTemplate());
-		
+
         auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
         Instant createdAt = auctionPreparation.getCreatedDate();
         if(auctionPreparation.getAuctionName() == null && createdAt !=null) {
+        auctionPreparation.setCreatedBy(LoggedInUser.getLoggedInUserDetails().getUser());
         Organization organization =	LoggedInUser.getLoggedInUserDetails().getOrganization();	
         LocalDate localDate = createdAt.atZone(ZoneId.systemDefault()).toLocalDate();
         int month = localDate.getMonthValue();
@@ -117,24 +120,20 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		ObjectMapper objectMapper = new ObjectMapper();
 		AuctionItemVO auctionItemVO = objectMapper.readValue(auctionItemString, AuctionItemVO.class);
 		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() 
-				-> new ResourceNotFoundException("Auction not found"));
+				-> new ResourceNotFoundException(AUCTIONNOTFOUND));
 	 if(!Objects.isNull(multipartFile)) {
-		StringBuilder directory = new StringBuilder();
-		directory.append( FileUpload.AUCTIONDIRECTORY);
-		directory.append(File.separator);
-		directory.append(auctionPreparationId);
-		directory.append(File.separator);
-		directory.append("items");
+		StringBuilder directory = this.fileUpload.getDirectory(FileUpload.AUCTIONDIRECTORY, ""+auctionPreparationId, "items"); 
 		StringBuilder fileName = new StringBuilder(UUID.randomUUID().toString());
 		String fileOriginalName = multipartFile.getOriginalFilename();
 		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
-		this.fileUpload.uploadMultipartDocument(directory.toString(), fileName.toString(), multipartFile);
-		auctionItemVO.setItemDocument(directory.append(File.separator).toString()+fileName.toString());
+		this.fileUpload.uploadMultipartDocument(
+				directory.toString(),fileName.toString(), multipartFile);
+		auctionItemVO.setItemDocument(directory.append(File.separator).append(fileName.toString()).toString());
 	   }
 		AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
 		auctionItem.setAuctionPreparation(auctionPreparation);
 	   if(!Objects.isNull(auctionItemVO.getOrganizationItem())) {
-		auctionItem.setOrganizationItem(auctionItemVO.getOrganizationItem().organizationItemVOToOrganizationItem());
+		   auctionItem.setOrganizationItem(this.organizationItemDao.getById(auctionItemVO.getOrganizationItem().getId()));
 	   }
 		return this.auctionItemDao.save(auctionItem).auctionItemToAuctionItemVO();
 	}
@@ -143,7 +142,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId) {
 		AuctionPreparation auctionPreparation = new AuctionPreparation();
 		auctionPreparation.setId(auctionId);
-		AuctionItem auctionItem = this.auctionItemDao.findByIdAndAuctionPreparation(itemId, auctionPreparation).orElseThrow(() -> new ResourceNotFoundException("Auction item not found"));
+		AuctionItem auctionItem = this.auctionItemDao.findByIdAndAuctionPreparation(itemId, auctionPreparation).orElseThrow(() -> 
+		new ResourceNotFoundException("Auction item not found"));
 		OrganizationItem organizationItem = auctionItem.getOrganizationItem();
 		Long organizationItemParentItemId = organizationItem.getItemId();
         Map<Integer, OrganizationItemVO> organizationItemByLabelIdMap = new HashMap<>();
@@ -167,7 +167,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Override
 	public Map<String, String> uploadDocument(Long auctionPreparationId, String documentType,
 			MultipartFile multipartFile) throws IOException {
-		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(()
+				-> new ResourceNotFoundException(AUCTIONNOTFOUND));
 		StringBuilder directory = new StringBuilder();
 		directory.append(FileUpload.AUCTIONDIRECTORY);
 		directory.append(File.separator);
@@ -191,7 +192,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Override
 	public void mapToTemplate(Long id, Integer templateId) {
-          AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+          AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(id).orElseThrow(() ->
+          new ResourceNotFoundException(AUCTIONNOTFOUND));
 	      AuctionItemTemplate auctionItemTemplate = this.auctionItemTemplateDao.findById(templateId).orElseThrow(() -> new ResourceNotFoundException("Template not found"));
 	      auctionPreparation.setAuctionItemTemplate(auctionItemTemplate);
 	      this.auctionPreparationDao.save(auctionPreparation);
@@ -205,23 +207,43 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
-	public void publish(Long id) {
-	   AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-	   auctionPreparation.setAuctionStatus(AuctionStatus.PUBLISH);
-	   this.auctionPreparationDao.save(auctionPreparation);
+	public void publish(Long id, AuctionPreparationVO auctionPreparationVO) {
+	   AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
+			   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
+	   if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())) {
+		   auctionPreparation.setAuctionStatus(AuctionStatus.PUBLISH);
+		   auctionPreparation.setRegistrationStartDateTime(auctionPreparationVO.getRegistrationStartDateTime());
+		   auctionPreparation.setRegistrationEndDateTime(auctionPreparationVO.getRegistrationEndDateTime());
+		   this.auctionPreparationDao.save(auctionPreparation);
+	   } else {
+		    throw new DataMisMatchException("Auction can't be published");
+	   }
+	}
+	
+	@Override
+	public void schedule(Long id) {
+		AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
+				   () -> new ResourceNotFoundException("Auction not found"));
+		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus())) {
+			
+		} else {
+			throw new DataMisMatchException("Auction can't be scheduled");
+		}
 	}
 
 	@Override
 	public void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO) {
-		 AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(auctionPreparationId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		 if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.DRAFT.getStatus())) {
-		 auctionPreparation.setAuctionStatus(AuctionStatus.RETURN);
+		 AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(auctionPreparationId)
+				 .orElseThrow(() -> new ResourceNotFoundException(AUCTIONNOTFOUND));
+		 if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())) {
+		 auctionPreparation.setAuctionStatus(AuctionStatus.DRAFT);
 		 ReturnReason returnReason = returnReasonVO.returnReasonVOToReturnReason();
 		 returnReason.setReturnBy(LoggedInUser.getLoggedInUserDetails().getUser());
 		 auctionPreparation.addReturnReason(returnReason);
 		 this.auctionPreparationDao.save(auctionPreparation);
-	   } 
-	    throw new DataMisMatchException("Auction can't be returned");
+	   }
+	   else
+	      throw new DataMisMatchException("Auction can't be returned");
 	}
 	
 	@Override
@@ -279,5 +301,4 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		  return auctionPreparationVO;  
 	}
 	
-
 }

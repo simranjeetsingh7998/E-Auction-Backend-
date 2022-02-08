@@ -37,7 +37,7 @@ public class AuctionProcess implements Serializable {
 	private String process;
 	private boolean isActive;
 	
-	@OneToMany(mappedBy = "auctionProcess", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "auctionProcess", cascade = CascadeType.ALL, orphanRemoval = false)
 	private Set<AuctionPreparation> auctionPreparations = new HashSet<>();
 	
 	public AuctionProcessVO auctionProcessToAuctionProcessVO() {

@@ -39,5 +39,15 @@ public class FileUpload {
 		if(!Files.exists(Path.of(directory)))
 		    Files.createDirectories(Path.of(directory));
 	}
+	
+	public StringBuilder getDirectory(String fileLocation, String innerFolder, String fileType) {
+		StringBuilder directory = new StringBuilder();
+		directory.append(fileLocation);
+		directory.append(File.separator);
+		directory.append(innerFolder);
+		directory.append(File.separator);
+		directory.append(fileType);
+	  return directory;	
+	}
 
 }

@@ -66,7 +66,7 @@ public class UserVO {
 	@Schema(defaultValue = "796355645643", description = "enter aadhar number of user")
 	@JsonProperty("aadhar_number")
 	@NotBlank(message = "{aadhar_number}")
-	@Size(min = 16, max = 16, message = "{aadhar_number_size}")
+	@Size(min = 12, max = 12, message = "{aadhar_number_size}")
 	private String aadharNumber;
 	
 	@Schema(defaultValue = "aadhar file ", description = "upload aadhar image of user")

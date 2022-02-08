@@ -41,7 +41,7 @@ public class OrganizationItem implements Serializable {
 	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private ItemLabelMaster itemLabelMaster;
 	
-	@OneToMany(mappedBy = "organizationItem", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "organizationItem", cascade = CascadeType.ALL, orphanRemoval = false)
 	private Set<AuctionItem>  auctionItems = new HashSet<>();
 	
 	private boolean isActive;
