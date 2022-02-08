@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.organization.item.OrganizationItem;
 import com.auction.organization.item.OrganizationItemVO;
 
@@ -39,6 +40,14 @@ public class AuctionItemProprtiesService implements IAuctionItemProprtiesService
 		organizationItem.setId(organizationItemId);
 		return this.auctionItemProprtiesDao.findAllByOrganizationItemAndIsSold(organizationItem, false)
 				.stream().map(AuctionItemProprties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
+	}
+	
+	@Override
+	public void updateStatus(Long id, boolean status) {
+		AuctionItemProprties auctionItemProprties = this.auctionItemProprtiesDao.findById(id).orElseThrow(() 
+				-> new ResourceNotFoundException("Auction item properties not found"));
+		auctionItemProprties.setActive(status);
+		this.auctionItemProprtiesDao.save(auctionItemProprties);
 	}
 
 }

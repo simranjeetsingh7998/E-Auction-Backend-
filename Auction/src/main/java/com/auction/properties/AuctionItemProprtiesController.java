@@ -3,9 +3,11 @@ package com.auction.properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +42,25 @@ public class AuctionItemProprtiesController {
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 				 messageResolver.getMessage("auction.item.properties.unsold.fetch"),
 				 this.auctionItemProprtiesService.findAllUnSoldProperties(organizationItemId), null), HttpStatus.OK);
+	}
+	
+	@PutMapping("/auction/item/properties/update")
+	public ResponseEntity<ApiResponse> modifyAuctionItemProperties(
+			@RequestBody AuctionItemProprtiesVO auctionItemProprtiesVO){
+		 this.auctionItemProprtiesService.save(auctionItemProprtiesVO);
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
+				 messageResolver.getMessage("auction.item.properties.update"), null, null), HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/auction/item/properties/{id}/status/{status}")
+	public ResponseEntity<ApiResponse> deleteAuctionItemProperties(
+			@PathVariable("id") Long auctionItemPropertyId,
+			@PathVariable("status") boolean status){
+		 this.auctionItemProprtiesService.updateStatus(auctionItemPropertyId, status);
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
+				 messageResolver.getMessage(status ? 
+				"auction.item.properties.enabled" : "auction.item.properties.disabled"), 
+				 null, null), HttpStatus.OK);
 	}
 	
 	

@@ -9,5 +9,7 @@ public interface IAuctionItemProprtiesService {
 	List<AuctionItemProprtiesVO> findAllUnSoldProperties(Long organizationItemId);
 	
 	List<AuctionItemProprtiesVO> findAllSoldProperties(Long organizationItemId);
+	
+	void updateStatus(Long id, boolean status);
 
 }
