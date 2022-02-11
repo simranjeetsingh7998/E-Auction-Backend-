@@ -1,6 +1,7 @@
 package com.auction.screen.mapping;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,11 +43,15 @@ public class ScreenService implements IScreenService {
 		List<Screen> assignedScreens = this.screenDao.findAllByScreenRoleMappings_Role(role);
 		Map<Integer, List<Screen>> screenMapByMenuId = assignedScreens.stream().collect(Collectors.groupingBy(Screen::getMenuId));
 		if(screenMapByMenuId.size() <= 1 && (screenMapByMenuId.containsKey(null) || screenMapByMenuId.containsKey(0)))
-			 return assignedScreens.stream().map(Screen::screenToScreenVO).toList();
+			 return assignedScreens.stream().map(Screen::screenToScreenVO).sorted(sortByHeading()).toList();
 		else {
 			return this.userHasSubMenu(screenMapByMenuId);
 		}
 	}
+	
+	private Comparator<ScreenVO> sortByHeading(){
+		   return (ScreenVO o1, ScreenVO o2) -> o1.getHeading().compareTo(o2.getHeading());
+		};
 	
 	private List<ScreenVO> userHasSubMenu(Map<Integer, List<Screen>> screenMapByMenuId) {
 		List<Screen> screens = this.screenDao.findAll();
@@ -66,6 +71,7 @@ public class ScreenService implements IScreenService {
 				  screenVOs.add(screenVO);	  
 			  }
 		});
+		screenVOs.sort(sortByHeading());
 	  return screenVOs;	
 	}
 	
