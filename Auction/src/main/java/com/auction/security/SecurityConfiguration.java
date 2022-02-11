@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						"/user/send/email/otp/**","/user/verify/email/otp",
 						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
 						"/upload/document/user/**",
-						"/bidder/**","/**").permitAll().and()
+						"/bidder/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -82,7 +82,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return super.authenticationManager();
 	}
 
-	private final String[] AUTH_WHITELIST = { "/*.html", "/images/**", "/favicon.ico", "/**.png", "/**/*.html",
+	private final String[] authWishList = { "/*.html", "/images/**", "/favicon.ico", "/**.png", "/**/*.html",
 			"/**/*.jsp", "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/*.jpg", "/*.png", "/**/*.png",
 			"/**/*.jpeg", "/**/*.JPG", "/**/*.pdf", "/**/*.mp4", "/**/*.3gp", "/**/*.wmv", "/**/*.flv", "/**/*.avi",
 			"/**/*.mov", "/swagger-ui/index.html", "/swagger-resources/**", "/swagger-ui.html", "/v2/api-docs",
@@ -90,7 +90,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers(AUTH_WHITELIST);
+		web.ignoring().antMatchers(authWishList);
 	}
 
 }

@@ -1,0 +1,46 @@
+package com.auction.bidding;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+import com.auction.properties.AuctionItemProprties;
+import com.auction.user.User;
+
+import lombok.Data;
+
+@Entity
+@Table(name = "bidding")
+@Data
+public class Bidding implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2849706165274368631L;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	@OneToOne
+	private AuctionItemProprties auctionItemProprties;
+	
+	private double biddingAmount;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User bidder;
+	
+	@Column(columnDefinition = "TIMESTAMP(3)")
+	private LocalDateTime biddingAt;
+
+}

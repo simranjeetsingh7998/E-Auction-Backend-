@@ -10,6 +10,6 @@ import com.auction.preparation.AuctionPreparation;
 @Repository
 public interface IBidderAuctionEnrollmentDao extends JpaRepository<BidderAuctionEnrollment, Long> {
 
-	List<BidderAuctionEnrollment> findAllByAuctionPreparation(AuctionPreparation auctionPreparation);
+	List<BidderAuctionEnrollment> findAllByAuctionPreparation(AuctionPreparation auctionPreparation); 
 	
 }

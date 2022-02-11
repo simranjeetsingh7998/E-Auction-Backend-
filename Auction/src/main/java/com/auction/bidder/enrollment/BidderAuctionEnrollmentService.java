@@ -24,7 +24,7 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 	private IAuctionPreparationDao auctionPreparationDao;
 	
 	@Override
-	public void save(BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO) {
+	public BidderAuctionEnrollmentVO save(BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO) {
 		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(bidderAuctionEnrollmentVO.getAuctionPreparation().getId())
 		 .orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
 		LocalDateTime currentDateTime =  LocalDateTime.now();
@@ -37,7 +37,9 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		BidderAuctionEnrollment bidderAuctionEnrollment = bidderAuctionEnrollmentVO.bidderAuctionEnrollmentVOToBidderAuctionEnrollment();
 		bidderAuctionEnrollment.setAuctionPreparation(auctionPreparation);
 		bidderAuctionEnrollment.setUser(LoggedInUser.getLoggedInUserDetails().getUser());
-	  this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment);	
+	    bidderAuctionEnrollment = this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment);	
+	    bidderAuctionEnrollmentVO.setId(bidderAuctionEnrollment.getId());
+	    return bidderAuctionEnrollmentVO;
 	}
 	
 	@Override

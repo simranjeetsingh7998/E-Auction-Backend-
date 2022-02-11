@@ -2,7 +2,10 @@ package com.auction.bidder.enrollment;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
@@ -47,11 +51,20 @@ public class BidderAuctionEnrollment implements Serializable {
 	
 	private Integer emdLimit;
 	
+	private String refundAccountBeneficiaryName;
+	
+	private String refundAccountNumber;
+	
+	private String refundAccountIfsccode;
+	
 	private LocalDateTime amountPaidAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "participant")
 	private User user;
+	
+	@OneToMany(mappedBy = "bidderAuctionEnrollment", cascade = CascadeType.ALL)
+	private Set<JointHolder> jointHolders = new HashSet<>();
 	
 	@PrePersist
 	public void setAmountPaidAt() {
@@ -65,6 +78,9 @@ public class BidderAuctionEnrollment implements Serializable {
 		  auctionEnrollmentVO.setEmdLimit(emdLimit);
 		  auctionEnrollmentVO.setEventProcessingFeeAmount(eventProcessingFeeAmount);
 		  auctionEnrollmentVO.setId(id);
+		  auctionEnrollmentVO.setRefundAccountBeneficiaryName(refundAccountBeneficiaryName);
+		  auctionEnrollmentVO.setRefundAccountIfsccode(refundAccountIfsccode);
+		  auctionEnrollmentVO.setRefundAccountNumber(refundAccountNumber);
 		return auctionEnrollmentVO;  
 	}
 

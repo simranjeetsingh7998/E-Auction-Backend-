@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface IBidderAuctionEnrollmentService {
 	
-	public void save(BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO);
+	BidderAuctionEnrollmentVO save(BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO);
 	
 	List<BidderAuctionEnrollmentVO> findAllByAuctionPreparation(Long auctionPreparationId);
 

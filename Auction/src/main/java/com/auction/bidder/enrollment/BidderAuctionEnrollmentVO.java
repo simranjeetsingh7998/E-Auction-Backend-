@@ -1,6 +1,8 @@
 package com.auction.bidder.enrollment;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.auction.preparation.AuctionPreparationVO;
 import com.auction.user.UserVO;
@@ -25,12 +27,24 @@ public class BidderAuctionEnrollmentVO {
 	
     @JsonProperty("emd_limit")
 	private Integer emdLimit;
+    
+    @JsonProperty("beneficiary_name")
+	private String refundAccountBeneficiaryName;
+	
+    @JsonProperty("account_number")
+	private String refundAccountNumber;
+	
+    @JsonProperty("ifsc_code")
+	private String refundAccountIfsccode;
 	
     @JsonProperty("amount_paid_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime amountPaidAt;
-	
+    
 	private UserVO participant;
+	
+	@JsonProperty("joint_holders")
+	private List<JointHolderVO> jointHolderVOs = new ArrayList<>();
 	
 	public BidderAuctionEnrollment bidderAuctionEnrollmentVOToBidderAuctionEnrollment() {
 		  BidderAuctionEnrollment auctionEnrollment = new BidderAuctionEnrollment();
@@ -39,6 +53,9 @@ public class BidderAuctionEnrollmentVO {
 		  auctionEnrollment.setEmdLimit(emdLimit);
 		  auctionEnrollment.setEventProcessingFeeAmount(eventProcessingFeeAmount);
 		  auctionEnrollment.setId(id);
+		  auctionEnrollment.setRefundAccountBeneficiaryName(refundAccountBeneficiaryName);
+		  auctionEnrollment.setRefundAccountNumber(refundAccountNumber);
+		  auctionEnrollment.setRefundAccountIfsccode(refundAccountIfsccode);
 		return auctionEnrollment;  
 	}
 
