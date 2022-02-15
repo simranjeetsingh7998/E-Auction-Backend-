@@ -20,7 +20,7 @@ public interface IAuctionPreparationService {
 	
 	void publish(Long id, AuctionPreparationVO auctionPreparationVO);
 	
-	void schedule(Long id);
+	void schedule(Long id, AuctionScheduleVO auctionScheduleVO);
 
 	void returnAuction(Long auctionPreparationId, ReturnReasonVO returnReasonVO);
 	

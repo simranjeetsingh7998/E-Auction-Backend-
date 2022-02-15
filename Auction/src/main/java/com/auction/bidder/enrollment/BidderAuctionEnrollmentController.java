@@ -1,14 +1,19 @@
 package com.auction.bidder.enrollment;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.ApiResponseMessageResolver;
 import com.auction.api.response.ApiResponse;
@@ -25,14 +30,17 @@ public class BidderAuctionEnrollmentController {
 	@Autowired
 	private ApiResponseMessageResolver messageResolver;
 	
-	@PostMapping("/bidder/auction/enrollment")
-	public ResponseEntity<ApiResponse> bidderAuctionEnrollment(@RequestBody BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO){
+	@PostMapping(value = "/auction/bidder/enrollment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ApiResponse> bidderAuctionEnrollment(@RequestPart("bidderAuctionEnrollment") String bidderAuctionEnrollmentVO,
+			@RequestPart("file") MultipartFile document
+			) throws IOException{
+		this.auctionEnrollmentService.save(bidderAuctionEnrollmentVO, document);
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.create"),
-						this.auctionEnrollmentService.save(bidderAuctionEnrollmentVO), null), HttpStatus.OK);
+						null, null), HttpStatus.OK);
 	}
 	
-	@PostMapping("/bidder/auction/enrollment/{id}/joint/holder")
+	@PostMapping("/auction/bidder/enrollment/{id}/joint/holder")
 	public ResponseEntity<ApiResponse> addJointHolder(
 			@PathVariable("id") Long bidderAuctionEnrollmentId,
 			@RequestBody JointHolderVO jointHolderVO){
@@ -42,7 +50,7 @@ public class BidderAuctionEnrollmentController {
 						this.jointHolderService.save(bidderAuctionEnrollmentId, jointHolderVO), null), HttpStatus.OK);
 	}
 	
-	@GetMapping("/bidder/auction/enrollment/{id}/joint/holders")
+	@GetMapping("/auction/bidder/enrollment/{id}/joint/holders")
 	public ResponseEntity<ApiResponse> findJointHolderByBidderAuctionEnrollment(@PathVariable("id") Long bidderAuctionEnrollmentId){
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("joint.holder.fetches"),

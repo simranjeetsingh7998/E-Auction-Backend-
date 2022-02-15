@@ -15,7 +15,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -29,7 +28,6 @@ import io.jsonwebtoken.Jws;
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
-@Transactional
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 	
 	//@Autowired
@@ -67,7 +65,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 //                System.out.println(accessor.getDestination());
 //                System.out.println(accessor.getCommand());
 //                System.out.println(accessor.getUser());
-//                System.out.println(accessor.getDestination()+"        Session id   "+accessor.getSessionId());
+                System.out.println(accessor.getDestination()+"        Session id   "+accessor.getSessionId());
                 if(StompCommand.CONNECT.equals(accessor.getCommand())){
                    if(accessor.getNativeHeader(HttpHeaders.AUTHORIZATION)!=null) {
                 		String token = accessor.getNativeHeader(HttpHeaders.AUTHORIZATION).get(0).substring(7);

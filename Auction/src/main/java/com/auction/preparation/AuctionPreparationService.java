@@ -27,6 +27,8 @@ import com.auction.organization.Organization;
 import com.auction.organization.item.IOrganizationItemDao;
 import com.auction.organization.item.OrganizationItem;
 import com.auction.organization.item.OrganizationItemVO;
+import com.auction.properties.AuctionItemProprtiesVO;
+import com.auction.properties.IAuctionItemProprtiesDao;
 import com.auction.property.type.PropertyType;
 import com.auction.property.type.PropertyTypeVO;
 import com.auction.util.FileUpload;
@@ -50,6 +52,12 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Autowired
 	private IOrganizationItemDao organizationItemDao;
+	
+	@Autowired
+	private IAuctionItemProprtiesDao auctionItemProprtiesDao;
+	
+	@Autowired
+	private IPropertiesDao propertiesDao;
 	
 	@Autowired
 	private FileUpload fileUpload;
@@ -216,18 +224,34 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		   auctionPreparation.setRegistrationEndDateTime(auctionPreparationVO.getRegistrationEndDateTime());
 		   this.auctionPreparationDao.save(auctionPreparation);
 	   } else {
-		    throw new DataMisMatchException("Auction can't be published");
+		    throw new DataMisMatchException("Auction can't be published because it's not approved yet");
 	   }
 	}
 	
+	@Transactional
 	@Override
-	public void schedule(Long id) {
+	public void schedule(Long id, AuctionScheduleVO auctionScheduleVO) {
 		AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
-				   () -> new ResourceNotFoundException("Auction not found"));
+				   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
 		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus())) {
-			
+			    auctionPreparation.setAuctionStartDateTime(auctionScheduleVO.getStartDateTime());
+			    auctionPreparation.setAuctionEndDateTime(auctionScheduleVO.getEndDateTime());
+			    auctionPreparation.setAuctionExtendTimeCondition(auctionScheduleVO.getAuctionExtendTimeCondition());
+			    auctionPreparation.setAuctionExtendMinutes(auctionScheduleVO.getAuctionExtendMinutes());
+				auctionPreparation.setAuctionStatus(AuctionStatus.SCHEDULED);
+			    this.auctionPreparationDao.save(auctionPreparation);
+			    List<Properties> propertiesList = this.auctionItemProprtiesDao.findAllById(
+			    auctionScheduleVO.getAuctionItemProprtiesVOs().stream().map(AuctionItemProprtiesVO::getId).toList())
+			    .stream().filter(auctionItemProperty -> !auctionItemProperty.isSold() && auctionItemProperty.isActive())
+			    .map(auctionItemProperty -> {
+			    	Properties properties = new Properties();
+			    	properties.setAuctionPreparation(auctionPreparation);
+			    	properties.setAuctionItemProprties(auctionItemProperty);
+			    	return properties;
+			    }).toList();
+			    this.propertiesDao.saveAll(propertiesList);
 		} else {
-			throw new DataMisMatchException("Auction can't be scheduled");
+			throw new DataMisMatchException("Auction can't be scheduled because it's not published yet");
 		}
 	}
 

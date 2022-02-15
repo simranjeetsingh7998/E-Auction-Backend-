@@ -2,7 +2,7 @@ package com.auction.bidding;
 
 import java.time.LocalDateTime;
 
-import com.auction.properties.AuctionItemProprtiesVO;
+import com.auction.preparation.AuctionPreparationVO;
 import com.auction.user.UserVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,8 +13,8 @@ public class BiddingVO {
 	
     private Long id;
 	
-    @JsonProperty("property")
-	private AuctionItemProprtiesVO auctionItemProprties;
+    @JsonProperty("auction")
+	private AuctionPreparationVO auctionPreparation;
 	
     @JsonProperty("amount")
 	private double biddingAmount;

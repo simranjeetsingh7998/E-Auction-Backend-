@@ -30,7 +30,7 @@ import lombok.EqualsAndHashCode;
 		@Index(columnList = "participant")
 })
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 public class BidderAuctionEnrollment implements Serializable {
 
 	/**
@@ -59,6 +59,8 @@ public class BidderAuctionEnrollment implements Serializable {
 	
 	private LocalDateTime amountPaidAt;
 	
+	private String addressProof;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "participant")
 	private User user;
@@ -69,6 +71,11 @@ public class BidderAuctionEnrollment implements Serializable {
 	@PrePersist
 	public void setAmountPaidAt() {
 		 this.amountPaidAt = LocalDateTime.now();
+	}
+	
+	public void addJointHolder(JointHolder jointHolder) {
+		 this.jointHolders.add(jointHolder);
+		 jointHolder.setBidderAuctionEnrollment(this);
 	}
 	
 	public BidderAuctionEnrollmentVO bidderAuctionEnrollmentToBidderAuctionEnrollmentVO() {

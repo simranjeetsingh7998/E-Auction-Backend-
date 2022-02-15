@@ -41,6 +41,9 @@ public class BidderAuctionEnrollmentVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime amountPaidAt;
     
+    @JsonProperty("address_proof")
+    private String addressProof;
+    
 	private UserVO participant;
 	
 	@JsonProperty("joint_holders")

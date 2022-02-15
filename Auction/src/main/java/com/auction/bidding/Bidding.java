@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.auction.properties.AuctionItemProprties;
+import com.auction.preparation.AuctionPreparation;
 import com.auction.user.User;
 
 import lombok.Data;
@@ -32,8 +32,8 @@ public class Bidding implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@OneToOne
-	private AuctionItemProprties auctionItemProprties;
+	@OneToOne(fetch = FetchType.LAZY)
+	private AuctionPreparation auctionPreparation;
 	
 	private double biddingAmount;
 	

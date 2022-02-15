@@ -89,8 +89,8 @@ public class AuctionPreparationController {
 	}
 	
 	@PutMapping("/auction/preparation/{id}/schedule")
-	public ResponseEntity<ApiResponse> scheduleAuction(@PathVariable Long id, @RequestBody Object obj){
-		//this.auctionPreparationService.publish(id);
+	public ResponseEntity<ApiResponse> scheduleAuction(@PathVariable Long id, @RequestBody AuctionScheduleVO auctionScheduleVO){
+		this.auctionPreparationService.schedule(id, auctionScheduleVO);
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction scheduled successfully",
 				null, null), HttpStatus.OK);
 	}

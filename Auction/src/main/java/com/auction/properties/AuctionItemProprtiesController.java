@@ -31,14 +31,14 @@ public class AuctionItemProprtiesController {
 	}
 
 	@GetMapping("/organization/item/{id}/sold/auction/item/properties")
-	public ResponseEntity<ApiResponse> findAllSoldAuctionItemProperties(@PathVariable("organizationItemId") Long organizationItemId){
+	public ResponseEntity<ApiResponse> findAllSoldAuctionItemProperties(@PathVariable("id") Long organizationItemId){
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 				 messageResolver.getMessage("auction.item.properties.sold.fetch"), 
 				 this.auctionItemProprtiesService.findAllSoldProperties(organizationItemId), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/organization/item/{id}/unsold/auction/item/properties")
-	public ResponseEntity<ApiResponse> findAllUnsoldAuctionItemProperties(@PathVariable("organizationItemId") Long organizationItemId){
+	public ResponseEntity<ApiResponse> findAllUnsoldAuctionItemProperties(@PathVariable("id") Long organizationItemId){
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 				 messageResolver.getMessage("auction.item.properties.unsold.fetch"),
 				 this.auctionItemProprtiesService.findAllUnSoldProperties(organizationItemId), null), HttpStatus.OK);

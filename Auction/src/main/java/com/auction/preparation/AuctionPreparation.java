@@ -127,6 +127,14 @@ public class AuctionPreparation implements Serializable {
 	@JoinColumn(name = "createdBy")
 	private User createdBy;
 	
+	private LocalDateTime auctionStartDateTime;
+	
+	private LocalDateTime auctionEndDateTime;
+	
+	private Integer auctionExtendTimeCondition;
+	
+	private Integer auctionExtendMinutes;
+	
 	public void addAuctionItem(AuctionItem auctionItem) {
 		this.auctionItems.add(auctionItem);
 		auctionItem.setAuctionPreparation(this);
