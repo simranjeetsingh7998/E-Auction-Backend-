@@ -35,5 +35,7 @@ public interface IAuctionPreparationService {
 	List<AuctionPreparationVO> findAuctionByStatus(String status);
 	
 	Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId);
+	
+	List<AuctionPreparationVO> userCurrentAuctions();
 
 }

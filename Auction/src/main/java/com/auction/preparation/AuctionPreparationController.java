@@ -127,6 +127,12 @@ public class AuctionPreparationController {
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auctions fetched successfully",
 				this.auctionPreparationService.findAuctionByStatus(status), null), HttpStatus.OK);
 	}
+	
+	@GetMapping("/user/current/auction/preparation")
+	public ResponseEntity<ApiResponse> userCurrentAuctionPreparation(){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Current auctions fetched successfully",
+				this.auctionPreparationService.userCurrentAuctions(), null), HttpStatus.OK);
+	}
 
 }
 

@@ -131,9 +131,13 @@ public class AuctionPreparation implements Serializable {
 	
 	private LocalDateTime auctionEndDateTime;
 	
+	private LocalDateTime auctionFinishTime;
+	
 	private Integer auctionExtendTimeCondition;
 	
 	private Integer auctionExtendMinutes;
+	
+	private Integer auctionExtendLimit;
 	
 	public void addAuctionItem(AuctionItem auctionItem) {
 		this.auctionItems.add(auctionItem);

@@ -4,8 +4,12 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.SetJoin;
 
 import org.springframework.data.jpa.domain.Specification;
+
+import com.auction.bidder.enrollment.BidderAuctionEnrollment;
+import com.auction.util.LoggedInUser;
 
 public class AuctionPreparationSpecification {
 	
@@ -61,6 +65,15 @@ public class AuctionPreparationSpecification {
 			 root.fetch("auctionItems",JoinType.LEFT);
 			return builder.equal(root.get("id"), id);
 		 };
+	 }
+	 
+	 public static Specification<AuctionPreparation> currentUserAuctions(){
+		  return (root, query, builder) -> {
+			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
+			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
+					  ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
+					  builder.greaterThanOrEqualTo(root.get("auctionStartDateTime"), LocalDateTime.now()));
+		  };
 	 }
 
 }

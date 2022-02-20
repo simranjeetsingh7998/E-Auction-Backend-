@@ -238,6 +238,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    auctionPreparation.setAuctionEndDateTime(auctionScheduleVO.getEndDateTime());
 			    auctionPreparation.setAuctionExtendTimeCondition(auctionScheduleVO.getAuctionExtendTimeCondition());
 			    auctionPreparation.setAuctionExtendMinutes(auctionScheduleVO.getAuctionExtendMinutes());
+			    auctionPreparation.setAuctionExtendLimit(auctionScheduleVO.getAuctionExtendLimit());
+			    auctionPreparation.setAuctionFinishTime(auctionScheduleVO.getEndDateTime());
 				auctionPreparation.setAuctionStatus(AuctionStatus.SCHEDULED);
 			    this.auctionPreparationDao.save(auctionPreparation);
 			    List<Properties> propertiesList = this.auctionItemProprtiesDao.findAllById(
@@ -295,6 +297,12 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		.stream().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
 	}
 	
+	@Override
+	public List<AuctionPreparationVO> userCurrentAuctions() {
+		return this.auctionPreparationDao.findAll(AuctionPreparationSpecification.currentUserAuctions())
+				.stream().distinct().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
+	}
+	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {
 		 AuctionPreparationVO auctionPreparationVO = auctionPreparation.auctionPreparationToAuctionPreparationVO();
 		    if(!Objects.isNull(auctionPreparation.getAuctionType()))
@@ -320,7 +328,13 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		    	 auctionPreparationVO.setPropertyTypeVO(propertyTypeVO); 
 		    }
 		    if(!Objects.isNull(auctionPreparation.getAuctionItems())) {
-		    	  auctionPreparationVO.setAuctionItems(auctionPreparation.getAuctionItems().stream().map(AuctionItem::auctionItemToAuctionItemVO).toList());
+		    	List<AuctionItemVO> auctionItems = auctionPreparation.getAuctionItems().stream()
+		    			.map(auctionItem -> { 
+		    				AuctionItemVO auctionItemVO = auctionItem.auctionItemToAuctionItemVO();
+		    				auctionItemVO.setOrganizationItem(auctionItem.getOrganizationItem().organizationItemToOrganizationItemVO());
+		    				return auctionItemVO;
+		    			}).toList();
+		    	  auctionPreparationVO.setAuctionItems(auctionItems);
 		    }
 		  return auctionPreparationVO;  
 	}
