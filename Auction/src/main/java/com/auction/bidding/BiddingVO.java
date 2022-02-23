@@ -28,5 +28,11 @@ public class BiddingVO {
 	@JsonProperty("bidding_at")
    // @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.sss")
 	private LocalDateTime biddingAt;
+	
+	@JsonProperty("remaining_time")
+	private long remainingTime;
+	
+	@JsonProperty("is_finish_date_time_extend")
+	private boolean isFinishTimeExtend;
 
 }

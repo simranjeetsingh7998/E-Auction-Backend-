@@ -96,6 +96,12 @@ public class AuctionPreparationVO {
 	@JsonProperty("active")
 	private boolean isActive;
 	
+	@JsonProperty("bidder_count")
+	private int bidderCount;
+	
+	@JsonProperty("emd_count")
+	private int emdCount;
+	
 	public AuctionPreparation auctionPreparationVOToAuctionPreparation() {
 		   AuctionPreparation auctionPreparation = new AuctionPreparation();
 		   auctionPreparation.setActive(isActive);
