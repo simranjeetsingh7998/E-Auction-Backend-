@@ -42,5 +42,13 @@ public class Bidding implements Serializable {
 	
 	@Column(columnDefinition = "TIMESTAMP(3)")
 	private LocalDateTime biddingAt;
+	
+	public BiddingVO biddingToBiddingVO() {
+		 BiddingVO biddingVO = new BiddingVO();
+		 biddingVO.setBiddingAmount(biddingAmount);
+		 biddingVO.setBiddingAt(biddingAt);
+		 biddingVO.setId(id);
+	  return biddingVO;
+	}
 
 }

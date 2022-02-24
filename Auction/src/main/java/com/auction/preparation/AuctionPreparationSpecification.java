@@ -72,7 +72,8 @@ public class AuctionPreparationSpecification {
 			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
 			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					  ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
-					  builder.greaterThanOrEqualTo(root.get("auctionStartDateTime"), LocalDateTime.now()));
+					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), LocalDateTime.now()),
+					  builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), LocalDateTime.now()));
 		  };
 	 }
 

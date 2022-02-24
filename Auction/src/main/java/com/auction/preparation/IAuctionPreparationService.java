@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.bidding.BiddingVO;
 import com.auction.organization.item.OrganizationItemVO;
 
 public interface IAuctionPreparationService {
@@ -36,6 +37,6 @@ public interface IAuctionPreparationService {
 	
 	Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId);
 	
-	List<AuctionPreparationVO> userCurrentAuctions();
+	List<BiddingVO> userCurrentAuctions();
 
 }

@@ -2,6 +2,7 @@ package com.auction.bidding;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.user.User;
+import com.auction.user.UserVO;
 import com.auction.util.LoggedInUser;
 
 @Service
@@ -40,8 +42,9 @@ public class BiddingService implements IBiddingService {
 		   && currentDateTime.isBefore(auctionPreparation.getAuctionFinishTime())) {
 			this.bid(biddingVO, auctionPreparation);
 			boolean isFinishDateTimeExtend = this.updateAuctionDetails(auctionPreparation, currentDateTime);
-			Duration duration = Duration.between(currentDateTime,auctionPreparation.getAuctionFinishTime());
-			biddingVO.setRemainingTime(duration.toSeconds());
+			//Duration duration = Duration.between(currentDateTime,auctionPreparation.getAuctionFinishTime());
+			biddingVO.setRemainingTime(currentDateTime.until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+			//biddingVO.setRemainingTime(duration.toSeconds());
 			biddingVO.setFinishTimeExtend(isFinishDateTimeExtend);	
 		  return biddingVO;
 		}
@@ -75,7 +78,7 @@ public class BiddingService implements IBiddingService {
 			//bidAmount = auctionPreparation.get
 		}
 	//	double bidAmount = au
-		bidding.setBiddingAmount(bidAmount);
+	//	bidding.setBiddingAmount(bidAmount);
 		bidding.setAuctionPreparation(auctionPreparation);
 		bidding.setBidder(user);
 		bidding = this.biddingDao.save(bidding);
@@ -107,6 +110,36 @@ public class BiddingService implements IBiddingService {
 			 
 		 }
 		return false;
+	}
+	
+	
+	@Override
+	public BiddingVO lastBidOfAuction(Long auctionId) {
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.getById(auctionId);
+		return this.lastBidOfAuctionForBidder(auctionPreparation);
+	}
+	
+	@Override
+	public BiddingVO lastBidOfAuctionForBidder(AuctionPreparation auctionPreparation) {
+		Optional<Bidding> optionalBidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+		if(optionalBidding.isPresent()) {
+			Bidding bidding = optionalBidding.get();
+			BiddingVO biddingVO = bidding.biddingToBiddingVO();
+			UserVO userVO = new UserVO();
+			userVO.setId(bidding.getBidder().getId());
+			biddingVO.setBidder(userVO);
+			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+			biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
+			biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+		    return biddingVO;	
+		}
+		BiddingVO biddingVO = new BiddingVO();
+		biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+		biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
+		biddingVO.setBiddingAmount(0);
+		biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+		biddingVO.setBidder(new UserVO());
+	   return biddingVO;
 	}
 
 }

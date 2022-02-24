@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.bidding.BiddingVO;
+import com.auction.bidding.IBiddingService;
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.item.template.AuctionItemTemplate;
@@ -61,6 +63,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Autowired
 	private FileUpload fileUpload;
+	
+	@Autowired
+	private IBiddingService biddingService;
 	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
@@ -298,9 +303,11 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
-	public List<AuctionPreparationVO> userCurrentAuctions() {
+	public List<BiddingVO> userCurrentAuctions() {
 		return this.auctionPreparationDao.findAll(AuctionPreparationSpecification.currentUserAuctions())
-				.stream().distinct().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
+				.stream().distinct().map(auction -> {
+				return this.biddingService.lastBidOfAuctionForBidder(auction);
+				}).toList();
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {

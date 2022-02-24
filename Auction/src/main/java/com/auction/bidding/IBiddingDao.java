@@ -14,5 +14,8 @@ public interface IBiddingDao extends JpaRepository<Bidding, Long> {
 	
 	@Query("select b.biddingAmount from Bidding b where b.auctionPreparation = ?1")
 	Optional<Double> findBiddingAmountByAuctionPreparation(AuctionPreparation auctionPreparation, PageRequest pageRequest);
+	
+	@Query("from Bidding b join fetch b.bidder where b.auctionPreparation = ?1")
+	Optional<Bidding> findByAuctionPreparation(AuctionPreparation auctionPreparation, PageRequest pageRequest);
 
 }

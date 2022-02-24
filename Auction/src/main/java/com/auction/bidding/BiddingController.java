@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,8 +34,16 @@ public class BiddingController {
 				biddingVO, null));
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(),
-				this.messageResolver.getMessage("bidding.create") ,
+				this.messageResolver.getMessage("bidding.create"),
 				biddingVO, null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/{id}/last/bid")
+	public ResponseEntity<ApiResponse> lastBidOfAuction(@PathVariable("id") Long auctionId){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(),
+				this.messageResolver.getMessage("bidding.create") ,
+				this.biddingService.lastBidOfAuction(auctionId), null), HttpStatus.OK);
 	}
 
 }
