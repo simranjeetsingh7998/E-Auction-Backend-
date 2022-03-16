@@ -10,4 +10,6 @@ public interface IBiddingService {
 
 	BiddingVO lastBidOfAuctionForBidder(AuctionPreparation auctionPreparation);
 	
+	long closeRoundByAuctionPreparation(Long auctionId);
+	
 }

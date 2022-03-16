@@ -28,13 +28,14 @@ public class BiddingController {
 	@PostMapping("/bidding")
 	public ResponseEntity<ApiResponse> bid(@RequestBody BiddingVO biddingVO){
 		biddingVO = this.biddingService.bidding(biddingVO);
+		String biddingCreateMessage = this.messageResolver.getMessage("bidding.create");
 		this.simpMessagingTemplate.convertAndSend("/queue/bidding/"+biddingVO.getAuctionPreparation().getId(), 
 				new ApiResponse(HttpStatus.OK.value(),
-				this.messageResolver.getMessage("bidding.create"),
+						biddingCreateMessage,
 				biddingVO, null));
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(),
-				this.messageResolver.getMessage("bidding.create"),
+				biddingCreateMessage,
 				biddingVO, null), HttpStatus.OK);
 	}
 	
@@ -42,8 +43,21 @@ public class BiddingController {
 	public ResponseEntity<ApiResponse> lastBidOfAuction(@PathVariable("id") Long auctionId){
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(),
-				this.messageResolver.getMessage("bidding.create") ,
+				this.messageResolver.getMessage("bidding.create"),
 				this.biddingService.lastBidOfAuction(auctionId), null), HttpStatus.OK);
+	}
+	
+	@PostMapping("/auction/{id}/close/round")
+	public ResponseEntity<ApiResponse> closeAuctionRound(@PathVariable Long auctionId){
+		 long closedRoundNumber = this.biddingService.closeRoundByAuctionPreparation(auctionId);
+		 String responseMsg = "Round "+closedRoundNumber+" is closed";
+			this.simpMessagingTemplate.convertAndSend("/queue/bidding/round/close/"+auctionId, 
+					new ApiResponse(HttpStatus.OK.value(),
+							responseMsg,
+					null, null));
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
+				 responseMsg,
+				 null, null), HttpStatus.OK);
 	}
 
 }

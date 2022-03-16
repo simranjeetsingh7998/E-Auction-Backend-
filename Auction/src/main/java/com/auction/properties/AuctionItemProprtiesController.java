@@ -55,7 +55,7 @@ public class AuctionItemProprtiesController {
 	@DeleteMapping("/auction/item/properties/{id}/status/{status}")
 	public ResponseEntity<ApiResponse> deleteAuctionItemProperties(
 			@PathVariable("id") Long auctionItemPropertyId,
-			@PathVariable("status") boolean status){
+			@PathVariable("status") boolean status) {
 		 this.auctionItemProprtiesService.updateStatus(auctionItemPropertyId, status);
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 				 messageResolver.getMessage(status ? 

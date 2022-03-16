@@ -21,8 +21,10 @@ public class AuctionItemProprtiesVO {
 	@JsonProperty("active")
 	private boolean isActive;
 	
-	@JsonProperty("sold")
-	private boolean isSold;
+//	@JsonProperty("sold")
+//	private boolean isSold;
+	@JsonProperty("property_status")
+	private PropertiesStatus propertiesStatus;
 	
 	@JsonProperty("sold_at")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -10,7 +10,7 @@ public class WebSocketSecurityConfig  extends
    @Override
 	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 		messages.nullDestMatcher().authenticated().simpSubscribeDestMatchers("/queue/errors","/ws").permitAll()
-				.simpDestMatchers("/chatapp/**").authenticated()
+				.simpDestMatchers("/auction/**").authenticated()
 				.simpSubscribeDestMatchers("/topic/**", "/queue/**").authenticated();
 	}
 

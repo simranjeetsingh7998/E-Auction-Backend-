@@ -40,7 +40,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureMessageBroker(MessageBrokerRegistry config) {
     	config.setPreservePublishOrder(true);
         config.enableSimpleBroker("/topic","/queue","/user");
-        config.setApplicationDestinationPrefixes("/chatapp");
+        config.setApplicationDestinationPrefixes("/auction");
     }
 
     @Override

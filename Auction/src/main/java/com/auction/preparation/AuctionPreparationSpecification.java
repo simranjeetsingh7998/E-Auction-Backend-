@@ -68,6 +68,7 @@ public class AuctionPreparationSpecification {
 	 }
 	 
 	 public static Specification<AuctionPreparation> currentUserAuctions(){
+		 System.out.println(LocalDateTime.now());
 		  return (root, query, builder) -> {
 			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
 			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())

@@ -39,7 +39,7 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = mapper.readValue(bidderAuctionEnrollmentJson, BidderAuctionEnrollmentVO.class);
 		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(bidderAuctionEnrollmentVO.getAuctionPreparation().getId())
 		 .orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus())) {
+		if(!auctionPreparation.getAuctionStatus().getStatus().equalsIgnoreCase(AuctionStatus.PUBLISH.getStatus())) {
 			 throw new DataMisMatchException("Auction is not published yet");
 		}
 		LocalDateTime currentDateTime =  LocalDateTime.now();

@@ -30,7 +30,8 @@ public class AuctionItemProprtiesService implements IAuctionItemProprtiesService
 	public List<AuctionItemProprtiesVO> findAllSoldProperties(Long organizationItemId) {
 		OrganizationItem organizationItem = new OrganizationItem();
 		organizationItem.setId(organizationItemId);
-		return this.auctionItemProprtiesDao.findAllByOrganizationItemAndIsSold(organizationItem, true)
+		//return this.auctionItemProprtiesDao.findAllByOrganizationItemAndIsSold(organizationItem, true)
+		  return this.auctionItemProprtiesDao.findAllByOrganizationItemAndPropertiesStatus(organizationItem, PropertiesStatus.SOLD)
 				.stream().map(AuctionItemProprties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
 	}
 	
@@ -38,7 +39,8 @@ public class AuctionItemProprtiesService implements IAuctionItemProprtiesService
 	public List<AuctionItemProprtiesVO> findAllUnSoldProperties(Long organizationItemId) {
 		OrganizationItem organizationItem = new OrganizationItem();
 		organizationItem.setId(organizationItemId);
-		return this.auctionItemProprtiesDao.findAllByOrganizationItemAndIsSold(organizationItem, false)
+		//return this.auctionItemProprtiesDao.findAllByOrganizationItemAndIsSold(organizationItem, false)
+		  return this.auctionItemProprtiesDao.findAllByOrganizationItemAndPropertiesStatus(organizationItem, PropertiesStatus.UNSOLD)
 				.stream().map(AuctionItemProprties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
 	}
 	

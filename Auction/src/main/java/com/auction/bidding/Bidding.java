@@ -43,11 +43,19 @@ public class Bidding implements Serializable {
 	@Column(columnDefinition = "TIMESTAMP(3)")
 	private LocalDateTime biddingAt;
 	
+	@Column(length = 20)
+	private String roundNo;
+	
+	private LocalDateTime roundStartAt;
+	
+	private LocalDateTime roundClosedAt;
+	
 	public BiddingVO biddingToBiddingVO() {
 		 BiddingVO biddingVO = new BiddingVO();
 		 biddingVO.setBiddingAmount(biddingAmount);
 		 biddingVO.setBiddingAt(biddingAt);
 		 biddingVO.setId(id);
+		 biddingVO.setRound(roundNo);
 	  return biddingVO;
 	}
 

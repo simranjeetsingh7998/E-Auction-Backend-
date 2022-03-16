@@ -66,10 +66,10 @@ public class AuctionPreparation implements Serializable {
 	
 	private Double emdFeeAmount;
 	
-	@Column(columnDefinition = "TIMESTAMP")
+	//@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime registrationStartDateTime;
 	
-	@Column(columnDefinition = "TIMESTAMP")
+	//@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime registrationEndDateTime;
 	
 	private String auctionDocument;

@@ -31,6 +31,7 @@ import com.auction.organization.item.OrganizationItem;
 import com.auction.organization.item.OrganizationItemVO;
 import com.auction.properties.AuctionItemProprtiesVO;
 import com.auction.properties.IAuctionItemProprtiesDao;
+import com.auction.properties.PropertiesStatus;
 import com.auction.property.type.PropertyType;
 import com.auction.property.type.PropertyTypeVO;
 import com.auction.util.FileUpload;
@@ -249,7 +250,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    this.auctionPreparationDao.save(auctionPreparation);
 			    List<Properties> propertiesList = this.auctionItemProprtiesDao.findAllById(
 			    auctionScheduleVO.getAuctionItemProprtiesVOs().stream().map(AuctionItemProprtiesVO::getId).toList())
-			    .stream().filter(auctionItemProperty -> !auctionItemProperty.isSold() && auctionItemProperty.isActive())
+			    .stream().filter(auctionItemProperty ->
+			    auctionItemProperty.getPropertiesStatus().getStatus().equals(PropertiesStatus.UNSOLD.getStatus()) && auctionItemProperty.isActive())
 			    .map(auctionItemProperty -> {
 			    	Properties properties = new Properties();
 			    	properties.setAuctionPreparation(auctionPreparation);
@@ -291,7 +293,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public AuctionPreparationVO findAllDetailsById(Long id) {
 		List<AuctionPreparation> auctionPreparations = this.auctionPreparationDao.findAll(AuctionPreparationSpecification.fullDetailsById(id));
 		if(!auctionPreparations.isEmpty()) {
-		    return this.checkAndAddAssociation(auctionPreparations.get(0));
+		   return this.checkAndAddAssociation(auctionPreparations.get(0));
 		}
 		throw new ResourceNotFoundException("Auction preparation not found");
 	}

@@ -24,6 +24,8 @@ public class BiddingVO {
 	
 	private UserVO bidder;
 	
+	private String round;
+	
 //	@Null
 	@JsonProperty("bidding_at")
    // @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.sss")

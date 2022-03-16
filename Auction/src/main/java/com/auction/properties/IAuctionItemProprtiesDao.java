@@ -10,6 +10,7 @@ import com.auction.organization.item.OrganizationItem;
 @Repository
 public interface IAuctionItemProprtiesDao extends JpaRepository<AuctionItemProprties, Long> {
 	
-	List<AuctionItemProprties> findAllByOrganizationItemAndIsSold(OrganizationItem organizationItem, boolean isSold);
+	//List<AuctionItemProprties> findAllByOrganizationItemAndIsSold(OrganizationItem organizationItem, boolean isSold);
+	List<AuctionItemProprties> findAllByOrganizationItemAndPropertiesStatus(OrganizationItem organizationItem, PropertiesStatus propertiesStatus);
 
 }

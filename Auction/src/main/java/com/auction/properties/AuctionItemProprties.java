@@ -38,7 +38,8 @@ public class AuctionItemProprties  implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private OrganizationItem organizationItem;
 	
-	private boolean isSold;
+	//private boolean isSold;
+	private PropertiesStatus propertiesStatus;
 	
 	private LocalDateTime soldDateTime;
 	
@@ -49,7 +50,7 @@ public class AuctionItemProprties  implements Serializable {
 		 auctionItemProprtiesVO.setId(id);
 		 auctionItemProprtiesVO.setActive(isActive);
 		 auctionItemProprtiesVO.setProperty(property);
-		 auctionItemProprtiesVO.setSold(isSold);
+		 auctionItemProprtiesVO.setPropertiesStatus(propertiesStatus);
 		 auctionItemProprtiesVO.setSoldDateTime(soldDateTime);
 		return auctionItemProprtiesVO; 
 	}
