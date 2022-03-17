@@ -102,6 +102,9 @@ public class AuctionPreparationVO {
 	@JsonProperty("emd_count")
 	private int emdCount;
 	
+	@JsonProperty("interval_minutes")
+	private int intervalInMinutes;
+	
 	public AuctionPreparation auctionPreparationVOToAuctionPreparation() {
 		   AuctionPreparation auctionPreparation = new AuctionPreparation();
 		   auctionPreparation.setActive(isActive);
@@ -118,6 +121,7 @@ public class AuctionPreparationVO {
 		   auctionPreparation.setUnitDivision(unitDivision);
 		   auctionPreparation.setAuctionName(auctionName);
 		   auctionPreparation.setEmdLimit(emdLimit);
+		   auctionPreparation.setIntervalInMinutes(intervalInMinutes);
 		   return auctionPreparation;
 	}
 

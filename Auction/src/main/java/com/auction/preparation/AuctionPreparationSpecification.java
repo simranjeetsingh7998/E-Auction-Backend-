@@ -67,14 +67,23 @@ public class AuctionPreparationSpecification {
 		 };
 	 }
 	 
+	 
+	 public static Specification<AuctionPreparation> findAuctionWithAuctionItemsAndOrganizationItemById(Long id) {
+		 return (root,query,builder) -> {
+			 root.fetch("auctionItems",JoinType.LEFT).fetch("organizationItem", JoinType.LEFT);
+			return builder.equal(root.get("id"), id);
+		 };
+	 }
+	 
 	 public static Specification<AuctionPreparation> currentUserAuctions(){
 		 System.out.println(LocalDateTime.now());
+		 LocalDateTime currentDateTime = LocalDateTime.now();
 		  return (root, query, builder) -> {
 			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
 			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					  ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
-					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), LocalDateTime.now()),
-					  builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), LocalDateTime.now()));
+					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
+					  builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime));
 		  };
 	 }
 

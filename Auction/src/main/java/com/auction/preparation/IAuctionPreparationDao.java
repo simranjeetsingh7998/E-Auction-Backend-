@@ -1,7 +1,7 @@
 package com.auction.preparation;
 
 import java.time.Instant;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +21,7 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	long countByAuctionItemTemplate(AuctionItemTemplate auctionItemTemplate);
 	
 	List<AuctionPreparation> findAllByAuctionStatus(AuctionStatus auctionStatus);
+	
+	List<AuctionPreparation> findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 
 }

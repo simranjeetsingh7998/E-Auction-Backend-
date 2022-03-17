@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.bid.submission.placement.IBidSubmissionPlacementDao;
@@ -41,6 +42,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.In;
 
 @SpringBootApplication
+@EnableScheduling
 public class AuctionApplication {
 	
 	@Autowired

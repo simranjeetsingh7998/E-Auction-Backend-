@@ -2,14 +2,10 @@ package com.auction.bidding;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +18,7 @@ import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionItem;
 import com.auction.preparation.AuctionPreparation;
+import com.auction.preparation.AuctionPreparationSpecification;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.preparation.IPropertiesDao;
@@ -45,8 +42,15 @@ public class BiddingService implements IBiddingService {
 	@Transactional
 	@Override
 	public BiddingVO bidding(BiddingVO biddingVO) {
-		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(biddingVO.getAuctionPreparation().getId())
-		.orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		//AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(biddingVO.getAuctionPreparation().getId())
+		//.orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		List<AuctionPreparation> auctionPreparationList = this.auctionPreparationDao.findAll(AuctionPreparationSpecification
+				.findAuctionWithAuctionItemsAndOrganizationItemById(biddingVO.getAuctionPreparation().getId()));
+		if(auctionPreparationList.isEmpty())
+			throw new ResourceNotFoundException("Auction not found");
+		AuctionPreparation auctionPreparation = auctionPreparationList.get(0);
+		long roundNumber = this.getRoundNumberAndUpdateAuctionStartAndFinishDateTime(auctionPreparation);
+		biddingVO.setRound(""+roundNumber);
 		LocalDateTime currentDateTime = LocalDateTime.now();
 		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())
 		   && currentDateTime.isAfter(auctionPreparation.getAuctionStartDateTime())	 
@@ -63,26 +67,52 @@ public class BiddingService implements IBiddingService {
 			throw new DataMisMatchException("Auction is not scheduled yet");
 		}
 		else if(!currentDateTime.isAfter(auctionPreparation.getAuctionStartDateTime())) {
-			throw new DataMisMatchException("Auction is not started yet");
+			throw new DataMisMatchException("Round is not started yet");
 		}
 		else if(currentDateTime.isAfter(auctionPreparation.getAuctionFinishTime())) {
-//		    Bidding bidding = findLastBidOfAuction(auctionPreparation);
-//		    long unsoldPropertiesCount = findRoundNumber(auctionPreparation);
-//		    bidding.setRoundNo(""+unsoldPropertiesCount+1);
-//		    this.biddingDao.save(bidding);
-			throw new DataMisMatchException("Auction is closed");
+			throw new DataMisMatchException("Round is closed");
 		}
 		return null;	
 	}
 	
-	private long findRoundNumber(AuctionPreparation auctionPreparation) {
-		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
-				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
-		return this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
-				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
+	
+	public long getRoundNumberAndUpdateAuctionStartAndFinishDateTime(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
+	    long roundNumber = this.findRoundNumber(auctionPreparation);
+	    if(roundNumber>0) {
+	    	LocalDateTime auctionStartDateTime = auctionPreparation.getAuctionStartDateTime();
+	    	LocalDateTime auctionEndDateTime = auctionPreparation.getAuctionEndDateTime();
+	    	LocalDateTime auctionFinishDateTime = auctionPreparation.getAuctionFinishTime();
+	    	// if auction end and finish date time is same
+	    	long minutesDuration = auctionStartDateTime.until(auctionEndDateTime, ChronoUnit.MINUTES)*roundNumber;
+	    	// if auction finish date time is greater than end date time adding difference in minuteDuration
+	    	if(auctionFinishDateTime.isAfter(auctionEndDateTime))
+	    		minutesDuration += auctionEndDateTime.until(auctionFinishDateTime, ChronoUnit.MINUTES);
+	    	
+	    	// update auction start date time 
+	    	auctionPreparation.setAuctionStartDateTime(auctionStartDateTime
+	    			.plusMinutes(!Objects.isNull(auctionPreparation.getIntervalInMinutes()) ? 
+	    					auctionPreparation.getIntervalInMinutes()+(minutesDuration) : 0));
+	    	
+	    	// update auction finish date time
+	    	auctionPreparation.setAuctionFinishTime(auctionFinishDateTime.plusMinutes(minutesDuration));
+	    }
+	   return roundNumber+1; 
+	    
 	}
 	
-	private Bidding findLastBidOfAuction(AuctionPreparation auctionPreparation) {
+	public long findRoundNumber(AuctionPreparation auctionPreparation) {
+		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
+				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
+		long unsoldPropertiesCount = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
+				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
+		if(unsoldPropertiesCount == 0)
+			  throw new ResourceNotFoundException("All rounds are completed");
+		long totalProperties = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_IsActiveTrue(
+				auctionPreparation, auctionItem.getOrganizationItem());
+		return totalProperties-unsoldPropertiesCount;
+	}
+	
+	public Bidding findLastBidOfAuction(AuctionPreparation auctionPreparation) {
 		Bidding bidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")))
 				.orElseThrow(() -> new ResourceNotFoundException("Auction can't be closed because no bid found for auction"));
 		if(bidding.getRoundClosedAt() != null)
@@ -98,7 +128,7 @@ public class BiddingService implements IBiddingService {
 		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
 		Optional<Double> optionalBidding =
-				this.biddingDao.findBiddingAmountByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+				this.biddingDao.findBiddingAmountByAuctionPreparationAndRoundNo(auctionPreparation,biddingVO.getRound(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
 		Bidding bidding = new Bidding();
 		bidding.setId(biddingVO.getId());
 		bidding.setBiddingAt(LocalDateTime.now());
@@ -112,12 +142,12 @@ public class BiddingService implements IBiddingService {
 		bidding.setBiddingAmount(bidAmount);
 		bidding.setAuctionPreparation(auctionPreparation);
 		bidding.setBidder(user);
+		bidding.setRoundNo(biddingVO.getRound());
 		bidding = this.biddingDao.save(bidding);
 		biddingVO.setBidder(user.userToUserVO());
 		biddingVO.setId(bidding.getId());
 		biddingVO.setBiddingAmount(bidAmount);
 		biddingVO.setBiddingAt(bidding.getBiddingAt());
-		//this.closeRoundByScheduler(LocalDateTime.now().plusMinutes(1));
 	}
 	
 	private boolean updateAuctionDetails(AuctionPreparation auctionPreparation, LocalDateTime currentDateTime) {
@@ -177,27 +207,21 @@ public class BiddingService implements IBiddingService {
 	   return biddingVO;
 	}
 	
+	@Transactional
 	@Override
 	public long closeRoundByAuctionPreparation(Long auctionId) {
 	    AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+	    return closeRound(auctionPreparation);
+	}
+	
+	@Override
+	@Transactional
+	public long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
+	    long unsoldPropertiesCount = findRoundNumber(auctionPreparation);
 	    Bidding bidding = findLastBidOfAuction(auctionPreparation);
-	    long unsoldPropertiesCount = findRoundNumber(auctionPreparation)+1;
 	    bidding.setRoundNo(""+unsoldPropertiesCount);
 	    this.biddingDao.save(bidding);
 		return (unsoldPropertiesCount);
-	}
-	
-	
-	private void closeRoundByScheduler(LocalDateTime firstTime) {
-		System.out.println(Date.from(firstTime.atZone(ZoneId.systemDefault()).toInstant()));
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			
-			@Override
-			public void run() {
-			    System.out.println(LocalDateTime.now());
-			}
-		}, Date.from(firstTime.atZone(ZoneId.systemDefault()).toInstant()), 61000);
 	}
 
 }

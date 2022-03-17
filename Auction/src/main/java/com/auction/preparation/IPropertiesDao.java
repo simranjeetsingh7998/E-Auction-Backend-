@@ -11,5 +11,8 @@ public interface IPropertiesDao extends JpaRepository<Properties, Long> {
 	
 	long countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue
 	(AuctionPreparation auctionPreparation, OrganizationItem organizationItem, PropertiesStatus propertiesStatus);
+	
+	long countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_IsActiveTrue
+	(AuctionPreparation auctionPreparation, OrganizationItem organizationItem);
 
 }

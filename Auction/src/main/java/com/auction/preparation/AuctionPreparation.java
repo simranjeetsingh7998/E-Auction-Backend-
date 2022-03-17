@@ -139,6 +139,8 @@ public class AuctionPreparation implements Serializable {
 	
 	private Integer auctionExtendLimit;
 	
+	private Integer intervalInMinutes;
+	
 	public void addAuctionItem(AuctionItem auctionItem) {
 		this.auctionItems.add(auctionItem);
 		auctionItem.setAuctionPreparation(this);
@@ -170,6 +172,7 @@ public class AuctionPreparation implements Serializable {
 		   auctionPreparationVO.setRegistrationStartDateTime(registrationStartDateTime);
 		   auctionPreparationVO.setUnitDivision(unitDivision);
 		   auctionPreparationVO.setAuctionName(auctionName);
+		   auctionPreparationVO.setIntervalInMinutes(intervalInMinutes);
 		   return auctionPreparationVO;
 	}
 }

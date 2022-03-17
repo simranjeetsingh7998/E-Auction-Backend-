@@ -1,5 +1,6 @@
 package com.auction.bidding;
 
+import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionPreparation;
 
 public interface IBiddingService {
@@ -11,5 +12,7 @@ public interface IBiddingService {
 	BiddingVO lastBidOfAuctionForBidder(AuctionPreparation auctionPreparation);
 	
 	long closeRoundByAuctionPreparation(Long auctionId);
+
+	long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException;
 	
 }

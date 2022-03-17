@@ -2,7 +2,7 @@ package com.auction.properties;
 
 public enum PropertiesStatus {
 	
-    SOLD("Sold"), UNSOLD("UNSOLD"), RESERVED("Reserved");
+    SOLD("SOLD"), UNSOLD("UNSOLD"), RESERVED("RESERVED");
 
 	private String status;
 	private PropertiesStatus(String status) {
