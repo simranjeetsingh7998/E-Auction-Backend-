@@ -1,5 +1,7 @@
 package com.auction.bidding;
 
+import java.util.List;
+
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionPreparation;
 
@@ -14,5 +16,7 @@ public interface IBiddingService {
 	long closeRoundByAuctionPreparation(Long auctionId);
 
 	long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException;
+	
+	List<BidHistory> findBidHistoryByActionPreparation(Long auctionId);
 	
 }

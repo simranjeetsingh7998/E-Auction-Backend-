@@ -76,7 +76,6 @@ public class AuctionPreparationSpecification {
 	 }
 	 
 	 public static Specification<AuctionPreparation> currentUserAuctions(){
-		 System.out.println(LocalDateTime.now());
 		 LocalDateTime currentDateTime = LocalDateTime.now();
 		  return (root, query, builder) -> {
 			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);

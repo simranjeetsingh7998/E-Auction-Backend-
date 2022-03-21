@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -172,7 +173,7 @@ public class AuctionPreparation implements Serializable {
 		   auctionPreparationVO.setRegistrationStartDateTime(registrationStartDateTime);
 		   auctionPreparationVO.setUnitDivision(unitDivision);
 		   auctionPreparationVO.setAuctionName(auctionName);
-		   auctionPreparationVO.setIntervalInMinutes(intervalInMinutes);
+		   auctionPreparationVO.setIntervalInMinutes(!Objects.isNull(intervalInMinutes) ? intervalInMinutes : 0);
 		   return auctionPreparationVO;
 	}
 }

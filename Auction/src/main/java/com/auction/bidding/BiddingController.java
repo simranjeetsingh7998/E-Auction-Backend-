@@ -43,8 +43,16 @@ public class BiddingController {
 	public ResponseEntity<ApiResponse> lastBidOfAuction(@PathVariable("id") Long auctionId){
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(),
-				this.messageResolver.getMessage("bidding.create"),
+				this.messageResolver.getMessage("bidding.last.bid"),
 				this.biddingService.lastBidOfAuction(auctionId), null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/{id}/bid/history")
+	public ResponseEntity<ApiResponse> bidHistory(@PathVariable("id") Long auctionId){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(),
+				this.messageResolver.getMessage("bidding.history"),
+				this.biddingService.findBidHistoryByActionPreparation(auctionId), null), HttpStatus.OK);
 	}
 	
 	@PostMapping("/auction/{id}/close/round")

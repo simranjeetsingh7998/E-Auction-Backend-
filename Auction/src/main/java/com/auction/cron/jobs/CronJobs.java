@@ -26,6 +26,10 @@ public class CronJobs {
 	@Autowired 
 	private IAuctionPreparationDao auctionPreparationDao;
 	
+	/*
+	 * @Autowired private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
+	 */
+	
 	@Scheduled(cron = "0 * * * * *")
 	private void closeRound() {
 		List<AuctionPreparation> auctionPreparationList = this.auctionPreparationDao.findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus.SCHEDULED, LocalDateTime.now());
@@ -33,14 +37,23 @@ public class CronJobs {
 	    	 try {
 	    	     this.biddingService.closeRound(auction);
 			} catch (ResourceNotFoundException e) {
-				if(!e.getMessage().contains("Round already closed")) {
-				   LOGGER.error("Auction id  " +auction.getId(), e);
-				   } else {
-					   LOGGER.error("Auction id "+auction.getId()+"  "+e.getMessage());
-				   }
+				/*
+				 * System.out.println("Message                    "+e.getMessage());
+				 * if(!e.getMessage().contains("Round already closed")) {
+				 * LOGGER.error("Auction id  " +auction.getId(), e); } else {
+				 * LOGGER.error("Auction id "+auction.getId()+"  "+e.getMessage()); }
+				 */
 				
 			}
 	    });
 	}
+	
+	
+	/*
+	 * @Scheduled(cron = "0 * * * * *") private void sendLiveAuctionToParticipants()
+	 * {
+	 * 
+	 * }
+	 */
 
 }

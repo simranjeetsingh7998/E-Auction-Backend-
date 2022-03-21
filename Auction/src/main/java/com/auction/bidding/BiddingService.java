@@ -2,6 +2,7 @@ package com.auction.bidding;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
@@ -39,16 +41,20 @@ public class BiddingService implements IBiddingService {
 	@Autowired 
 	private IPropertiesDao propertiesDao;
 	
+	@Autowired
+	private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
+	
 	@Transactional
 	@Override
 	public BiddingVO bidding(BiddingVO biddingVO) {
-		//AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(biddingVO.getAuctionPreparation().getId())
-		//.orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
 		List<AuctionPreparation> auctionPreparationList = this.auctionPreparationDao.findAll(AuctionPreparationSpecification
 				.findAuctionWithAuctionItemsAndOrganizationItemById(biddingVO.getAuctionPreparation().getId()));
 		if(auctionPreparationList.isEmpty())
 			throw new ResourceNotFoundException("Auction not found");
 		AuctionPreparation auctionPreparation = auctionPreparationList.get(0);
+		if(!this.isUserValidForRound(auctionPreparation)) {
+			throw new DataMisMatchException("You can't bid. Maybe your EmdLimit reached");
+		}
 		long roundNumber = this.getRoundNumberAndUpdateAuctionStartAndFinishDateTime(auctionPreparation);
 		biddingVO.setRound(""+roundNumber);
 		LocalDateTime currentDateTime = LocalDateTime.now();
@@ -57,9 +63,7 @@ public class BiddingService implements IBiddingService {
 		   && currentDateTime.isBefore(auctionPreparation.getAuctionFinishTime())) {
 			this.bid(biddingVO, auctionPreparation);
 			boolean isFinishDateTimeExtend = this.updateAuctionDetails(auctionPreparation, currentDateTime);
-			//Duration duration = Duration.between(currentDateTime,auctionPreparation.getAuctionFinishTime());
 			biddingVO.setRemainingTime(currentDateTime.until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
-			//biddingVO.setRemainingTime(duration.toSeconds());
 			biddingVO.setFinishTimeExtend(isFinishDateTimeExtend);	
 		  return biddingVO;
 		}
@@ -76,7 +80,16 @@ public class BiddingService implements IBiddingService {
 	}
 	
 	
-	public long getRoundNumberAndUpdateAuctionStartAndFinishDateTime(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
+	private boolean isUserValidForRound(AuctionPreparation auctionPreparation) {
+		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
+		Integer userRoundsCount = this.bidderAuctionEnrollmentDao.findRoundParticipantCount(auctionPreparation, bidder);
+	    if(Objects.isNull(userRoundsCount))
+	    	  return false;
+	    long h1Count = this.biddingDao.countByAuctionPreparationAndBidderAndRoundClosedAtIsNotNull(auctionPreparation, bidder); 
+		return h1Count < userRoundsCount;
+	}
+	
+	private long getRoundNumberAndUpdateAuctionStartAndFinishDateTime(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
 	    long roundNumber = this.findRoundNumber(auctionPreparation);
 	    if(roundNumber>0) {
 	    	LocalDateTime auctionStartDateTime = auctionPreparation.getAuctionStartDateTime();
@@ -97,12 +110,14 @@ public class BiddingService implements IBiddingService {
 	    	auctionPreparation.setAuctionFinishTime(auctionFinishDateTime.plusMinutes(minutesDuration));
 	    }
 	   return roundNumber+1; 
-	    
 	}
 	
-	public long findRoundNumber(AuctionPreparation auctionPreparation) {
+	
+	
+	private long findRoundNumber(AuctionPreparation auctionPreparation) {
 		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
+	//	System.out.println(auctionItem.getOrganizationItem().getId());
 		long unsoldPropertiesCount = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
 				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
 		if(unsoldPropertiesCount == 0)
@@ -196,6 +211,7 @@ public class BiddingService implements IBiddingService {
 			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
 			biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 			biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+			biddingVO.setRound(bidding.getRoundNo());
 		    return biddingVO;	
 		}
 		BiddingVO biddingVO = new BiddingVO();
@@ -203,8 +219,23 @@ public class BiddingService implements IBiddingService {
 		biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 		biddingVO.setBiddingAmount(0);
 		biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+		biddingVO.setRound(""+1);
 		biddingVO.setBidder(new UserVO());
 	   return biddingVO;
+	}
+	
+	@Override
+	public List<BidHistory> findBidHistoryByActionPreparation(Long auctionId) {
+		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId)
+				.stream().map(tuple -> {
+				//   Object	tuple.get("round");
+					 BidHistory bidHistory = new BidHistory();
+					 bidHistory.setBidder(tuple.get("firstName").toString().concat(" ").concat(tuple.get("lastName").toString()));
+					 bidHistory.setAmount(Double.parseDouble(tuple.get("amount").toString()));
+					 bidHistory.setRound(tuple.get("round", String.class));
+					 bidHistory.setBidAt(tuple.get("bidAt").toString());
+					 return bidHistory;
+				}).toList();
 	}
 	
 	@Transactional
