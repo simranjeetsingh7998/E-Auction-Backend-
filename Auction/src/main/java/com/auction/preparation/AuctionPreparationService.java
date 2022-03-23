@@ -291,7 +291,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Override
 	public AuctionPreparationVO findAllDetailsById(Long id) {
-		List<AuctionPreparation> auctionPreparations = this.auctionPreparationDao.findAll(AuctionPreparationSpecification.fullDetailsById(id));
+		List<AuctionPreparation> auctionPreparations = this.auctionPreparationDao.findAll(
+			AuctionPreparationSpecification.fullDetailsById(id));
 		if(!auctionPreparations.isEmpty()) {
 		   return this.checkAndAddAssociation(auctionPreparations.get(0));
 		}
@@ -305,11 +306,20 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
-	public List<BiddingVO> userCurrentAuctions() {
-		return this.auctionPreparationDao.findAll(AuctionPreparationSpecification.currentUserAuctions())
+	public List<BiddingVO> userCurrentAuctions(Long [] auctionIds) {
+		if(Objects.isNull(auctionIds) || auctionIds.length ==0){
+		return this.auctionPreparationDao.findAll(
+			AuctionPreparationSpecification.currentUserAuctions())
 				.stream().distinct().map(auction -> {
 				return this.biddingService.lastBidOfAuctionForBidder(auction);
 				}).toList();
+			} else {
+				return this.auctionPreparationDao.findAll(
+					AuctionPreparationSpecification.currentUserAuctionsByAuctionIds(auctionIds))
+				.stream().distinct().map(auction -> {
+				return this.biddingService.lastBidOfAuctionForBidder(auction);
+				}).toList();
+			}
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {

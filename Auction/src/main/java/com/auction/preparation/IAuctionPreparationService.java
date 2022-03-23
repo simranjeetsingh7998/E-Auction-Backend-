@@ -37,6 +37,6 @@ public interface IAuctionPreparationService {
 	
 	Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId);
 	
-	List<BiddingVO> userCurrentAuctions();
+	List<BiddingVO> userCurrentAuctions(Long[] auctionIds);
 
 }

@@ -86,4 +86,16 @@ public class AuctionPreparationSpecification {
 		  };
 	 }
 
+	 public static Specification<AuctionPreparation> currentUserAuctionsByAuctionIds(Long[] auctionIds){
+		LocalDateTime currentDateTime = LocalDateTime.now();
+		 return (root, query, builder) -> {
+			 SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
+			 return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
+					 ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
+					 builder.in(root.get("id")).value(auctionIds),
+					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
+					 builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime));
+		 };
+	}
+
 }
