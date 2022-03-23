@@ -2,7 +2,6 @@ package com.auction.bidding;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -120,8 +119,11 @@ public class BiddingService implements IBiddingService {
 	//	System.out.println(auctionItem.getOrganizationItem().getId());
 		long unsoldPropertiesCount = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
 				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
-		if(unsoldPropertiesCount == 0)
+		if(unsoldPropertiesCount == 0) {
+			  auctionPreparation.setAuctionStatus(AuctionStatus.CONCLUDED);
+			  this.auctionPreparationDao.save(auctionPreparation);
 			  throw new ResourceNotFoundException("All rounds are completed");
+		}
 		long totalProperties = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_IsActiveTrue(
 				auctionPreparation, auctionItem.getOrganizationItem());
 		return totalProperties-unsoldPropertiesCount;

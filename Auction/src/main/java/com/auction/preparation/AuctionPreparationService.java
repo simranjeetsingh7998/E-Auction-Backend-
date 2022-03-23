@@ -306,8 +306,8 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
-	public List<BiddingVO> userCurrentAuctions(Long [] auctionIds) {
-		if(Objects.isNull(auctionIds) || auctionIds.length ==0){
+	public List<BiddingVO> userCurrentAuctions(List<Long> auctionIds) {
+		if(Objects.isNull(auctionIds) || auctionIds.size() ==0){
 		return this.auctionPreparationDao.findAll(
 			AuctionPreparationSpecification.currentUserAuctions())
 				.stream().distinct().map(auction -> {

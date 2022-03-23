@@ -32,7 +32,8 @@ public class CronJobs {
 	
 	@Scheduled(cron = "0 * * * * *")
 	private void closeRound() {
-		List<AuctionPreparation> auctionPreparationList = this.auctionPreparationDao.findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus.SCHEDULED, LocalDateTime.now());
+		List<AuctionPreparation> auctionPreparationList
+		= this.auctionPreparationDao.findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus.SCHEDULED, LocalDateTime.now());
 	    auctionPreparationList.forEach(auction -> {
 	    	 try {
 	    	     this.biddingService.closeRound(auction);

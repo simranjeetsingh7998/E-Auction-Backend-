@@ -2,6 +2,8 @@ package com.auction.preparation;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,12 +133,12 @@ public class AuctionPreparationController {
 	
 	@GetMapping("/user/current/auction/preparation")
 	public ResponseEntity<ApiResponse> userCurrentAuctionPreparation(@RequestParam(name = "auctionIds", required = false) String auctions){
-		Long[] auctionIds = null;
+		List<Long> auctionIds = null;
 		if(!Objects.isNull(auctions)){
               String [] auctionIdsArray = auctions.split(",");
-			  auctionIds = new Long[auctionIdsArray.length];
+			  auctionIds = new ArrayList<>();
 			  for(int i =0; i< auctionIdsArray.length; i++){
-				   auctionIds[i] = Long.parseLong(auctionIdsArray[i]);
+				   auctionIds.add(Long.parseLong(auctionIdsArray[i]));
 			  }
 		}
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Current auctions fetched successfully",

@@ -1,8 +1,10 @@
 package com.auction.preparation;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.SetJoin;
 
@@ -86,13 +88,14 @@ public class AuctionPreparationSpecification {
 		  };
 	 }
 
-	 public static Specification<AuctionPreparation> currentUserAuctionsByAuctionIds(Long[] auctionIds){
+	 public static Specification<AuctionPreparation> currentUserAuctionsByAuctionIds(List<Long> auctionIds){
 		LocalDateTime currentDateTime = LocalDateTime.now();
 		 return (root, query, builder) -> {
 			 SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
+			 In<Object> inClause =	builder.in(root.get("id"));
 			 return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					 ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
-					 builder.in(root.get("id")).value(auctionIds),
+					 inClause.value(auctionIds),
 					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
 					 builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime));
 		 };
