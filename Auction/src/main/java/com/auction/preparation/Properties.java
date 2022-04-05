@@ -10,6 +10,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.auction.properties.AuctionItemProprties;
+import com.auction.properties.AuctionItemProprtiesVO;
 
 import lombok.Data;
 
@@ -27,5 +28,15 @@ public class Properties {
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	private AuctionItemProprties auctionItemProprties;
+	
+	
+	public AuctionItemProprtiesVO auctionItemProprtiesToAuctionItemProprtiesVO() {
+		AuctionItemProprtiesVO vo=new AuctionItemProprtiesVO();
+		 auctionItemProprties.setId(auctionItemProprties.getId());
+		 auctionItemProprties.setActive(auctionItemProprties.isActive());
+		 auctionItemProprties.setProperty(auctionItemProprties.getProperty());
+		 auctionItemProprties.setPropertiesStatus(auctionItemProprties.getPropertiesStatus());
+		return vo;
+	}
 
 }

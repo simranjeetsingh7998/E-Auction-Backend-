@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +67,21 @@ public class BiddingController {
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
 				 responseMsg,
 				 null, null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/{id}/properties/unsold")
+	public ResponseEntity<ApiResponse> unsoldProperties(@PathVariable Long auctionId){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(),
+				this.messageResolver.getMessage("auction.item.properties.unsold.fetch"),
+				this.biddingService.findUnsoldPropertiesForH1Bidder(auctionId), null), HttpStatus.OK);
+	}
+	
+	@PatchMapping("/auction/{auctionId}/{propertyId}/reserve/property")
+	public ResponseEntity<ApiResponse> markPropertyReserve(@PathVariable Long auctionId,@PathVariable Long propertyId){
+		this.biddingService.markPropertyAsReserved(auctionId,propertyId);
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
+				 messageResolver.getMessage("auction.item.properties.status.update"), null, null), HttpStatus.OK);
 	}
 
 }

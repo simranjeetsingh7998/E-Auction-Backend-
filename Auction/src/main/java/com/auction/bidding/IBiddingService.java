@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionPreparation;
+import com.auction.properties.AuctionItemProprtiesVO;
 
 public interface IBiddingService {
 
@@ -18,5 +19,9 @@ public interface IBiddingService {
 	long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException;
 	
 	List<BidHistory> findBidHistoryByActionPreparation(Long auctionId);
+
+	List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId);
+
+	void markPropertyAsReserved(Long auctionId, Long propertyId);
 	
 }

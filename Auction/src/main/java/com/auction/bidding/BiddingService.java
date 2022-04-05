@@ -23,6 +23,12 @@ import com.auction.preparation.AuctionPreparationSpecification;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.preparation.IPropertiesDao;
+import com.auction.preparation.Properties;
+import com.auction.properties.AuctionItemProprties;
+import com.auction.properties.AuctionItemProprtiesVO;
+import com.auction.properties.AuctionItemUserProperties;
+import com.auction.properties.IAuctionItemProprtiesDao;
+import com.auction.properties.IAuctionItemUserPropertiesDao;
 import com.auction.properties.PropertiesStatus;
 import com.auction.user.User;
 import com.auction.user.UserVO;
@@ -42,6 +48,12 @@ public class BiddingService implements IBiddingService {
 	
 	@Autowired
 	private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
+	
+	@Autowired
+	private IAuctionItemUserPropertiesDao auctionItemUserCountDao;
+	
+	@Autowired 
+	private IAuctionItemProprtiesDao auctionItemPropertiesDao;
 	
 	@Transactional
 	@Override
@@ -255,6 +267,41 @@ public class BiddingService implements IBiddingService {
 	    bidding.setRoundNo(""+unsoldPropertiesCount);
 	    this.biddingDao.save(bidding);
 		return (unsoldPropertiesCount);
+	}
+
+
+	@Override
+	public List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId) {
+		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		List<Properties> auctionProperties=propertiesDao.findByAuctionPreparationAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(auctionPreparation, 
+				PropertiesStatus.UNSOLD);
+		return auctionProperties.stream().map(Properties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
+	}
+
+
+	@Override
+	public void markPropertyAsReserved(Long auctionId, Long propertyId) {
+		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
+		Optional<AuctionItemProprties> auctionProperty=this.auctionItemPropertiesDao.findById(propertyId);
+		long H1BidderCount=biddingDao.countByAuctionPreparationAndBidderAndRoundClosedAtIsNotNull(auctionPreparation, bidder);
+		long reserveCountForH1Bidder =this.auctionItemUserCountDao.countByAuctionItemProprtiesAndBidderAndPropertiesStatus(auctionProperty.get(), bidder, PropertiesStatus.RESERVED);
+		
+		if(H1BidderCount<=0) {
+			throw new DataMisMatchException("You are not a highest bidder for the current auction");
+		}else if(H1BidderCount<=reserveCountForH1Bidder) {
+			throw new DataMisMatchException("No other property pending to allocate");
+		}else {
+			auctionProperty.get().setPropertiesStatus(PropertiesStatus.RESERVED);
+			auctionItemPropertiesDao.save(auctionProperty.get());
+			
+			AuctionItemUserProperties userItemProperty=new AuctionItemUserProperties();
+			userItemProperty.setAuctionItemProperties(auctionProperty.get());
+			userItemProperty.setBidder(bidder);
+			userItemProperty.setPropertiesStatus(PropertiesStatus.RESERVED);
+			auctionItemUserCountDao.save(userItemProperty);
+		}
+		
 	}
 
 }
