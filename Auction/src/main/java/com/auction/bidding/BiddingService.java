@@ -273,30 +273,35 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId) {
 		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		List<Properties> auctionProperties=propertiesDao.findByAuctionPreparationAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(auctionPreparation, 
+		List<Properties> auctionProperties=propertiesDao.findAllByAuctionPreparationAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(auctionPreparation, 
 				PropertiesStatus.UNSOLD);
 		return auctionProperties.stream().map(Properties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
 	}
 
 
+	@Transactional(rollbackFor = Throwable.class)
 	@Override
 	public void markPropertyAsReserved(Long auctionId, Long propertyId) {
 		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
 		Optional<AuctionItemProprties> auctionProperty=this.auctionItemPropertiesDao.findById(propertyId);
+		if(!auctionProperty.isPresent())
+			 throw new ResourceNotFoundException("Property not found");
+		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
+		AuctionItemProprties auctionItemProprties = auctionProperty.get();
 		long H1BidderCount=biddingDao.countByAuctionPreparationAndBidderAndRoundClosedAtIsNotNull(auctionPreparation, bidder);
-		long reserveCountForH1Bidder =this.auctionItemUserCountDao.countByAuctionItemProprtiesAndBidderAndPropertiesStatus(auctionProperty.get(), bidder, PropertiesStatus.RESERVED);
+		long reserveCountForH1Bidder =this.auctionItemUserCountDao.countByAuctionItemPropertiesAndBidderAndPropertiesStatus(
+				auctionItemProprties, bidder, PropertiesStatus.RESERVED);
 		
 		if(H1BidderCount<=0) {
 			throw new DataMisMatchException("You are not a highest bidder for the current auction");
 		}else if(H1BidderCount<=reserveCountForH1Bidder) {
 			throw new DataMisMatchException("No other property pending to allocate");
 		}else {
-			auctionProperty.get().setPropertiesStatus(PropertiesStatus.RESERVED);
-			auctionItemPropertiesDao.save(auctionProperty.get());
+			auctionItemProprties.setPropertiesStatus(PropertiesStatus.RESERVED);
+			auctionItemPropertiesDao.save(auctionItemProprties);
 			
 			AuctionItemUserProperties userItemProperty=new AuctionItemUserProperties();
-			userItemProperty.setAuctionItemProperties(auctionProperty.get());
+			userItemProperty.setAuctionItemProperties(auctionItemProprties);
 			userItemProperty.setBidder(bidder);
 			userItemProperty.setPropertiesStatus(PropertiesStatus.RESERVED);
 			auctionItemUserCountDao.save(userItemProperty);
