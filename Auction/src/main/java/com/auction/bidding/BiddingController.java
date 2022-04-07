@@ -70,7 +70,7 @@ public class BiddingController {
 	}
 	
 	@GetMapping("/auction/{id}/properties/unsold")
-	public ResponseEntity<ApiResponse> unsoldProperties(@PathVariable Long auctionId){
+	public ResponseEntity<ApiResponse> unsoldProperties(@PathVariable("id") Long auctionId){
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(),
 				this.messageResolver.getMessage("auction.item.properties.unsold.fetch"),
@@ -78,7 +78,8 @@ public class BiddingController {
 	}
 	
 	@PatchMapping("/auction/{auctionId}/{propertyId}/reserve/property")
-	public ResponseEntity<ApiResponse> markPropertyReserve(@PathVariable Long auctionId,@PathVariable Long propertyId){
+	public ResponseEntity<ApiResponse> markPropertyReserve(@PathVariable("auctionId") Long auctionId,
+			@PathVariable("propertyId") Long propertyId){
 		this.biddingService.markPropertyAsReserved(auctionId,propertyId);
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 				 messageResolver.getMessage("auction.item.properties.status.update"), null, null), HttpStatus.OK);

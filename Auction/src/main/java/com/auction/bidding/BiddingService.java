@@ -20,6 +20,7 @@ import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionItem;
 import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionPreparationSpecification;
+import com.auction.preparation.AuctionPreparationVO;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.preparation.IPropertiesDao;
@@ -216,6 +217,8 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public BiddingVO lastBidOfAuctionForBidder(AuctionPreparation auctionPreparation) {
 		Optional<Bidding> optionalBidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+		AuctionPreparationVO  auctionPreparationVO = auctionPreparation.auctionPreparationToAuctionPreparationVO();
+		auctionPreparationVO.setAuctionItems(auctionPreparation.getAuctionItems().stream().map(AuctionItem::auctionItemToAuctionItemVO).toList());
 		if(optionalBidding.isPresent()) {
 			Bidding bidding = optionalBidding.get();
 			BiddingVO biddingVO = bidding.biddingToBiddingVO();
@@ -224,7 +227,7 @@ public class BiddingService implements IBiddingService {
 			biddingVO.setBidder(userVO);
 			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
 			biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
-			biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+			biddingVO.setAuctionPreparation(auctionPreparationVO);
 			biddingVO.setRound(bidding.getRoundNo());
 		    return biddingVO;	
 		}
@@ -232,7 +235,7 @@ public class BiddingService implements IBiddingService {
 		biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
 		biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 		biddingVO.setBiddingAmount(0);
-		biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+		biddingVO.setAuctionPreparation(auctionPreparationVO);
 		biddingVO.setRound(""+1);
 		biddingVO.setBidder(new UserVO());
 	   return biddingVO;
