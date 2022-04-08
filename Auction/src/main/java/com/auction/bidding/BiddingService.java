@@ -146,7 +146,8 @@ public class BiddingService implements IBiddingService {
 		Bidding bidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")))
 				.orElseThrow(() -> new ResourceNotFoundException("Auction can't be closed because no bid found for auction"));
 		if(bidding.getRoundClosedAt() != null)
-			  throw new ResourceAlreadyExist("Round already closed");
+			return null;
+			  //throw new ResourceAlreadyExist("Round already closed");
 		bidding.setRoundStartAt(auctionPreparation.getAuctionStartDateTime());
 		bidding.setRoundClosedAt(auctionPreparation.getAuctionFinishTime());
 		bidding.setAuctionPreparation(auctionPreparation);
@@ -219,20 +220,29 @@ public class BiddingService implements IBiddingService {
 		Optional<Bidding> optionalBidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
 		AuctionPreparationVO  auctionPreparationVO = auctionPreparation.auctionPreparationToAuctionPreparationVO();
 		auctionPreparationVO.setAuctionItems(auctionPreparation.getAuctionItems().stream().map(AuctionItem::auctionItemToAuctionItemVO).toList());
+		auctionPreparationVO.setAuctionScheduleVO(auctionPreparation.getAuctionScheduleVO());
+		long remainingTime = LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS);
+		long roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60*1000;
+		if(remainingTime < 0) {
+			roundStartRemainingTime = roundStartRemainingTime - remainingTime;
+			remainingTime = 0;
+		}
 		if(optionalBidding.isPresent()) {
 			Bidding bidding = optionalBidding.get();
 			BiddingVO biddingVO = bidding.biddingToBiddingVO();
 			UserVO userVO = new UserVO();
 			userVO.setId(bidding.getBidder().getId());
 			biddingVO.setBidder(userVO);
-			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+			biddingVO.setRemainingTime(remainingTime);
+			biddingVO.setRoundStartRemainingTime(roundStartRemainingTime);
 			biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 			biddingVO.setAuctionPreparation(auctionPreparationVO);
 			biddingVO.setRound(bidding.getRoundNo());
 		    return biddingVO;	
 		}
 		BiddingVO biddingVO = new BiddingVO();
-		biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+		biddingVO.setRemainingTime(remainingTime);
+		biddingVO.setRoundStartRemainingTime(roundStartRemainingTime);
 		biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 		biddingVO.setBiddingAmount(0);
 		biddingVO.setAuctionPreparation(auctionPreparationVO);
@@ -259,7 +269,10 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public long closeRoundByAuctionPreparation(Long auctionId) {
 	    AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-	    return closeRound(auctionPreparation);
+	    long unsoldPropertiesCount = closeRound(auctionPreparation);
+	    if(unsoldPropertiesCount == -1)
+	    	throw new ResourceAlreadyExist("Round already closed");
+	    return unsoldPropertiesCount;
 	}
 	
 	@Override
@@ -267,6 +280,8 @@ public class BiddingService implements IBiddingService {
 	public long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
 	    long unsoldPropertiesCount = findRoundNumber(auctionPreparation);
 	    Bidding bidding = findLastBidOfAuction(auctionPreparation);
+	    if(Objects.isNull(bidding))
+	    	 return -1;
 	    bidding.setRoundNo(""+unsoldPropertiesCount);
 	    this.biddingDao.save(bidding);
 		return (unsoldPropertiesCount);

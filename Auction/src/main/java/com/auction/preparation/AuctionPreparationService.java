@@ -246,6 +246,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    auctionPreparation.setAuctionExtendMinutes(auctionScheduleVO.getAuctionExtendMinutes());
 			    auctionPreparation.setAuctionExtendLimit(auctionScheduleVO.getAuctionExtendLimit());
 			    auctionPreparation.setAuctionFinishTime(auctionScheduleVO.getEndDateTime());
+			    auctionPreparation.setIntervalInMinutes(auctionScheduleVO.getIntervalInMinutes());
 				auctionPreparation.setAuctionStatus(AuctionStatus.SCHEDULED);
 			    this.auctionPreparationDao.save(auctionPreparation);
 			    List<Properties> propertiesList = this.auctionItemProprtiesDao.findAllById(

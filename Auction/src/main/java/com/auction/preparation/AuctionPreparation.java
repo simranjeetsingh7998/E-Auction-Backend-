@@ -176,4 +176,10 @@ public class AuctionPreparation implements Serializable {
 		   auctionPreparationVO.setIntervalInMinutes(!Objects.isNull(intervalInMinutes) ? intervalInMinutes : 0);
 		   return auctionPreparationVO;
 	}
+	
+	public AuctionScheduleVO getAuctionScheduleVO() {
+		  AuctionScheduleVO auctionScheduleVO = new AuctionScheduleVO();
+		  auctionScheduleVO.setStartDateTime(this.auctionStartDateTime);
+		  return auctionScheduleVO;
+	}
 }

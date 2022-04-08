@@ -36,5 +36,8 @@ public class AuctionScheduleVO {
 	
 	@JsonProperty("extend_limit")
 	private Integer auctionExtendLimit;
+	
+	@JsonProperty("interval_minutes")
+	private int intervalInMinutes;
 
 }
