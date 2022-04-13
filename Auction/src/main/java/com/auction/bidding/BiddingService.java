@@ -75,7 +75,6 @@ public class BiddingService implements IBiddingService {
 		if(!this.isUserValidForRound(auctionPreparation)) {
 			throw new DataMisMatchException("You can't bid. Maybe your EmdLimit reached");
 		}
-	//	long roundNumber = this.getRoundNumberAndUpdateAuctionStartAndFinishDateTime(auctionPreparation);
 		long roundNumber = this.findRoundNumber(auctionPreparation);
 		int round = Math.toIntExact(roundNumber);
 		
@@ -88,7 +87,7 @@ public class BiddingService implements IBiddingService {
 	    
 		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())
 		   && currentDateTime.isAfter(auctionStartDateTime)	 
-		   && currentDateTime.isBefore(auctionFinishDateTime) //currentDateTime.isBefore(auctionPreparation.getAuctionFinishTime())
+		   && currentDateTime.isBefore(auctionFinishDateTime)
 		   ) {
 			this.bid(biddingVO, auctionPreparation);
 			// adding auction extend history
@@ -115,9 +114,18 @@ public class BiddingService implements IBiddingService {
 			throw new DataMisMatchException("Round is not started yet");
 		}
 		else if(currentDateTime.isAfter(auctionFinishDateTime)) {
+			if(this.biddingDao.countByAuctionPreparationAndRoundNo(auctionPreparation, String.valueOf(round+1)) == 0) {
+				this.concludedAuction(auctionPreparation);
+			}
 			throw new DataMisMatchException("Round is closed");
 		}
 		return null;	
+	}
+	
+	private void concludedAuction(AuctionPreparation auctionPreparation) {
+		  auctionPreparation.setAuctionStatus(AuctionStatus.CONCLUDED);
+		  this.auctionPreparationDao.save(auctionPreparation);
+		  throw new ResourceNotFoundException("All rounds are completed");
 	}
 	
 	private long getAuctionExtendCount(Long auctionPreparationId, int round) {
@@ -276,6 +284,8 @@ public class BiddingService implements IBiddingService {
 				     remainingTime = 0;
 			   }
 		}
+		if(remainingTime < (-5000) && (roundStartRemainingTime < (-5000)))
+			   this.concludedAuction(auctionPreparation);
 		BiddingVO biddingVO = new BiddingVO();
 		biddingVO.setRemainingTime(remainingTime);
 		biddingVO.setRoundStartRemainingTime(roundStartRemainingTime);
@@ -294,7 +304,6 @@ public class BiddingService implements IBiddingService {
     	LocalDateTime auctionEndDateTime = auctionPreparation.getAuctionEndDateTime();
     	LocalDateTime auctionFinishDateTime = auctionPreparation.getAuctionFinishTime();
     	// if auction end and finish date time is same
-    	System.out.println(auctionStartDateTime.until(auctionEndDateTime, ChronoUnit.MINUTES));
     	long minutesDuration = auctionStartDateTime.until(auctionEndDateTime, ChronoUnit.MINUTES)*(round-1);
 //    	// if auction finish date time is greater than end date time adding difference in minuteDuration
     	Integer interValInMinutes = !Objects.isNull(auctionPreparation.getIntervalInMinutes())
@@ -306,18 +315,11 @@ public class BiddingService implements IBiddingService {
     	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);
     	System.out.println("Auction Interval in Minutes :  "+auctionPreparation.getIntervalInMinutes());
     	System.out.println("Minute Duration :  "+minutesDuration);
-//        if(round>1)
-//        	round = round-1;
-//    	Integer extendCount = this.auctionExtendedHistoryDao.findByAuctionPreparationAndRound(auctionPreparation.getId(), round,
-//				PageRequest.of(0, 1, Sort.by(Direction.DESC, "id")));
-//    	if(Objects.isNull(extendCount))
-//    		extendCount = 0;
         Integer extendCount = this.getAuctionExtend(auctionPreparation.getId(), round);
     	auctionStartDateTime = auctionStartDateTime.plusMinutes(
     			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
     	// update auction finish date time
-    	//auctionFinishDateTime = auctionFinishDateTime.plusMinutes((minutesDuration+auctionExtendMinutes)*extendCount);
     	auctionFinishDateTime = auctionFinishDateTime.plusMinutes(
     			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);

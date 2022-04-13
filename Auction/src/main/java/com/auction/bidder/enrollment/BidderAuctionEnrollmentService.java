@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.global.exception.DataMisMatchException;
+import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
+import com.auction.user.User;
 import com.auction.util.FileUpload;
 import com.auction.util.LoggedInUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +41,9 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = mapper.readValue(bidderAuctionEnrollmentJson, BidderAuctionEnrollmentVO.class);
 		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(bidderAuctionEnrollmentVO.getAuctionPreparation().getId())
 		 .orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		User user = LoggedInUser.getLoggedInUserDetails().getUser();
+		if(this.bidderAuctionEnrollmentDao.existsByAuctionPreparationAndUser(auctionPreparation, user))
+			  throw new ResourceAlreadyExist("You have already enrolled for this auction");
 		if(!auctionPreparation.getAuctionStatus().getStatus().equalsIgnoreCase(AuctionStatus.PUBLISH.getStatus())) {
 			 throw new DataMisMatchException("Auction is not published yet");
 		}
@@ -51,7 +56,7 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		}
 		BidderAuctionEnrollment bidderAuctionEnrollment = bidderAuctionEnrollmentVO.bidderAuctionEnrollmentVOToBidderAuctionEnrollment();
 		bidderAuctionEnrollment.setAuctionPreparation(auctionPreparation);
-		bidderAuctionEnrollment.setUser(LoggedInUser.getLoggedInUserDetails().getUser());
+		bidderAuctionEnrollment.setUser(user);
 		bidderAuctionEnrollment.setEmdAmount(auctionPreparation.getEmdFeeAmount()*bidderAuctionEnrollment.getEmdLimit());
 		bidderAuctionEnrollment.setEventProcessingFeeAmount(auctionPreparation.getEventProcessingFeeAmount()*bidderAuctionEnrollment.getEmdLimit());
 		for (JointHolderVO jointHolderVO : bidderAuctionEnrollmentVO.getJointHolderVOs()) {

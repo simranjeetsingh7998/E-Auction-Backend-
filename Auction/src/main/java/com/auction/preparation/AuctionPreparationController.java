@@ -84,6 +84,12 @@ public class AuctionPreparationController {
 				this.auctionPreparationService.findAllDetailsById(id), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/schedule/auction/preparation/{id}/details")
+	public ResponseEntity<ApiResponse> getAuctionPreparationDetailToSchedule(@PathVariable Long id){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction fetched successfully",
+				this.auctionPreparationService.getAuctionPreparationDetailsToSchedule(id), null), HttpStatus.OK);
+	}
+	
 	@PutMapping("/auction/preparation/{id}/publish")
 	public ResponseEntity<ApiResponse> publishAuctionById(@PathVariable Long id, @RequestBody AuctionPreparationVO auctionPreparationVO){
 		this.auctionPreparationService.publish(id, auctionPreparationVO);

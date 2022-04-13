@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.bidding.BiddingVO;
 import com.auction.bidding.IBiddingService;
 import com.auction.global.exception.DataMisMatchException;
@@ -67,6 +68,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Autowired
 	private IBiddingService biddingService;
+	
+	@Autowired
+	private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
 	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
@@ -321,6 +325,18 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 				return this.biddingService.lastBidOfAuctionForBidder(auction);
 				}).toList();
 			}
+	}
+	
+	@Override
+	public AuctionPreparationVO getAuctionPreparationDetailsToSchedule(Long id) {
+		AuctionPreparationVO auctionPreparationVO = this.findAllDetailsById(id);
+		AuctionPreparation auctionPreparation = new AuctionPreparation();
+		auctionPreparation.setId(auctionPreparationVO.getId());
+		long totalUserEmrollments = this.bidderAuctionEnrollmentDao.countByAuctionPreparation(auctionPreparation);
+		int totalEmdSum = this.bidderAuctionEnrollmentDao.totalEmdCountByAuctionPreparationId(auctionPreparation);
+		auctionPreparationVO.setTotalEmd(totalEmdSum);
+		auctionPreparationVO.setTotalEnrollmentCount(totalUserEmrollments);
+		return auctionPreparationVO;
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {
