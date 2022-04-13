@@ -65,11 +65,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 //                System.out.println(accessor.getDestination());
 //                System.out.println(accessor.getCommand());
 //                System.out.println(accessor.getUser());
-                System.out.println(accessor.getDestination()+"        Session id   "+accessor.getSessionId());
+              //  System.out.println(accessor.getDestination()+"        Session id   "+accessor.getSessionId());
                 if(StompCommand.CONNECT.equals(accessor.getCommand())){
                    if(accessor.getNativeHeader(HttpHeaders.AUTHORIZATION)!=null) {
                 		String token = accessor.getNativeHeader(HttpHeaders.AUTHORIZATION).get(0).substring(7);
-                    	System.out.println(token);
+                  //  	System.out.println(token);
                     	Jws<Claims> jws =  tokenUtility.getAllClaimsFromToken(token);
                     	Claims claims = jws.getBody();
                     	accessor.setUser(new UsernamePasswordAuthenticationToken(claims.get("username"), null, null));
@@ -79,9 +79,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 } else if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
                   //  setUserOnlineOrOffline(accessor.getUser().getName(), "Online");
                 } else if(StompCommand.SEND.equals(accessor.getCommand())){
-                    System.out.println("Send message " );
+                  //  System.out.println("Send message " );
                 } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())){
-                    System.out.println("Exit ");
+                //    System.out.println("Exit ");
                  //   setUserOnlineOrOffline(accessor.getUser().getName(), OffsetDateTime.now().toString());
                 } else {
                 }

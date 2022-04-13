@@ -17,6 +17,7 @@ import com.auction.preparation.AuctionPreparation;
 import com.auction.user.User;
 
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "bidding")
@@ -32,11 +33,13 @@ public class Bidding implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Exclude
 	@OneToOne(fetch = FetchType.LAZY)
 	private AuctionPreparation auctionPreparation;
 	
 	private double biddingAmount;
 	
+	@Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User bidder;
 	

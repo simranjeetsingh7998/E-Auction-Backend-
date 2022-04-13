@@ -57,7 +57,7 @@ public class BiddingController {
 	}
 	
 	@PostMapping("/auction/{id}/close/round")
-	public ResponseEntity<ApiResponse> closeAuctionRound(@PathVariable Long auctionId){
+	public ResponseEntity<ApiResponse> closeAuctionRound(@PathVariable("id") Long auctionId){
 		 long closedRoundNumber = this.biddingService.closeRoundByAuctionPreparation(auctionId);
 		 String responseMsg = "Round "+closedRoundNumber+" is closed";
 			this.simpMessagingTemplate.convertAndSend("/queue/bidding/round/close/"+auctionId, 

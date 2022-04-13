@@ -26,7 +26,7 @@ public class CronJobs {
 	@Autowired 
 	private IAuctionPreparationDao auctionPreparationDao;
 	
-	@Scheduled(cron = "0 * * * * *")
+	//@Scheduled(cron = "0 * * * * *")
 	private void closeRound() {
 		List<AuctionPreparation> auctionPreparationList
 		= this.auctionPreparationDao.findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus.SCHEDULED, LocalDateTime.now());

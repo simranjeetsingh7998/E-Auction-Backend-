@@ -117,6 +117,9 @@ public class AuctionPreparation implements Serializable {
 	@OneToMany(mappedBy = "auctionPreparation", cascade = CascadeType.ALL)
 	private Set<BidderAuctionEnrollment> bidderAuctionEnrollments = new HashSet<>();
 	
+//	@OneToMany(mappedBy = "auctionPreparation", cascade = {CascadeType.ALL}, orphanRemoval = false)
+//	private Set<AuctionExtendedHistory> auctionExtendedHistories  = new HashSet<>();
+	
 	private AuctionStatus auctionStatus;
 	
 	@ColumnDefault("true")
