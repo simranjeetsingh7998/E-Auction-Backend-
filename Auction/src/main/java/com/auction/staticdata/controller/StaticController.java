@@ -1,7 +1,6 @@
 package com.auction.staticdata.controller;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ public class StaticController {
 	@GetMapping("/static/current/date/time")
 	public ResponseEntity<ApiResponse> getCurrentDateTime(){
 		return new ResponseEntity<ApiResponse>(new ApiResponse(HttpStatus.OK.value(), "Server Date Time", 
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()), null), HttpStatus.OK);
+				new Date().getTime(), null), HttpStatus.OK);
 	}
 
 }

@@ -162,7 +162,6 @@ public class BiddingService implements IBiddingService {
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
 		long unsoldPropertiesCount = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
 				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
-		System.out.println("Unsold Properties Count  :   "+unsoldPropertiesCount);
 		if(unsoldPropertiesCount == 0) {
 			  auctionPreparation.setAuctionStatus(AuctionStatus.CONCLUDED);
 			  this.auctionPreparationDao.save(auctionPreparation);
@@ -195,7 +194,7 @@ public class BiddingService implements IBiddingService {
 		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
 		Optional<Double> optionalBidding =
-				this.biddingDao.findBiddingAmountByAuctionPreparationAndRoundNo(auctionPreparation,biddingVO.getRound(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+				this.biddingDao.findBiddingAmountByAuctionPreparationAndRoundNo(auctionPreparation,biddingVO.getRound(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"id")));
 		Bidding bidding = new Bidding();
 		bidding.setId(biddingVO.getId());
 		bidding.setBiddingAt(LocalDateTime.now());
@@ -210,8 +209,6 @@ public class BiddingService implements IBiddingService {
 		bidding.setAuctionPreparation(auctionPreparation);
 		bidding.setBidder(user);
 		bidding.setRoundNo(biddingVO.getRound());
-	//	PrintObjectAsJson.printAsJson(bidding);
-		System.out.println(bidding);
 		if(!bidding.getRoundNo().equals("0"))
 		  bidding = this.biddingDao.save(bidding);
 		biddingVO.setBidder(user.userToUserVO());
@@ -266,7 +263,7 @@ public class BiddingService implements IBiddingService {
 			   roundNumber = Integer.parseInt(optionalBidding.get().getRoundNo());
 			   remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
 				if(remainingTime < 0) {
-					System.out.println("Round no : "+roundNumber);
+					//System.out.println("Round no : "+roundNumber);
 					roundStartRemainingTime = roundStartRemainingTime - (-remainingTime);
 					if(roundStartRemainingTime <=0) {
 						 roundNumber =roundNumber+1;
@@ -276,7 +273,7 @@ public class BiddingService implements IBiddingService {
 					    remainingTime = 0;
 				}
 		} else {
-			   System.out.println("Hellloooooooooooooooo");
+			 //  System.out.println("Hellloooooooooooooooo");
 			   roundNumber=+1;
 			   remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
 			   if(remainingTime < 0) {
@@ -349,7 +346,7 @@ public class BiddingService implements IBiddingService {
 	
 	@Override
 	public List<BidHistory> findBidHistoryByActionPreparation(Long auctionId) {
-		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId)
+		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId, LoggedInUser.getLoggedInUserDetails().getId())
 				.stream().map(tuple -> {
 				//   Object	tuple.get("round");
 					 BidHistory bidHistory = new BidHistory();
@@ -387,8 +384,7 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId) {
 		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		List<Properties> auctionProperties=propertiesDao.findAllByAuctionPreparationAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(auctionPreparation, 
-				PropertiesStatus.UNSOLD);
+		List<Properties> auctionProperties=propertiesDao.findAllByAuctionPreparationAndAuctionItemProprties_IsActiveTrue(auctionPreparation);
 		return auctionProperties.stream().map(Properties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
 	}
 
