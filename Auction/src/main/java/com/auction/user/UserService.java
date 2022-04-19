@@ -3,6 +3,7 @@ package com.auction.user;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,21 +16,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.ControllerHelper;
 import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.bidder.category.IBidderCategoryDao;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
+import com.auction.mail.EmailSetting;
+import com.auction.mail.IEmailSettingDao;
 import com.auction.organization.IOrganizationDao;
 import com.auction.organization.Organization;
 import com.auction.sms.ISMSTemplateDao;
 import com.auction.sms.SMSUtility;
+import com.auction.util.CommonUtils;
 import com.auction.util.FileUpload;
 import com.auction.util.GenerateOtp;
 
 @Service
-public class UserService implements IUserService {
+public class UserService extends ControllerHelper implements IUserService {
 
 	@Autowired
 	private IUserDao userDao;
@@ -50,6 +55,7 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	public ISMSTemplateDao smsTemplateDao;
+	
 
 	@Transactional
 	@Override
@@ -168,12 +174,12 @@ public class UserService implements IUserService {
 	@Override
 	public void sendEmailOtp(String to) throws Exception {
         String otp = GenerateOtp.emailOtp();
-        this.userVerificationDao.save(new UserVerification(to, otp, false, null));
-//        try {
-//			new MailSender().sendPlainMail(javaMailSender, to, otp);
-//		} catch (MessagingException e) {
-//		   throw new Exception("Error while sending otp");
-//		}
+        UserVerification verificationObj=this.userVerificationDao.save(new UserVerification(to, otp, false, null));
+        User user=userDao.findByEmail(verificationObj.getPhoneEmail()).get();
+        Map<String, EmailSetting> emails = getCompanyEmailSettings(1);
+        EmailSetting setting = emails.get("BidderEmailVerificationOtpEmail");
+        sendFormEmail(user, CommonUtils.formatMessage(setting.getEmailMessage(), verificationObj.getOtp()), setting,
+        		addEAuctionLogoToImagePath());
 	}
 	
 	@Override

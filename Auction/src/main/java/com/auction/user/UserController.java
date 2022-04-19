@@ -51,8 +51,9 @@ public class UserController {
 	@Autowired
 	private IRoleService roleService;
 
-	@Autowired
-	private JavaMailSender javaMailSender;
+	/*
+	 * @Autowired private JavaMailSender javaMailSender;
+	 */
 	
 	@Autowired
 	private ApiResponseMessageResolver messageResolver;
@@ -126,7 +127,7 @@ public class UserController {
 
 	@PostMapping("/user/{to}/mail")
 	public ResponseEntity<ApiResponse> sendMail(@PathVariable("to") String to) throws MessagingException {
-		new MailSender().sendPlainMail(javaMailSender, to, "Testing mail configuration of Java Stack");
+//		new MailSender().sendPlainMail(javaMailSender, to, "Testing mail configuration of Java Stack");
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(), "Mail sent Successfully", null, null), HttpStatus.OK);
 	}
