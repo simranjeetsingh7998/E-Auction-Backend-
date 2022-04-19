@@ -26,6 +26,8 @@ import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.item.template.AuctionItemTemplate;
 import com.auction.item.template.IAuctionItemTemplateDao;
+import com.auction.method.AuctionMethod;
+import com.auction.method.IAuctionMethodDao;
 import com.auction.organization.Organization;
 import com.auction.organization.item.IOrganizationItemDao;
 import com.auction.organization.item.OrganizationItem;
@@ -72,6 +74,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Autowired
 	private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
 	
+	@Autowired
+	private IAuctionMethodDao auctionMethodDao;
+	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
 	@Transactional
@@ -105,6 +110,11 @@ public class AuctionPreparationService implements IAuctionPreparationService {
         if(!Objects.isNull(auctionPreparationVO.getAuctionItemTemplateVO()))
         	    auctionPreparation.setAuctionItemTemplate(auctionPreparationVO.getAuctionItemTemplateVO().auctionItemTemplateVOToAuctionItemTemplate());
 
+        List<AuctionMethod> auctionMethodList = this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation);
+        if(!Objects.isNull(auctionMethodList) && auctionMethodList.isEmpty()) {
+        	 auctionPreparation.setEmdLimit(auctionMethodList.get(0).getMethod().equals(AuctionMethodEnum.NORMAL.getMethod())
+        			 ? "1" : auctionPreparation.getEmdLimit());
+        }
         auctionPreparation = this.auctionPreparationDao.save(auctionPreparation);
         Instant createdAt = auctionPreparation.getCreatedDate();
         if(auctionPreparation.getAuctionName() == null && createdAt !=null) {
@@ -228,13 +238,17 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public void publish(Long id, AuctionPreparationVO auctionPreparationVO) {
 	   AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
 			   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
-	   if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())) {
+	   if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())
+		  && auctionPreparation.getAuctionEndDateTime().isAfter(LocalDateTime.now())) {
 		   auctionPreparation.setAuctionStatus(AuctionStatus.PUBLISH);
 		   auctionPreparation.setRegistrationStartDateTime(auctionPreparationVO.getRegistrationStartDateTime());
 		   auctionPreparation.setRegistrationEndDateTime(auctionPreparationVO.getRegistrationEndDateTime());
 		   this.auctionPreparationDao.save(auctionPreparation);
 	   } else {
-		    throw new DataMisMatchException("Auction can't be published because it's not approved yet");
+		    if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus()))
+		          throw new DataMisMatchException("Auction can't be published because it's not approved yet");
+		    else 
+		    	 throw new DataMisMatchException("Auction can't be published because Auction registration end date time is not finished yet");
 	   }
 	}
 	
@@ -336,10 +350,10 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		AuctionPreparationVO auctionPreparationVO = this.findAllDetailsById(id);
 		AuctionPreparation auctionPreparation = new AuctionPreparation();
 		auctionPreparation.setId(auctionPreparationVO.getId());
-		long totalUserEmrollments = this.bidderAuctionEnrollmentDao.countByAuctionPreparation(auctionPreparation);
-		int totalEmdSum = this.bidderAuctionEnrollmentDao.totalEmdCountByAuctionPreparationId(auctionPreparation);
-		auctionPreparationVO.setTotalEmd(totalEmdSum);
-		auctionPreparationVO.setTotalEnrollmentCount(totalUserEmrollments);
+		Long totalUserEmrollments = this.bidderAuctionEnrollmentDao.countByAuctionPreparation(auctionPreparation);
+		Integer totalEmdSum = this.bidderAuctionEnrollmentDao.totalEmdCountByAuctionPreparationId(auctionPreparation);
+		auctionPreparationVO.setTotalEmd(!Objects.isNull(totalEmdSum) ? totalEmdSum : 0);
+		auctionPreparationVO.setTotalEnrollmentCount(!Objects.isNull(totalUserEmrollments) ? totalUserEmrollments : 0);
 		return auctionPreparationVO;
 	}
 	

@@ -18,9 +18,9 @@ public interface IBidderAuctionEnrollmentDao extends JpaRepository<BidderAuction
 	Integer findRoundParticipantCount(AuctionPreparation auctionPreparation, User participant);
 	
 	@Query("select sum(b.emdLimit) from BidderAuctionEnrollment b where b.auctionPreparation=?1")
-	int totalEmdCountByAuctionPreparationId(AuctionPreparation auctionPreparation);
+	Integer totalEmdCountByAuctionPreparationId(AuctionPreparation auctionPreparation);
 	
-	long countByAuctionPreparation(AuctionPreparation auctionPreparation);
+	Long countByAuctionPreparation(AuctionPreparation auctionPreparation);
 	
 	boolean existsByAuctionPreparationAndUser(AuctionPreparation auctionPreparation, User participant);
 	

@@ -49,6 +49,8 @@ public class BidderAuctionEnrollmentVO {
 	@JsonProperty("joint_holders")
 	private List<JointHolderVO> jointHolderVOs = new ArrayList<>();
 	
+	private boolean verified;
+	
 	public BidderAuctionEnrollment bidderAuctionEnrollmentVOToBidderAuctionEnrollment() {
 		  BidderAuctionEnrollment auctionEnrollment = new BidderAuctionEnrollment();
 		  auctionEnrollment.setAmountPaidAt(amountPaidAt);
@@ -59,6 +61,7 @@ public class BidderAuctionEnrollmentVO {
 		  auctionEnrollment.setRefundAccountBeneficiaryName(refundAccountBeneficiaryName);
 		  auctionEnrollment.setRefundAccountNumber(refundAccountNumber);
 		  auctionEnrollment.setRefundAccountIfsccode(refundAccountIfsccode);
+		  auctionEnrollment.setVerified(verified);
 		return auctionEnrollment;  
 	}
 

@@ -18,6 +18,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.auction.preparation.AuctionPreparation;
 import com.auction.user.User;
 
@@ -68,6 +70,9 @@ public class BidderAuctionEnrollment implements Serializable {
 	@OneToMany(mappedBy = "bidderAuctionEnrollment", cascade = CascadeType.ALL)
 	private Set<JointHolder> jointHolders = new HashSet<>();
 	
+	@ColumnDefault("false")
+	private boolean verified;
+	
 	@PrePersist
 	public void setAmountPaidAt() {
 		 this.amountPaidAt = LocalDateTime.now();
@@ -88,6 +93,7 @@ public class BidderAuctionEnrollment implements Serializable {
 		  auctionEnrollmentVO.setRefundAccountBeneficiaryName(refundAccountBeneficiaryName);
 		  auctionEnrollmentVO.setRefundAccountIfsccode(refundAccountIfsccode);
 		  auctionEnrollmentVO.setRefundAccountNumber(refundAccountNumber);
+		  auctionEnrollmentVO.setVerified(verified);
 		return auctionEnrollmentVO;  
 	}
 

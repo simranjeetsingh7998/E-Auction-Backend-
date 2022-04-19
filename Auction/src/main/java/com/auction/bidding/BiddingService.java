@@ -313,8 +313,8 @@ public class BiddingService implements IBiddingService {
     	System.out.println("Auction Interval in Minutes :  "+auctionPreparation.getIntervalInMinutes());
     	System.out.println("Minute Duration :  "+minutesDuration);
         Integer extendCount = this.getAuctionExtend(auctionPreparation.getId(), round);
-    	auctionStartDateTime = auctionStartDateTime.plusMinutes(
-    			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
+    //	auctionStartDateTime = auctionStartDateTime.plusMinutes(
+    //			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
     	// update auction finish date time
     	auctionFinishDateTime = auctionFinishDateTime.plusMinutes(
