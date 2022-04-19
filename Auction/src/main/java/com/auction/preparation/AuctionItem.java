@@ -37,6 +37,8 @@ public class AuctionItem implements Serializable {
 	
 	private Double modifierValue;
 	
+	private Double coveredArea;
+	
 	private Double modifierValueChangeAfter;
 	
 	private String itemDocument;
@@ -58,6 +60,7 @@ public class AuctionItem implements Serializable {
 		auctionItemVO.setModifierValue(modifierValue);
 		auctionItemVO.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItemVO.setReservedPrice(reservedPrice);
+		auctionItemVO.setCoveredArea(coveredArea);
 	  return auctionItemVO;
 	}
 

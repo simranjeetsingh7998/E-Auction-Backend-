@@ -27,6 +27,9 @@ public class AuctionItemVO {
 	
     @JsonProperty("item_document")
 	private String itemDocument;
+    
+    @JsonProperty("covered_area")
+    private Double coveredArea;
 	
     @JsonProperty("organization_item")
 	private OrganizationItemVO organizationItem;
@@ -39,6 +42,7 @@ public class AuctionItemVO {
 		auctionItem.setModifierValue(modifierValue);
 		auctionItem.setModifierValueChangeAfter(modifierValueChangeAfter);
 		auctionItem.setReservedPrice(reservedPrice);
+		auctionItem.setCoveredArea(coveredArea);
 	  return auctionItem;
 	}
 
