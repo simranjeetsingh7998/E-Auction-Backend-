@@ -3,13 +3,16 @@ package com.auction.bidding;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +20,13 @@ import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
+import com.auction.preparation.AuctionExtendedHistory;
 import com.auction.preparation.AuctionItem;
 import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionPreparationSpecification;
+import com.auction.preparation.AuctionPreparationVO;
 import com.auction.preparation.AuctionStatus;
+import com.auction.preparation.IAuctionExtendedHistoryDao;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.preparation.IPropertiesDao;
 import com.auction.preparation.Properties;
@@ -55,6 +61,9 @@ public class BiddingService implements IBiddingService {
 	@Autowired 
 	private IAuctionItemProprtiesDao auctionItemPropertiesDao;
 	
+	@Autowired
+	private IAuctionExtendedHistoryDao auctionExtendedHistoryDao;
+	
 	@Transactional
 	@Override
 	public BiddingVO bidding(BiddingVO biddingVO) {
@@ -66,16 +75,36 @@ public class BiddingService implements IBiddingService {
 		if(!this.isUserValidForRound(auctionPreparation)) {
 			throw new DataMisMatchException("You can't bid. Maybe your EmdLimit reached");
 		}
-		long roundNumber = this.getRoundNumberAndUpdateAuctionStartAndFinishDateTime(auctionPreparation);
-		biddingVO.setRound(""+roundNumber);
+		long roundNumber = this.findRoundNumber(auctionPreparation);
+		int round = Math.toIntExact(roundNumber);
+		
+		biddingVO.setRound(""+(round+1));
 		LocalDateTime currentDateTime = LocalDateTime.now();
+		
+		Map<String, LocalDateTime> startEndDateTime = this.getAuctionStartAndEndDateTime(auctionPreparation, round+1);
+		LocalDateTime auctionStartDateTime = startEndDateTime.get("start");
+		LocalDateTime auctionFinishDateTime = startEndDateTime.get("end");
+	    
 		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())
-		   && currentDateTime.isAfter(auctionPreparation.getAuctionStartDateTime())	 
-		   && currentDateTime.isBefore(auctionPreparation.getAuctionFinishTime())) {
+		   && currentDateTime.isAfter(auctionStartDateTime)	 
+		   && currentDateTime.isBefore(auctionFinishDateTime)
+		   ) {
 			this.bid(biddingVO, auctionPreparation);
-			boolean isFinishDateTimeExtend = this.updateAuctionDetails(auctionPreparation, currentDateTime);
-			biddingVO.setRemainingTime(currentDateTime.until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
-			biddingVO.setFinishTimeExtend(isFinishDateTimeExtend);	
+			// adding auction extend history
+			boolean isFinishDateTimeExtend = this.updateAuctionDetails(auctionPreparation, currentDateTime, auctionFinishDateTime);
+			long difference = 0;
+			 long timeExtendCount = this.getAuctionExtendCount(auctionPreparation.getId(), round+1);
+			if(isFinishDateTimeExtend && auctionPreparation.getAuctionExtendLimit() > 0) {
+			     if(timeExtendCount < auctionPreparation.getAuctionExtendLimit()) {
+				    this.addAuctionRoundExtended(round+1, auctionPreparation);
+				    difference = difference+(auctionPreparation.getAuctionExtendMinutes()*(60*1000));
+				    biddingVO.setTimeExtendCount(timeExtendCount+1);
+			     }
+			}else {
+				 biddingVO.setTimeExtendCount(timeExtendCount);
+			}
+			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionFinishDateTime, ChronoUnit.MILLIS)+difference);
+			biddingVO.setFinishTimeExtend(isFinishDateTimeExtend);
 		  return biddingVO;
 		}
 		else if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())) {
@@ -84,10 +113,36 @@ public class BiddingService implements IBiddingService {
 		else if(!currentDateTime.isAfter(auctionPreparation.getAuctionStartDateTime())) {
 			throw new DataMisMatchException("Round is not started yet");
 		}
-		else if(currentDateTime.isAfter(auctionPreparation.getAuctionFinishTime())) {
+		else if(currentDateTime.isAfter(auctionFinishDateTime)) {
+			if(this.biddingDao.countByAuctionPreparationAndRoundNo(auctionPreparation, String.valueOf(round+1)) == 0) {
+				this.concludedAuction(auctionPreparation);
+			}
 			throw new DataMisMatchException("Round is closed");
 		}
 		return null;	
+	}
+	
+	private void concludedAuction(AuctionPreparation auctionPreparation) {
+		  auctionPreparation.setAuctionStatus(AuctionStatus.CONCLUDED);
+		  this.auctionPreparationDao.save(auctionPreparation);
+		  throw new ResourceNotFoundException("All rounds are completed");
+	}
+	
+	private long getAuctionExtendCount(Long auctionPreparationId, int round) {
+		return this.auctionExtendedHistoryDao.countByAuctionPreparationAndRound(auctionPreparationId, round);
+	}
+	
+	private void addAuctionRoundExtended(int round, AuctionPreparation auctionPreparation) {
+		Integer extendCount = this.auctionExtendedHistoryDao.findByAuctionPreparationAndRound(auctionPreparation.getId(), round,
+				PageRequest.of(0, 1, Sort.by(Direction.DESC, "id")));
+		if(Objects.isNull(extendCount))
+			  extendCount = 0;
+		AuctionExtendedHistory auctionExtendedHistory = new AuctionExtendedHistory();
+		auctionExtendedHistory.setRound(round);
+		auctionExtendedHistory.setAuctionPreparation(auctionPreparation.getId());
+		auctionExtendedHistory.setExtendCount(extendCount+1);
+	//	auctionExtendedHistory.setPreparation(auctionPreparation);
+		this.auctionExtendedHistoryDao.save(auctionExtendedHistory);
 	}
 	
 	
@@ -100,35 +155,11 @@ public class BiddingService implements IBiddingService {
 		return h1Count < userRoundsCount;
 	}
 	
-	private long getRoundNumberAndUpdateAuctionStartAndFinishDateTime(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
-	    long roundNumber = this.findRoundNumber(auctionPreparation);
-	    if(roundNumber>0) {
-	    	LocalDateTime auctionStartDateTime = auctionPreparation.getAuctionStartDateTime();
-	    	LocalDateTime auctionEndDateTime = auctionPreparation.getAuctionEndDateTime();
-	    	LocalDateTime auctionFinishDateTime = auctionPreparation.getAuctionFinishTime();
-	    	// if auction end and finish date time is same
-	    	long minutesDuration = auctionStartDateTime.until(auctionEndDateTime, ChronoUnit.MINUTES)*roundNumber;
-	    	// if auction finish date time is greater than end date time adding difference in minuteDuration
-	    	if(auctionFinishDateTime.isAfter(auctionEndDateTime))
-	    		minutesDuration += auctionEndDateTime.until(auctionFinishDateTime, ChronoUnit.MINUTES);
-	    	
-	    	// update auction start date time 
-	    	auctionPreparation.setAuctionStartDateTime(auctionStartDateTime
-	    			.plusMinutes(!Objects.isNull(auctionPreparation.getIntervalInMinutes()) ? 
-	    					auctionPreparation.getIntervalInMinutes()+(minutesDuration) : 0));
-	    	
-	    	// update auction finish date time
-	    	auctionPreparation.setAuctionFinishTime(auctionFinishDateTime.plusMinutes(minutesDuration));
-	    }
-	   return roundNumber+1; 
-	}
-	
 	
 	
 	private long findRoundNumber(AuctionPreparation auctionPreparation) {
 		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
-	//	System.out.println(auctionItem.getOrganizationItem().getId());
 		long unsoldPropertiesCount = this.propertiesDao.countByAuctionPreparationAndAuctionItemProprties_OrganizationItemAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(
 				auctionPreparation, auctionItem.getOrganizationItem(), PropertiesStatus.UNSOLD);
 		if(unsoldPropertiesCount == 0) {
@@ -142,10 +173,16 @@ public class BiddingService implements IBiddingService {
 	}
 	
 	public Bidding findLastBidOfAuction(AuctionPreparation auctionPreparation) {
-		Bidding bidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")))
-				.orElseThrow(() -> new ResourceNotFoundException("Auction can't be closed because no bid found for auction"));
+//		Bidding bidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")))
+//				.orElseThrow(() -> new ResourceNotFoundException("Auction can't be closed because no bid found for auction"));
+		Optional<Bidding> optBidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+		if(!optBidding.isPresent()) {
+			return null;
+		}
+		Bidding bidding = optBidding.get();
 		if(bidding.getRoundClosedAt() != null)
-			  throw new ResourceAlreadyExist("Round already closed");
+			return null;
+			  //throw new ResourceAlreadyExist("Round already closed");
 		bidding.setRoundStartAt(auctionPreparation.getAuctionStartDateTime());
 		bidding.setRoundClosedAt(auctionPreparation.getAuctionFinishTime());
 		bidding.setAuctionPreparation(auctionPreparation);
@@ -157,7 +194,7 @@ public class BiddingService implements IBiddingService {
 		AuctionItem auctionItem = auctionPreparation.getAuctionItems().stream().findFirst()
 				.orElseThrow(() -> new ResourceNotFoundException("Auction item not exist for Auction"));
 		Optional<Double> optionalBidding =
-				this.biddingDao.findBiddingAmountByAuctionPreparationAndRoundNo(auctionPreparation,biddingVO.getRound(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
+				this.biddingDao.findBiddingAmountByAuctionPreparationAndRoundNo(auctionPreparation,biddingVO.getRound(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"id")));
 		Bidding bidding = new Bidding();
 		bidding.setId(biddingVO.getId());
 		bidding.setBiddingAt(LocalDateTime.now());
@@ -172,38 +209,17 @@ public class BiddingService implements IBiddingService {
 		bidding.setAuctionPreparation(auctionPreparation);
 		bidding.setBidder(user);
 		bidding.setRoundNo(biddingVO.getRound());
-		bidding = this.biddingDao.save(bidding);
+		if(!bidding.getRoundNo().equals("0"))
+		  bidding = this.biddingDao.save(bidding);
 		biddingVO.setBidder(user.userToUserVO());
-		biddingVO.setId(bidding.getId());
+		biddingVO.setId(0L);
 		biddingVO.setBiddingAmount(bidAmount);
 		biddingVO.setBiddingAt(bidding.getBiddingAt());
 	}
 	
-	private boolean updateAuctionDetails(AuctionPreparation auctionPreparation, LocalDateTime currentDateTime) {
-		  long difference = Duration.between(currentDateTime,auctionPreparation.getAuctionFinishTime()).toMinutes();
-		   if(difference <= auctionPreparation.getAuctionExtendTimeCondition()) {
-			 boolean extend = extendCountLeft(auctionPreparation);
-			 if(extend) {
-		       auctionPreparation.setAuctionFinishTime(auctionPreparation.getAuctionFinishTime().plusMinutes(auctionPreparation.getAuctionExtendMinutes()));
-		       this.auctionPreparationDao.save(auctionPreparation);
-		       return true;
-		    }
-			 
-		 }
-		return false;
-	}
-	
-	private boolean extendCountLeft(AuctionPreparation auctionPreparation) {
-		 Integer auctionExtendLimit = auctionPreparation.getAuctionExtendLimit();
-		 boolean extend = false;
-		 if(!Objects.isNull(auctionExtendLimit)) {
-			long finishAndEndTimeDiff =  Duration.between(auctionPreparation.getAuctionEndDateTime(),
-					auctionPreparation.getAuctionFinishTime()).toMinutes();
-			if(finishAndEndTimeDiff > 0) {
-				extend = finishAndEndTimeDiff/auctionPreparation.getAuctionExtendMinutes() == auctionExtendLimit;
-			  } 
-		 }
-		 return extend;
+	private boolean updateAuctionDetails(AuctionPreparation auctionPreparation, LocalDateTime currentDateTime, LocalDateTime auctionFinishDateTime) {
+		  long difference = Duration.between(currentDateTime,auctionFinishDateTime).toSeconds();
+		  return difference <= (auctionPreparation.getAuctionExtendTimeCondition()*60);
 	}
 	
 	
@@ -216,31 +232,121 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public BiddingVO lastBidOfAuctionForBidder(AuctionPreparation auctionPreparation) {
 		Optional<Bidding> optionalBidding = this.biddingDao.findByAuctionPreparation(auctionPreparation, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC,"biddingAt")));
-		if(optionalBidding.isPresent()) {
+		AuctionPreparationVO  auctionPreparationVO = auctionPreparation.auctionPreparationToAuctionPreparationVO();
+		auctionPreparationVO.setAuctionItems(auctionPreparation.getAuctionItems().stream().map(AuctionItem::auctionItemToAuctionItemVO).toList());
+		auctionPreparationVO.setAuctionScheduleVO(auctionPreparation.getAuctionScheduleVO());
+		int roundNumber = 0;
+		long remainingTime = 0;
+		long roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60*1000;
+		if(optionalBidding.isPresent() && Objects.isNull(optionalBidding.get().getRoundClosedAt())) {
 			Bidding bidding = optionalBidding.get();
+			roundNumber = Integer.parseInt(bidding.getRoundNo());
 			BiddingVO biddingVO = bidding.biddingToBiddingVO();
 			UserVO userVO = new UserVO();
 			userVO.setId(bidding.getBidder().getId());
 			biddingVO.setBidder(userVO);
-			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+			 remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
+			// roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60*1000;
+			if(remainingTime < 0) {
+				roundStartRemainingTime = roundStartRemainingTime - (-remainingTime);
+				remainingTime = 0;
+			}
+			biddingVO.setRemainingTime(remainingTime);
+			biddingVO.setRoundStartRemainingTime(roundStartRemainingTime);
 			biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
-			biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
+			biddingVO.setAuctionPreparation(auctionPreparationVO);
 			biddingVO.setRound(bidding.getRoundNo());
-		    return biddingVO;	
+			biddingVO.setTimeExtendCount(this.getAuctionExtendCount(auctionPreparation.getId(), roundNumber));
+		    return biddingVO;
 		}
+		else if(optionalBidding.isPresent() && !Objects.isNull(optionalBidding.get().getRoundClosedAt())) {
+			   roundNumber = Integer.parseInt(optionalBidding.get().getRoundNo());
+			   remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
+				if(remainingTime < 0) {
+					//System.out.println("Round no : "+roundNumber);
+					roundStartRemainingTime = roundStartRemainingTime - (-remainingTime);
+					if(roundStartRemainingTime <=0) {
+						 roundNumber =roundNumber+1;
+						 remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);	 
+					}
+					else
+					    remainingTime = 0;
+				}
+		} else {
+			 //  System.out.println("Hellloooooooooooooooo");
+			   roundNumber=+1;
+			   remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
+			   if(remainingTime < 0) {
+				   roundStartRemainingTime = roundStartRemainingTime - (-remainingTime);
+				     remainingTime = 0;
+			   }
+		}
+		if(remainingTime < (-5000) && (roundStartRemainingTime < (-5000)))
+			   this.concludedAuction(auctionPreparation);
 		BiddingVO biddingVO = new BiddingVO();
-		biddingVO.setRemainingTime(LocalDateTime.now().until(auctionPreparation.getAuctionFinishTime(), ChronoUnit.MILLIS));
+		biddingVO.setRemainingTime(remainingTime);
+		biddingVO.setRoundStartRemainingTime(roundStartRemainingTime);
 		biddingVO.setFinishTimeExtend(!auctionPreparation.getAuctionFinishTime().isEqual(auctionPreparation.getAuctionEndDateTime()));
 		biddingVO.setBiddingAmount(0);
-		biddingVO.setAuctionPreparation(auctionPreparation.auctionPreparationToAuctionPreparationVO());
-		biddingVO.setRound(""+1);
+		biddingVO.setAuctionPreparation(auctionPreparationVO);
+		biddingVO.setRound(""+roundNumber);
+		biddingVO.setTimeExtendCount(0L);
 		biddingVO.setBidder(new UserVO());
 	   return biddingVO;
 	}
 	
+	private Map<String, LocalDateTime> getAuctionStartAndEndDateTime(AuctionPreparation auctionPreparation, int round){
+		Map<String, LocalDateTime> startEndDateTimeMap = new HashMap<>();
+		LocalDateTime auctionStartDateTime = auctionPreparation.getAuctionStartDateTime();
+    	LocalDateTime auctionEndDateTime = auctionPreparation.getAuctionEndDateTime();
+    	LocalDateTime auctionFinishDateTime = auctionPreparation.getAuctionFinishTime();
+    	// if auction end and finish date time is same
+    	long minutesDuration = auctionStartDateTime.until(auctionEndDateTime, ChronoUnit.MINUTES)*(round-1);
+//    	// if auction finish date time is greater than end date time adding difference in minuteDuration
+    	Integer interValInMinutes = !Objects.isNull(auctionPreparation.getIntervalInMinutes())
+		? auctionPreparation.getIntervalInMinutes() : 0;
+    	Integer auctionExtendMinutes = auctionPreparation.getAuctionExtendMinutes();
+
+    	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
+    	System.out.println("Auction End Date Time :  "+auctionEndDateTime);
+    	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);
+    	System.out.println("Auction Interval in Minutes :  "+auctionPreparation.getIntervalInMinutes());
+    	System.out.println("Minute Duration :  "+minutesDuration);
+        Integer extendCount = this.getAuctionExtend(auctionPreparation.getId(), round);
+    	auctionStartDateTime = auctionStartDateTime.plusMinutes(
+    			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
+    	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
+    	// update auction finish date time
+    	auctionFinishDateTime = auctionFinishDateTime.plusMinutes(
+    			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
+    	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);
+    	startEndDateTimeMap.put("start", auctionStartDateTime);
+    	startEndDateTimeMap.put("end", auctionFinishDateTime);
+    	return startEndDateTimeMap;
+	}
+	
+	private long getAuctionRemainingTime(AuctionPreparation auctionPreparation, int round) {
+		System.out.println(round);
+    	Map<String, LocalDateTime> startEndDateTimeMap = this.getAuctionStartAndEndDateTime(auctionPreparation, round);
+		return LocalDateTime.now().until(startEndDateTimeMap.get("end"), ChronoUnit.MILLIS);
+	}
+	
+	private Integer getAuctionExtend(Long auctionPreparationId, int round) {
+		    Integer extendCount = 0;
+		    while(round > 0) {
+		       Integer count =	this.auctionExtendedHistoryDao.findByAuctionPreparationAndRound(auctionPreparationId, round,
+						PageRequest.of(0, 1, Sort.by(Direction.DESC, "id")));
+		       if(!Objects.isNull(count))
+		    	     extendCount = extendCount+count;
+		       round--;
+		    }
+		    
+		  return extendCount;  
+	}
+	
 	@Override
 	public List<BidHistory> findBidHistoryByActionPreparation(Long auctionId) {
-		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId)
+		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId, LoggedInUser.getLoggedInUserDetails().getId())
 				.stream().map(tuple -> {
 				//   Object	tuple.get("round");
 					 BidHistory bidHistory = new BidHistory();
@@ -256,7 +362,10 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public long closeRoundByAuctionPreparation(Long auctionId) {
 	    AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-	    return closeRound(auctionPreparation);
+	    long unsoldPropertiesCount = closeRound(auctionPreparation);
+	    if(unsoldPropertiesCount == -1)
+	    	throw new ResourceAlreadyExist("Round already closed");
+	    return unsoldPropertiesCount;
 	}
 	
 	@Override
@@ -264,7 +373,9 @@ public class BiddingService implements IBiddingService {
 	public long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException {
 	    long unsoldPropertiesCount = findRoundNumber(auctionPreparation);
 	    Bidding bidding = findLastBidOfAuction(auctionPreparation);
-	    bidding.setRoundNo(""+unsoldPropertiesCount);
+	    if(Objects.isNull(bidding))
+	    	 return -1;
+	   // bidding.setRoundNo(""+(unsoldPropertiesCount+1));
 	    this.biddingDao.save(bidding);
 		return (unsoldPropertiesCount);
 	}
@@ -273,30 +384,34 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId) {
 		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		List<Properties> auctionProperties=propertiesDao.findByAuctionPreparationAndAuctionItemProprties_PropertiesStatusAndAuctionItemProprties_IsActiveTrue(auctionPreparation, 
-				PropertiesStatus.UNSOLD);
+		List<Properties> auctionProperties=propertiesDao.findAllByAuctionPreparationAndAuctionItemProprties_IsActiveTrue(auctionPreparation);
 		return auctionProperties.stream().map(Properties::auctionItemProprtiesToAuctionItemProprtiesVO).toList();
 	}
 
 
+	@Transactional(rollbackFor = Throwable.class)
 	@Override
 	public void markPropertyAsReserved(Long auctionId, Long propertyId) {
 		AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
-		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
 		Optional<AuctionItemProprties> auctionProperty=this.auctionItemPropertiesDao.findById(propertyId);
+		if(!auctionProperty.isPresent())
+			 throw new ResourceNotFoundException("Property not found");
+		User bidder = LoggedInUser.getLoggedInUserDetails().getUser();
+		AuctionItemProprties auctionItemProprties = auctionProperty.get();
 		long H1BidderCount=biddingDao.countByAuctionPreparationAndBidderAndRoundClosedAtIsNotNull(auctionPreparation, bidder);
-		long reserveCountForH1Bidder =this.auctionItemUserCountDao.countByAuctionItemProprtiesAndBidderAndPropertiesStatus(auctionProperty.get(), bidder, PropertiesStatus.RESERVED);
+		long reserveCountForH1Bidder =this.auctionItemUserCountDao.countByAuctionItemPropertiesAndBidderAndPropertiesStatus(
+				auctionItemProprties, bidder, PropertiesStatus.RESERVED);
 		
 		if(H1BidderCount<=0) {
 			throw new DataMisMatchException("You are not a highest bidder for the current auction");
 		}else if(H1BidderCount<=reserveCountForH1Bidder) {
 			throw new DataMisMatchException("No other property pending to allocate");
 		}else {
-			auctionProperty.get().setPropertiesStatus(PropertiesStatus.RESERVED);
-			auctionItemPropertiesDao.save(auctionProperty.get());
+			auctionItemProprties.setPropertiesStatus(PropertiesStatus.RESERVED);
+			auctionItemPropertiesDao.save(auctionItemProprties);
 			
 			AuctionItemUserProperties userItemProperty=new AuctionItemUserProperties();
-			userItemProperty.setAuctionItemProperties(auctionProperty.get());
+			userItemProperty.setAuctionItemProperties(auctionItemProprties);
 			userItemProperty.setBidder(bidder);
 			userItemProperty.setPropertiesStatus(PropertiesStatus.RESERVED);
 			auctionItemUserCountDao.save(userItemProperty);

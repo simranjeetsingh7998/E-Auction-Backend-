@@ -32,10 +32,10 @@ public class Properties {
 	
 	public AuctionItemProprtiesVO auctionItemProprtiesToAuctionItemProprtiesVO() {
 		AuctionItemProprtiesVO vo=new AuctionItemProprtiesVO();
-		 auctionItemProprties.setId(auctionItemProprties.getId());
-		 auctionItemProprties.setActive(auctionItemProprties.isActive());
-		 auctionItemProprties.setProperty(auctionItemProprties.getProperty());
-		 auctionItemProprties.setPropertiesStatus(auctionItemProprties.getPropertiesStatus());
+		 vo.setId(auctionItemProprties.getId());
+		 vo.setActive(auctionItemProprties.isActive());
+		 vo.setProperty(auctionItemProprties.getProperty());
+		 vo.setPropertiesStatus(auctionItemProprties.getPropertiesStatus());
 		return vo;
 	}
 

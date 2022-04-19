@@ -81,10 +81,12 @@ public class AuctionPreparationSpecification {
 		 LocalDateTime currentDateTime = LocalDateTime.now();
 		  return (root, query, builder) -> {
 			  SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
+			  root.fetch("auctionItems", JoinType.LEFT);
 			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					  ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
-					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
-					  builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime));
+					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime)
+					//  ,builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime)
+					  );
 		  };
 	 }
 
@@ -92,12 +94,14 @@ public class AuctionPreparationSpecification {
 		LocalDateTime currentDateTime = LocalDateTime.now();
 		 return (root, query, builder) -> {
 			 SetJoin<AuctionPreparation, BidderAuctionEnrollment> listJoin =  root.joinSet("bidderAuctionEnrollments",JoinType.LEFT);
+			 root.fetch("auctionItems", JoinType.LEFT);
 			 In<Object> inClause =	builder.in(root.get("id"));
 			 return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					 ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
 					 inClause.value(auctionIds),
-					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
-					 builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime));
+					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime)
+					 //,builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime)
+					 );
 		 };
 	}
 

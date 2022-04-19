@@ -105,6 +105,15 @@ public class AuctionPreparationVO {
 	@JsonProperty("interval_minutes")
 	private int intervalInMinutes;
 	
+	@JsonProperty("auction_schedule")
+	private AuctionScheduleVO auctionScheduleVO;
+	
+	@JsonProperty("total_emds")
+	private int totalEmd;
+	
+	@JsonProperty("total_enrollments")
+	private long totalEnrollmentCount;
+	
 	public AuctionPreparation auctionPreparationVOToAuctionPreparation() {
 		   AuctionPreparation auctionPreparation = new AuctionPreparation();
 		   auctionPreparation.setActive(isActive);

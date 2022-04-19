@@ -36,5 +36,11 @@ public class BiddingVO {
 	
 	@JsonProperty("is_finish_date_time_extend")
 	private boolean isFinishTimeExtend;
+	
+	@JsonProperty("time_extend_count")
+	private long timeExtendCount;
+	
+	@JsonProperty("round_start_remaining_time")
+	private long roundStartRemainingTime;
 
 }

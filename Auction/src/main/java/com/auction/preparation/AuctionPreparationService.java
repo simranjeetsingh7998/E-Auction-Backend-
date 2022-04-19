@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.bidding.BiddingVO;
 import com.auction.bidding.IBiddingService;
 import com.auction.global.exception.DataMisMatchException;
@@ -67,6 +68,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Autowired
 	private IBiddingService biddingService;
+	
+	@Autowired
+	private IBidderAuctionEnrollmentDao bidderAuctionEnrollmentDao;
 	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
@@ -239,13 +243,15 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public void schedule(Long id, AuctionScheduleVO auctionScheduleVO) {
 		AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
 				   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
-		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus())) {
+		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus())
+		   && LocalDateTime.now().isAfter(auctionPreparation.getRegistrationEndDateTime())) {
 			    auctionPreparation.setAuctionStartDateTime(auctionScheduleVO.getStartDateTime());
 			    auctionPreparation.setAuctionEndDateTime(auctionScheduleVO.getEndDateTime());
 			    auctionPreparation.setAuctionExtendTimeCondition(auctionScheduleVO.getAuctionExtendTimeCondition());
 			    auctionPreparation.setAuctionExtendMinutes(auctionScheduleVO.getAuctionExtendMinutes());
 			    auctionPreparation.setAuctionExtendLimit(auctionScheduleVO.getAuctionExtendLimit());
 			    auctionPreparation.setAuctionFinishTime(auctionScheduleVO.getEndDateTime());
+			    auctionPreparation.setIntervalInMinutes(auctionScheduleVO.getIntervalInMinutes());
 				auctionPreparation.setAuctionStatus(AuctionStatus.SCHEDULED);
 			    this.auctionPreparationDao.save(auctionPreparation);
 			    List<Properties> propertiesList = this.auctionItemProprtiesDao.findAllById(
@@ -260,7 +266,10 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    }).toList();
 			    this.propertiesDao.saveAll(propertiesList);
 		} else {
-			throw new DataMisMatchException("Auction can't be scheduled because it's not published yet");
+			if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus()))
+			    throw new DataMisMatchException("Auction can't be scheduled because it's not published yet");
+			else 
+				throw new DataMisMatchException("Auction can't be scheduled because registration time is not ended yet");
 		}
 	}
 
@@ -320,6 +329,18 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 				return this.biddingService.lastBidOfAuctionForBidder(auction);
 				}).toList();
 			}
+	}
+	
+	@Override
+	public AuctionPreparationVO getAuctionPreparationDetailsToSchedule(Long id) {
+		AuctionPreparationVO auctionPreparationVO = this.findAllDetailsById(id);
+		AuctionPreparation auctionPreparation = new AuctionPreparation();
+		auctionPreparation.setId(auctionPreparationVO.getId());
+		long totalUserEmrollments = this.bidderAuctionEnrollmentDao.countByAuctionPreparation(auctionPreparation);
+		int totalEmdSum = this.bidderAuctionEnrollmentDao.totalEmdCountByAuctionPreparationId(auctionPreparation);
+		auctionPreparationVO.setTotalEmd(totalEmdSum);
+		auctionPreparationVO.setTotalEnrollmentCount(totalUserEmrollments);
+		return auctionPreparationVO;
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {

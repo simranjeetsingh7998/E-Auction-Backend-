@@ -27,7 +27,9 @@ public interface IBiddingDao extends JpaRepository<Bidding, Long> {
 	
 	long countByAuctionPreparationAndBidderAndRoundClosedAtIsNotNull(AuctionPreparation auctionPreparation, User bidder);
 	
-	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1", nativeQuery = true)
-	List<Tuple> findBidHistoryByAuctionPreparation(Long auctionId);
+	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1 and b.bidder_id= ?2", nativeQuery = true)
+	List<Tuple> findBidHistoryByAuctionPreparation(Long auctionId, Long userId);
+	
+	long countByAuctionPreparationAndRoundNo(AuctionPreparation auctionPreparation, String roundNumber);
 
 }

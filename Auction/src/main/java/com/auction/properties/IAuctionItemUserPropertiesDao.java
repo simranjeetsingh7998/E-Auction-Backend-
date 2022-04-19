@@ -6,5 +6,5 @@ import com.auction.user.User;
 
 public interface IAuctionItemUserPropertiesDao  extends JpaRepository<AuctionItemUserProperties, Long> {
 
-	long countByAuctionItemProprtiesAndBidderAndPropertiesStatus(AuctionItemProprties auctionItemProperty,User bidder,PropertiesStatus propertiesStatus);
+	long countByAuctionItemPropertiesAndBidderAndPropertiesStatus(AuctionItemProprties auctionItemProperty,User bidder,PropertiesStatus propertiesStatus);
 }
