@@ -157,7 +157,10 @@ public class UserService implements IUserService {
 			 StringBuilder sms = new StringBuilder("Dear candidate, The otp for your transaction is ");
 			 sms.append(user.getOtp());
 			 sms.append(". This otp is valid for 30 min - Regards Profices.");
-			 SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
+			 String smsStatus = SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
+			 if (!"200".equalsIgnoreCase(smsStatus)) {
+				 throw new ResourceNotFoundException("Error in sending SMS");
+			 }
 		 }
 	}
 	
