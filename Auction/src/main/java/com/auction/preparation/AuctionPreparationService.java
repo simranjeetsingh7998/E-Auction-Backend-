@@ -266,7 +266,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    }).toList();
 			    this.propertiesDao.saveAll(propertiesList);
 		} else {
-			if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus()))
+			if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus()))
 			    throw new DataMisMatchException("Auction can't be scheduled because it's not published yet");
 			else 
 				throw new DataMisMatchException("Auction can't be scheduled because registration time is not ended yet");
