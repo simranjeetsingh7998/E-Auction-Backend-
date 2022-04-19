@@ -7,9 +7,12 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,14 +25,37 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.auction.ControllerHelper;
+import com.auction.ApiResponseMessageResolver;
 import com.auction.api.response.ApiResponse;
 import com.auction.mail.MailSender;
+import com.auction.security.JwtTokenUtil;
 import com.auction.security.UserDetailImpl;
+import com.auction.security.UserServiceDetailImpl;
 
 @Validated
 @RestController
-public class UserController extends ControllerHelper{
+public class UserController {
+
+	@Autowired
+	private UserServiceDetailImpl userServiceDetailImpl;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private JwtTokenUtil jwtTokenUtility;
+
+	@Autowired
+	private IUserService userService;
+	
+	@Autowired
+	private IRoleService roleService;
+
+	@Autowired
+	private JavaMailSender javaMailSender;
+	
+	@Autowired
+	private ApiResponseMessageResolver messageResolver;
 
 	@PostMapping("/user/bidder")
 	public ResponseEntity<ApiResponse> createBidder(@Valid @RequestBody UserVO userVO) {

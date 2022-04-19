@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,22 +15,42 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.auction.ControllerHelper;
 import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
+import com.auction.bidder.category.IBidderCategoryDao;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
+import com.auction.organization.IOrganizationDao;
 import com.auction.organization.Organization;
+import com.auction.sms.ISMSTemplateDao;
 import com.auction.sms.SMSUtility;
 import com.auction.util.FileUpload;
 import com.auction.util.GenerateOtp;
 
 @Service
-public class UserService extends ControllerHelper implements IUserService {
+public class UserService implements IUserService {
+
+	@Autowired
+	private IUserDao userDao;
 
 	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
+	@Autowired
+	private IUserVerificationDao userVerificationDao;
+	
+	@Autowired
+	private IOrganizationDao organizationDao;
+	
+	@Autowired
+	private IBidderCategoryDao bidderCategoryDao;
+	
+	@Autowired
+	private FileUpload fileUpload;
+	
+	@Autowired
+	public ISMSTemplateDao smsTemplateDao;
+
 	@Transactional
 	@Override
 	public UserVO createUser(UserVO userVO) {
@@ -136,7 +157,7 @@ public class UserService extends ControllerHelper implements IUserService {
 			 StringBuilder sms = new StringBuilder("Dear candidate, The otp for your transaction is ");
 			 sms.append(user.getOtp());
 			 sms.append(". This otp is valid for 30 min - Regards Profices.");
-			 SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(), smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
+			 SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
 		 }
 	}
 	

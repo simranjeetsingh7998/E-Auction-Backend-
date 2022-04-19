@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "user_verification")
+@Table(name = "sms_template")
 @Data
 public class SMSTemplate implements Serializable{
 
