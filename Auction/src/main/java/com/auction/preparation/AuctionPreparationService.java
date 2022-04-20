@@ -111,7 +111,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
         	    auctionPreparation.setAuctionItemTemplate(auctionPreparationVO.getAuctionItemTemplateVO().auctionItemTemplateVOToAuctionItemTemplate());
 
         List<AuctionMethod> auctionMethodList = this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation);
-        if(!Objects.isNull(auctionMethodList) && auctionMethodList.isEmpty()) {
+        if(!Objects.isNull(auctionMethodList) && !auctionMethodList.isEmpty()) {
         	 auctionPreparation.setEmdLimit(auctionMethodList.get(0).getMethod().equals(AuctionMethodEnum.NORMAL.getMethod())
         			 ? "1" : auctionPreparation.getEmdLimit());
         }
@@ -239,7 +239,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	   AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
 			   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
 	   if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())
-		  && auctionPreparation.getAuctionEndDateTime().isAfter(LocalDateTime.now())) {
+		  && auctionPreparation.getRegistrationStartDateTime().isAfter(LocalDateTime.now())) {
 		   auctionPreparation.setAuctionStatus(AuctionStatus.PUBLISH);
 		   auctionPreparation.setRegistrationStartDateTime(auctionPreparationVO.getRegistrationStartDateTime());
 		   auctionPreparation.setRegistrationEndDateTime(auctionPreparationVO.getRegistrationEndDateTime());
@@ -329,8 +329,14 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
+	public List<AuctionPreparationVO> findAllBidderUpcomingAuctions() {
+		return this.auctionPreparationDao.findAllByAuctionStatusAndRegistrationEndDateTimeBefore(AuctionStatus.PUBLISH, LocalDateTime.now())
+				.stream().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
+	}
+	
+	@Override
 	public List<BiddingVO> userCurrentAuctions(List<Long> auctionIds) {
-		if(Objects.isNull(auctionIds) || auctionIds.size() ==0){
+		if(Objects.isNull(auctionIds) || auctionIds.isEmpty()){
 		return this.auctionPreparationDao.findAll(
 			AuctionPreparationSpecification.currentUserAuctions())
 				.stream().distinct().map(auction -> {
