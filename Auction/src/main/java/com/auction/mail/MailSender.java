@@ -1,9 +1,13 @@
 package com.auction.mail;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
 import java.util.Date;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -104,7 +108,13 @@ public class MailSender implements IMailSender {
 					int i=0;
 					for (String imagePath : emailBO.getImagePathList()) {
 						i++;
-						 DataSource fds = new FileDataSource(imagePath);
+						
+						URL url = new URL("https://nrichvideo.s3.amazonaws.com/logo.png");
+						BufferedImage img = ImageIO.read(url);
+						File file = new File("logo.png");
+						ImageIO.write(img, "png", file);
+						
+						 DataSource fds = new FileDataSource(file);
 			                messageHelper.addInline("image"+i, fds);
 					}
 				}
