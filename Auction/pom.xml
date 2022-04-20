@@ -106,6 +106,19 @@
       <artifactId>springdoc-openapi-security</artifactId>
       <version>1.6.4</version>
    </dependency>
+   
+   <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+<!-- <dependency>
+    <groupId>javax.mail</groupId>
+    <artifactId>mail</artifactId>
+    <version>1.4.7</version>
+</dependency>
+   <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>5.2.8.RELEASE</version>
+</dependency> -->
+   
    				<dependency>
     <groupId>io.jsonwebtoken</groupId>
     <artifactId>jjwt-api</artifactId>
@@ -122,11 +135,6 @@
     <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
     <version>0.11.1</version>
     <scope>runtime</scope>
-</dependency>
-<dependency>
-	<groupId>javax.mail</groupId>
-	<artifactId>mail</artifactId>
-	<version>1.4</version>
 </dependency>
 	</dependencies>
 
