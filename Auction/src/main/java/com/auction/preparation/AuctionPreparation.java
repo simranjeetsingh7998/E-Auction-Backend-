@@ -43,7 +43,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"id"})
 public class AuctionPreparation implements Serializable {
 	
-	/**
+	/*
 	 * 
 	 */
 	private static final long serialVersionUID = 6488145854776740929L;

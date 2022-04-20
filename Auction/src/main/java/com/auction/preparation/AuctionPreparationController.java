@@ -137,6 +137,12 @@ public class AuctionPreparationController {
 				this.auctionPreparationService.findAuctionByStatus(status), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/bidder/upcoming/auctions")
+	public ResponseEntity<ApiResponse> bidderUpcomingEvents(){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auctions fetched successfully",
+				this.auctionPreparationService.findAllBidderUpcomingAuctions(), null), HttpStatus.OK);
+	}
+	
 	@GetMapping("/user/current/auction/preparation")
 	public ResponseEntity<ApiResponse> userCurrentAuctionPreparation(@RequestParam(name = "auctionIds", required = false) String auctions){
 		List<Long> auctionIds = null;
