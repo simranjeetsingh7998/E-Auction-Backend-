@@ -239,13 +239,14 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	   AuctionPreparation auctionPreparation  =	this.auctionPreparationDao.findById(id).orElseThrow(
 			   () -> new ResourceNotFoundException(AUCTIONNOTFOUND));
 	   if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus())
-		  && auctionPreparation.getRegistrationStartDateTime().isAfter(LocalDateTime.now())) {
+		//  && auctionPreparation.getRegistrationEndDateTime().isAfter(LocalDateTime.now())
+		  ) {
 		   auctionPreparation.setAuctionStatus(AuctionStatus.PUBLISH);
 		   auctionPreparation.setRegistrationStartDateTime(auctionPreparationVO.getRegistrationStartDateTime());
 		   auctionPreparation.setRegistrationEndDateTime(auctionPreparationVO.getRegistrationEndDateTime());
 		   this.auctionPreparationDao.save(auctionPreparation);
 	   } else {
-		    if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus()))
+		    if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.APPROVE.getStatus()))
 		          throw new DataMisMatchException("Auction can't be published because it's not approved yet");
 		    else 
 		    	 throw new DataMisMatchException("Auction can't be published because Auction registration end date time is not finished yet");

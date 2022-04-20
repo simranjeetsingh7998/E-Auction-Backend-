@@ -238,11 +238,11 @@ public class BiddingService implements IBiddingService {
 		int roundNumber = 0;
 		long remainingTime = 0;
 		long roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60*1000;
+		UserVO userVO = new UserVO();
 		if(optionalBidding.isPresent() && Objects.isNull(optionalBidding.get().getRoundClosedAt())) {
 			Bidding bidding = optionalBidding.get();
 			roundNumber = Integer.parseInt(bidding.getRoundNo());
 			BiddingVO biddingVO = bidding.biddingToBiddingVO();
-			UserVO userVO = new UserVO();
 			userVO.setId(bidding.getBidder().getId());
 			biddingVO.setBidder(userVO);
 			 remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
@@ -262,6 +262,7 @@ public class BiddingService implements IBiddingService {
 		else if(optionalBidding.isPresent() && !Objects.isNull(optionalBidding.get().getRoundClosedAt())) {
 			   roundNumber = Integer.parseInt(optionalBidding.get().getRoundNo());
 			   remainingTime = this.getAuctionRemainingTime(auctionPreparation, roundNumber);
+			   userVO.setId(optionalBidding.get().getBidder().getId());
 				if(remainingTime < 0) {
 					//System.out.println("Round no : "+roundNumber);
 					roundStartRemainingTime = roundStartRemainingTime - (-remainingTime);
@@ -291,7 +292,7 @@ public class BiddingService implements IBiddingService {
 		biddingVO.setAuctionPreparation(auctionPreparationVO);
 		biddingVO.setRound(""+roundNumber);
 		biddingVO.setTimeExtendCount(0L);
-		biddingVO.setBidder(new UserVO());
+		biddingVO.setBidder(userVO);
 	   return biddingVO;
 	}
 	
