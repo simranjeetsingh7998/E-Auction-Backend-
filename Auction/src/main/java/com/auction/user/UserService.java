@@ -173,7 +173,8 @@ public class UserService extends ControllerHelper implements IUserService {
 	public void sendEmailOtp(String to) throws Exception {
         String otp = GenerateOtp.emailOtp();
         UserVerification verificationObj=this.userVerificationDao.save(new UserVerification(to, otp, false, null));
-        User user=userDao.findByEmail(verificationObj.getPhoneEmail()).get();
+        User user=new User();
+        user.setEmail(verificationObj.getPhoneEmail());
         Map<String, EmailSetting> emails = getCompanyEmailSettings(1);
         EmailSetting setting = emails.get("BidderEmailVerificationOtpEmail");
         sendFormEmail(user, CommonUtils.formatMessage(setting.getEmailMessage(), verificationObj.getOtp()), setting,

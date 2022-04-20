@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.ApiResponseMessageResolver;
 import com.auction.api.response.ApiResponse;
-import com.auction.mail.MailSender;
 import com.auction.security.JwtTokenUtil;
 import com.auction.security.UserDetailImpl;
 import com.auction.security.UserServiceDetailImpl;
