@@ -10,7 +10,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,20 +19,18 @@ import com.auction.util.CommonUtils;
 @Service
 public class MailSender implements IMailSender {
 	
-	private JavaMailSender mailSender;
+	private JavaMailSender jmmailSender;
 	
 	@Autowired
 	private IMailStatusDao mailStatusDao;
 
-	@Override
-	public void sendPlainMail(JavaMailSender javaMailSender, String to, String message) throws MessagingException {
-		SimpleMailMessage mimeMessage = new SimpleMailMessage();
-		mimeMessage.setSubject("Test Mail From Java Stack");
-		mimeMessage.setText(message);
-		mimeMessage.setTo(to);
-		javaMailSender.send(mimeMessage);
-	}
-	
+	/*
+	 * @Override public void sendPlainMail(JavaMailSender javaMailSender, String to,
+	 * String message) throws MessagingException { SimpleMailMessage mimeMessage =
+	 * new SimpleMailMessage(); mimeMessage.setSubject("Test Mail From Java Stack");
+	 * mimeMessage.setText(message); mimeMessage.setTo(to);
+	 * javaMailSender.send(mimeMessage); }
+	 */
 	public void sendMail(final EmailObject emailBO) {
 		EmailServiceThread sendMail = new EmailServiceThread(emailBO,setMailStatus(emailBO));
 		sendMail.start();
@@ -69,7 +66,7 @@ public class MailSender implements IMailSender {
 		public void run() {
 
 			try {
-				final MimeMessage message = mailSender.createMimeMessage();
+				final MimeMessage message = jmmailSender.createMimeMessage();
 				final MimeMessageHelper messageHelper = new MimeMessageHelper(
 						message, true, "UTF-8");
 				if (emailBO == null
@@ -116,7 +113,7 @@ public class MailSender implements IMailSender {
 					}
 				}
 				
-				mailSender.send(messageHelper.getMimeMessage());
+				jmmailSender.send(messageHelper.getMimeMessage());
 				System.out.println("Mail Sent!!!!!!!");
 			} catch (final Exception e) {
 				System.out.println("Exception");
