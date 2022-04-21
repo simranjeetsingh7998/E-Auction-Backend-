@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.auction.organization.Organization;
+
 @Repository
 public interface IUserDao extends JpaRepository<User, Long> {
 
@@ -14,5 +16,7 @@ public interface IUserDao extends JpaRepository<User, Long> {
 	
 	@Query("from User u join fetch u.addresses join fetch u.bidderCategory join fetch u.bidderCategory.bidderType join fetch u.role where u.id =?1 ")
 	Optional<User> findFullUserDetailById(Long id);
+
+	User findUserByEmail(String userEmail);
 
 }

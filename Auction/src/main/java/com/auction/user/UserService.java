@@ -21,6 +21,7 @@ import com.auction.address.Address;
 import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.bidder.category.IBidderCategoryDao;
+import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
 import com.auction.mail.EmailSetting;
@@ -55,7 +56,7 @@ public class UserService extends ControllerHelper implements IUserService {
 	
 	@Autowired
 	public ISMSTemplateDao smsTemplateDao;
-	
+
 
 	@Transactional
 	@Override
@@ -170,6 +171,25 @@ public class UserService extends ControllerHelper implements IUserService {
 		 }
 	}
 	
+	@Override
+	public void sendForgotOtp(String to) {
+		 String otp = GenerateOtp.mobileOtp();
+		 System.out.println(otp);
+		 UserVerification user= this.userVerificationDao.save(new UserVerification(to, otp, false, null));
+		 if(null!=user) {
+			 StringBuilder sms = new StringBuilder("Dear candidate, The otp for your transaction is ");
+			 sms.append(user.getOtp());
+			 sms.append(". This otp is valid for 30 min - Regards Profices.");
+			 String smsStatus = SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
+			 System.out.println(smsStatus);
+			 if (!"200".equalsIgnoreCase(smsStatus)) {
+				 throw new ResourceNotFoundException("Error in sending SMS");
+			 }
+		 }
+	}
+	
+	
+	
 	@Transactional
 	@Override
 	public void sendEmailOtp(String to) throws Exception {
@@ -200,4 +220,24 @@ public class UserService extends ControllerHelper implements IUserService {
 		 this.userVerificationDao.save(userVerification);
 	}
 
+	@Override
+	public User findUserByEmail(String userEmail) {
+		
+		return this.userDao.findUserByEmail(userEmail);
+	}
+
+	@Override
+	public void setNewPassword(SetNewPasswordVO setNewPasswordVO) throws Exception {
+		
+		User user = userDao.findUserByEmail(setNewPasswordVO.getEmail());
+		UserVerification userVerification = this.userVerificationDao.getOtpByMobileNumber(user.getMobileNumber());
+		if(setNewPasswordVO.getOtp().equalsIgnoreCase(userVerification.getOtp())){
+		  userVerification.setVerified(true);
+          user.setPassword(this.passwordEncoder.encode(setNewPasswordVO.getNewPassword()));
+          this.userDao.save(user);
+        
+		}else {
+			throw new DataMisMatchException("The OTP is incorrect");
+		}
+	}
 }
