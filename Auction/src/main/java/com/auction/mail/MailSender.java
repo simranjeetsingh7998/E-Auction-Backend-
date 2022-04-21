@@ -1,16 +1,19 @@
 package com.auction.mail;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
 import java.util.Date;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,20 +22,13 @@ import com.auction.util.CommonUtils;
 
 @Service
 public class MailSender implements IMailSender {
-	
-	private JavaMailSender mailSender;
+
+	@Autowired
+	private JavaMailSender jmmailSender;
 	
 	@Autowired
 	private IMailStatusDao mailStatusDao;
 
-	@Override
-	public void sendPlainMail(JavaMailSender javaMailSender, String to, String message) throws MessagingException {
-		SimpleMailMessage mimeMessage = new SimpleMailMessage();
-		mimeMessage.setSubject("Test Mail From Java Stack");
-		mimeMessage.setText(message);
-		mimeMessage.setTo(to);
-		javaMailSender.send(mimeMessage);
-	}
 	
 	public void sendMail(final EmailObject emailBO) {
 		EmailServiceThread sendMail = new EmailServiceThread(emailBO,setMailStatus(emailBO));
@@ -64,12 +60,13 @@ public class MailSender implements IMailSender {
 		public EmailServiceThread(EmailObject emailBO,MailStatus mailStatus) {
 			this.emailBO = emailBO;
 			this.mailStatus = mailStatus;
+			
 		}
-
+		
 		public void run() {
 
 			try {
-				final MimeMessage message = mailSender.createMimeMessage();
+				final MimeMessage message = jmmailSender.createMimeMessage();
 				final MimeMessageHelper messageHelper = new MimeMessageHelper(
 						message, true, "UTF-8");
 				if (emailBO == null
@@ -111,12 +108,18 @@ public class MailSender implements IMailSender {
 					int i=0;
 					for (String imagePath : emailBO.getImagePathList()) {
 						i++;
-						 DataSource fds = new FileDataSource(imagePath);
+						
+						URL url = new URL("https://nrichvideo.s3.amazonaws.com/logo.png");
+						BufferedImage img = ImageIO.read(url);
+						File file = new File("logo.png");
+						ImageIO.write(img, "png", file);
+						
+						 DataSource fds = new FileDataSource(file);
 			                messageHelper.addInline("image"+i, fds);
 					}
 				}
 				
-				mailSender.send(messageHelper.getMimeMessage());
+				jmmailSender.send(messageHelper.getMimeMessage());
 				System.out.println("Mail Sent!!!!!!!");
 			} catch (final Exception e) {
 				System.out.println("Exception");

@@ -1,10 +1,14 @@
 package com.auction;
 
+import java.util.Properties;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
@@ -84,10 +88,26 @@ public class AuctionApplication {
 		SpringApplication.run(AuctionApplication.class, args);
 	}
 	
-	@Bean
-	public IMailSender mailSender() {
-		return new MailSender();
-	}
+	
+	  @Bean public IMailSender mailSender() { return new MailSender(); }
+	  
+	    @Bean
+	    public JavaMailSender javaMailSender() {
+		    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		    mailSender.setHost("email-smtp.ap-south-1.amazonaws.com");
+		    mailSender.setUsername("AKIA6DYX4US5FL3F4VVY");
+		    mailSender.setPassword("BIDfzUGILi5Iog3AYSaocF/RGzi4R0ZZQE/hWesqs/+J");
+		    mailSender.setPort(465);
+		    mailSender.setProtocol("smtps");
+
+		    Properties properties = new Properties();
+		    properties.setProperty("mail.smtps.auth", "true");
+		    properties.setProperty("mail.smtp.ssl.enable", "true");
+		    properties.setProperty("mail.debug", "true");
+		    mailSender.setJavaMailProperties(properties);
+		    return mailSender;
+	    }
+	 
 
 	@Bean
 	public OpenAPI ecommerceBackend() {

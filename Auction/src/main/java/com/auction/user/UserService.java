@@ -3,7 +3,6 @@ package com.auction.user;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +24,6 @@ import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
 import com.auction.mail.EmailSetting;
-import com.auction.mail.IEmailSettingDao;
 import com.auction.organization.IOrganizationDao;
 import com.auction.organization.Organization;
 import com.auction.sms.ISMSTemplateDao;
@@ -195,7 +193,8 @@ public class UserService extends ControllerHelper implements IUserService {
 	public void sendEmailOtp(String to) throws Exception {
         String otp = GenerateOtp.emailOtp();
         UserVerification verificationObj=this.userVerificationDao.save(new UserVerification(to, otp, false, null));
-        User user=userDao.findByEmail(verificationObj.getPhoneEmail()).get();
+        User user=new User();
+        user.setEmail(verificationObj.getPhoneEmail());
         Map<String, EmailSetting> emails = getCompanyEmailSettings(1);
         EmailSetting setting = emails.get("BidderEmailVerificationOtpEmail");
         sendFormEmail(user, CommonUtils.formatMessage(setting.getEmailMessage(), verificationObj.getOtp()), setting,
