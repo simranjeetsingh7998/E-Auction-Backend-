@@ -11,5 +11,7 @@ public interface IAuctionMethodService {
 	AuctionMethodVO findById(Integer id);
 	
 	void deActivate(Integer id);
+	
+	AuctionMethodVO getAuctionMethodForAuction(Long auctionPreparationId);
 
 }

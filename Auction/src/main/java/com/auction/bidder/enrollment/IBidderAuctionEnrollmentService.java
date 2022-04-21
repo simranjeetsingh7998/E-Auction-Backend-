@@ -7,8 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface IBidderAuctionEnrollmentService {
 	
-	void save(String bidderAuctionEnrollmentVO, MultipartFile multipartFile) throws IOException;
+	BidderAuctionEnrollmentVO save(String bidderAuctionEnrollmentVO, MultipartFile multipartFile) throws IOException;
 	
 	List<BidderAuctionEnrollmentVO> findAllByAuctionPreparation(Long auctionPreparationId);
+	
+	void uploadBidderAuctionEnrollmentDocument(Long bidderAuctionEnrollmentId, String documentType, MultipartFile file) throws IOException;
 
 }

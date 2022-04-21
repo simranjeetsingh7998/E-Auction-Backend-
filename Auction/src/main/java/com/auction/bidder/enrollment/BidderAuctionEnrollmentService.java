@@ -46,7 +46,7 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 	private IAuctionMethodDao auctionMethodDao;
 	
 	@Override
-	public void save(String bidderAuctionEnrollmentJson, MultipartFile document) throws IOException {
+	public BidderAuctionEnrollmentVO save(String bidderAuctionEnrollmentJson, MultipartFile document) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = mapper.readValue(bidderAuctionEnrollmentJson, BidderAuctionEnrollmentVO.class);
 		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(bidderAuctionEnrollmentVO.getAuctionPreparation().getId())
@@ -61,9 +61,12 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		for (JointHolderVO jointHolderVO : bidderAuctionEnrollmentVO.getJointHolderVOs()) {
 		    bidderAuctionEnrollment.addJointHolder(jointHolderVO.jointHolderVOToJointHolder());	
 		}
-		bidderAuctionEnrollment.setAddressProof(uploadAndGetDocumentUrl(auctionPreparation.getId(), document));
-		bidderAuctionEnrollment.setVerified(!isBidderAuctionEnrollmentVerified(auctionPreparation));
-	    this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment);	
+		bidderAuctionEnrollment.setAddressProof(uploadAndGetDocumentUrl(auctionPreparation.getId(), DocumentTypeEnum.ADDRESSPROOF.getDocumentType(), document));
+		boolean isAuctionNormalAndOffline = isBidderAuctionEnrollmentVerified(auctionPreparation);
+		bidderAuctionEnrollment.setVerified(!isAuctionNormalAndOffline);
+	    Long id = this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment).getId();	
+	    bidderAuctionEnrollmentVO.setId(id);
+	   return bidderAuctionEnrollmentVO; 
 	}
 	
 	private void bidderAuctionEnrollmentValidations(AuctionPreparation auctionPreparation, User user) {
@@ -81,8 +84,8 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		}
 	}
 	
-	private String uploadAndGetDocumentUrl(Long auctionPreparationId, MultipartFile document) throws IOException {
-		StringBuilder directory = this.fileUpload.getDirectory(FileUpload.AUCTIONDIRECTORY, ""+auctionPreparationId, "addpressproof"); 
+	private String uploadAndGetDocumentUrl(Long auctionPreparationId, String documentType, MultipartFile document) throws IOException {
+		StringBuilder directory = this.fileUpload.getDirectory(FileUpload.AUCTIONDIRECTORY, ""+auctionPreparationId,documentType); 
 		StringBuilder fileName = new StringBuilder(UUID.randomUUID().toString());
 		String fileOriginalName = document.getOriginalFilename();
 		fileName.append(fileOriginalName.substring(fileOriginalName.lastIndexOf(".")));
@@ -95,6 +98,24 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		return this.feePaymentModeDao.findAllByAuctionPreparations(auctionPreparation).get(0).getEmdfpMode().equals(EmdFeePaymentModeEnum.OFFLINE.getPaymentMode())
 				&& this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation).get(0).getMethod().equals(AuctionMethodEnum.NORMAL.getMethod());
 		
+	}
+	
+	@Override
+	public void uploadBidderAuctionEnrollmentDocument(Long bidderAuctionEnrollmentId, String documentType,
+			MultipartFile file) throws IOException {
+		BidderAuctionEnrollment bidderAuctionEnrollment = this.bidderAuctionEnrollmentDao.findById(bidderAuctionEnrollmentId).orElseThrow(() -> new ResourceNotFoundException("Bidder Auction Enrollment not found"));
+	    AuctionPreparation auctionPreparation =  bidderAuctionEnrollment.getAuctionPreparation();
+	    if(isBidderAuctionEnrollmentVerified(auctionPreparation)) {
+	       if(documentType.equalsIgnoreCase(DocumentTypeEnum.ADDRESSPROOF.getDocumentType())) {	
+	        String url =	uploadAndGetDocumentUrl(bidderAuctionEnrollmentId, DocumentTypeEnum.ADDRESSPROOF.getDocumentType(), file);
+	        bidderAuctionEnrollment.setAddressProof(url);
+	       }
+	       else  if(documentType.equalsIgnoreCase(DocumentTypeEnum.TRANSACTIONPROOF.getDocumentType())) {	
+	        String url =	uploadAndGetDocumentUrl(bidderAuctionEnrollmentId, DocumentTypeEnum.TRANSACTIONPROOF.getDocumentType(), file);
+	        bidderAuctionEnrollment.setTransactionProof(url);
+	       }
+	       this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment);
+	    }
 	}
 	
 	@Override

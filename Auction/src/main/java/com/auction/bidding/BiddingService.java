@@ -20,8 +20,10 @@ import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
+import com.auction.method.IAuctionMethodDao;
 import com.auction.preparation.AuctionExtendedHistory;
 import com.auction.preparation.AuctionItem;
+import com.auction.preparation.AuctionMethodEnum;
 import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionPreparationSpecification;
 import com.auction.preparation.AuctionPreparationVO;
@@ -63,6 +65,9 @@ public class BiddingService implements IBiddingService {
 	
 	@Autowired
 	private IAuctionExtendedHistoryDao auctionExtendedHistoryDao;
+	
+	@Autowired
+	private IAuctionMethodDao auctionMethodDao;
 	
 	@Transactional
 	@Override
@@ -125,7 +130,7 @@ public class BiddingService implements IBiddingService {
 	private void concludedAuction(AuctionPreparation auctionPreparation) {
 		  auctionPreparation.setAuctionStatus(AuctionStatus.CONCLUDED);
 		  this.auctionPreparationDao.save(auctionPreparation);
-		  throw new ResourceNotFoundException("All rounds are completed");
+		//  throw new ResourceNotFoundException("All rounds are completed");
 	}
 	
 	private long getAuctionExtendCount(Long auctionPreparationId, int round) {
@@ -314,12 +319,14 @@ public class BiddingService implements IBiddingService {
     	System.out.println("Auction Interval in Minutes :  "+auctionPreparation.getIntervalInMinutes());
     	System.out.println("Minute Duration :  "+minutesDuration);
         Integer extendCount = this.getAuctionExtend(auctionPreparation.getId(), round);
+        Integer extendForRoundGreaterThanOne = (extendCount > 0 ? extendCount : 1);
     //	auctionStartDateTime = auctionStartDateTime.plusMinutes(
     //			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
     	// update auction finish date time
+    	
     	auctionFinishDateTime = auctionFinishDateTime.plusMinutes(
-    			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
+    			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? extendForRoundGreaterThanOne  : extendCount)));
     	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);
     	startEndDateTimeMap.put("start", auctionStartDateTime);
     	startEndDateTimeMap.put("end", auctionFinishDateTime);
@@ -363,10 +370,31 @@ public class BiddingService implements IBiddingService {
 	@Override
 	public long closeRoundByAuctionPreparation(Long auctionId) {
 	    AuctionPreparation auctionPreparation =  this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+	    // closing round for normal auction method
+	    if(isAuctionNormal(auctionPreparation)) 
+	    	return closeAndConcludeAndReservePropertyForNormalAuction(auctionPreparation);
+	    // closing round for round wise auction method
 	    long unsoldPropertiesCount = closeRound(auctionPreparation);
 	    if(unsoldPropertiesCount == -1)
 	    	throw new ResourceAlreadyExist("Round already closed");
 	    return unsoldPropertiesCount;
+	}
+	
+	private boolean isAuctionNormal(AuctionPreparation auctionPreparation) {
+		return this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation).get(0).getMethod().equals(AuctionMethodEnum.NORMAL.getMethod());	
+	}
+	
+	@Override
+	public long closeAndConcludeAndReservePropertyForNormalAuction(AuctionPreparation auctionPreparation) {
+	    long remainingTime =	this.getAuctionRemainingTime(auctionPreparation,1);
+	    if(remainingTime > 0)
+	    	return -1;
+	    Bidding bidding = this.findLastBidOfAuction(auctionPreparation);
+	    if(Objects.isNull(bidding))
+	    	 return -1;
+	    this.biddingDao.save(bidding); // round is closed
+        this.concludedAuction(auctionPreparation);  // concluded the auction
+	    return 1;
 	}
 	
 	@Override

@@ -13,5 +13,7 @@ public interface IAuctionMethodDao extends JpaRepository<AuctionMethod, Integer>
 	List<AuctionMethod> findAllByIsActiveTrue();
 	
 	List<AuctionMethod> findAllByAuctionPreparations(AuctionPreparation auctionPreparation);
+	
+	List<AuctionMethod> findAllByMethodAndIsActiveTrue(String method);
 
 }
