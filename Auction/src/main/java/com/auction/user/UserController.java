@@ -134,7 +134,7 @@ public class UserController {
 	public ResponseEntity<ApiResponse> sendEmailOtp(@PathVariable("to") String email) throws Exception{
 		 this.userService.sendEmailOtp(email);
 		 return new ResponseEntity<>(
-					new ApiResponse(HttpStatus.OK.value(), "Otp has been sent on email Successfully", null, null), HttpStatus.OK);	 
+					new ApiResponse(HttpStatus. OK.value(), "Otp has been sent on email Successfully", null, null), HttpStatus.OK);	 
 	}
 	
 	@PostMapping("/user/verify/email/otp")
