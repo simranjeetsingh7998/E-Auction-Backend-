@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.auction.item.template.AuctionItemTemplate;
+import com.auction.method.AuctionMethod;
 
 @Repository
 public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation, Long>, JpaSpecificationExecutor<AuctionPreparation> {
@@ -25,5 +26,7 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	List<AuctionPreparation> findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 	
 	List<AuctionPreparation> findAllByAuctionStatusAndRegistrationEndDateTimeBefore(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
+
+	List<AuctionPreparation> findAllByAuctionStatusAndAuctionMethod(AuctionStatus auctionStatus, AuctionMethod auctionMethod);
 
 }

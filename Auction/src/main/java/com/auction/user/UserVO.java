@@ -30,17 +30,14 @@ public class UserVO {
 	
 	@Schema(defaultValue = "Last Name", description = "enter last name of user")
 	@JsonProperty("last_name")
-	@NotBlank(message = "{last_name}")
 	private String lastName;
 	
 	@Schema(defaultValue = "Father/Husband First Name", description = "enter Father/Husband First Name of user")
 	@JsonProperty("father_husband_first_name")
-	@NotBlank(message = "{father_husband_first_name}")
 	private String fatherHusbandFirstName;
 	
 	@Schema(defaultValue = "Father/Husband Last Name", description = "enter Father/Husband Last name of user")
 	@JsonProperty("father_husband_last_name")
-	@NotBlank(message = "{father_husband_last_name}")
 	private String fatherHusbandLastName;
 	
 	@Schema(defaultValue = "Mother First Name", description = "enter mother first name of user")
@@ -50,7 +47,6 @@ public class UserVO {
 	
 	@Schema(defaultValue = "Mother Last Name", description = "enter mother last name of user")
 	@JsonProperty("mother_last_name")
-	@NotBlank(message = "{mother_last_name}")
 	private String motherLastName;
 	
 	@Schema(defaultValue = "User image", description = "upload image of user")

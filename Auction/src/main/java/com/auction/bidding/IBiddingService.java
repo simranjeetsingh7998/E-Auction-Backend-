@@ -24,4 +24,6 @@ public interface IBiddingService {
 
 	void markPropertyAsReserved(Long auctionId, Long propertyId);
 	
+	long closeAndConcludeAndReservePropertyForNormalAuction(AuctionPreparation auctionPreparation);
+	
 }

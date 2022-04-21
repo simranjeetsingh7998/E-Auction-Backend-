@@ -73,6 +73,8 @@ public class BidderAuctionEnrollment implements Serializable {
 	@ColumnDefault("false")
 	private boolean verified;
 	
+	private String transactionProof;
+	
 	@PrePersist
 	public void setAmountPaidAt() {
 		 this.amountPaidAt = LocalDateTime.now();

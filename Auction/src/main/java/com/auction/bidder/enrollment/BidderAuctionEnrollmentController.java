@@ -40,6 +40,18 @@ public class BidderAuctionEnrollmentController {
 						null, null), HttpStatus.OK);
 	}
 	
+	@PostMapping(value = "/auction/bidder/enrollment/{id}/{documentType}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ApiResponse> uploadBidderAuctionEnrollment(
+            @PathVariable("id") Long auctionBidderEnrollmentId, 
+            @PathVariable("documentType") String documentType,
+			@RequestPart("file") MultipartFile document
+			) throws IOException{
+		this.auctionEnrollmentService.uploadBidderAuctionEnrollmentDocument(auctionBidderEnrollmentId, documentType, document);
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.create"),
+						null, null), HttpStatus.OK);
+	}
+	
 	@PostMapping("/auction/bidder/enrollment/{id}/joint/holder")
 	public ResponseEntity<ApiResponse> addJointHolder(
 			@PathVariable("id") Long bidderAuctionEnrollmentId,

@@ -44,6 +44,12 @@ public class AuctionMethodController {
 				  this.messageResolver.getMessage("auction.method.fetch") , this.auctionMethodService.findById(id), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/auction/{id}/method")
+	public ResponseEntity<ApiResponse> getAuctionMethodForAuction(@PathVariable("id") Long auctionPreparationId){
+		  return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), 
+				  this.messageResolver.getMessage("auction.method.fetch") ,this.auctionMethodService.getAuctionMethodForAuction(auctionPreparationId) , null), HttpStatus.OK);
+	}
+	
 	@DeleteMapping("/auction/method/{id}/deactivate")
 	public ResponseEntity<ApiResponse> deactiveAuctionMethod(@PathVariable Integer id){
 		  this.auctionMethodService.deActivate(id);

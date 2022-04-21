@@ -30,4 +30,10 @@ public interface IUserService {
 	
 	void uploadDocument(Long userId, String documentType, MultipartFile multipartFile) throws IOException;
 
+	User findUserByEmail(String userEmail);
+
+	void sendForgotOtp(String to);
+
+	void setNewPassword(SetNewPasswordVO setNewPasswordVO) throws Exception;
+
 }
