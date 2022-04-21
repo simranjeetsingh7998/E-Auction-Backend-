@@ -232,9 +232,13 @@ public class UserService extends ControllerHelper implements IUserService {
 		UserVerification userVerification = this.userVerificationDao.getOtpByMobileNumber(user.getMobileNumber());
 		if(setNewPasswordVO.getOtp().equalsIgnoreCase(userVerification.getOtp())){
 		  userVerification.setVerified(true);
+		  if(setNewPasswordVO.getNewPassword().equals(setNewPasswordVO.getConfirmpassword())) {
           user.setPassword(this.passwordEncoder.encode(setNewPasswordVO.getNewPassword()));
           this.userDao.save(user);
-        
+		  }
+		  else {
+			  throw new DataMisMatchException(" Your Password and confirmation password does not match");
+		  }
 		}else {
 			throw new DataMisMatchException("The OTP is incorrect");
 		}

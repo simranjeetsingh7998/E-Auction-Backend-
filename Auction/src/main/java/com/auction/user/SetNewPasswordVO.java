@@ -15,6 +15,9 @@ public class SetNewPasswordVO {
 	
 	@JsonProperty("otp")
 	private String otp;
+	
+	@JsonProperty("confirmpassword")
+	private String confirmpassword;
 
 	
 }
