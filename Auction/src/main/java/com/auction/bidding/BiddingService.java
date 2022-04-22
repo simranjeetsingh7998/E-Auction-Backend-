@@ -80,6 +80,18 @@ public class BiddingService implements IBiddingService {
 		if(!this.isUserValidForRound(auctionPreparation)) {
 			throw new DataMisMatchException("You can't bid. Maybe your EmdLimit reached");
 		}
+		String auctionMethod = this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation).get(0).getMethod();
+		if(auctionMethod.equals(com.auction.method.AuctionMethodEnum.ROUNDWISE.getMethod())) {
+			return this.roundWiseBidding(biddingVO, auctionPreparation);
+		} else if(auctionMethod.equals(com.auction.method.AuctionMethodEnum.NORMAL.getMethod())) {
+			return this.normalAuctionBid(biddingVO, auctionPreparation);
+		}
+		return null;
+	
+	}
+	
+	
+	private BiddingVO roundWiseBidding(BiddingVO biddingVO, AuctionPreparation auctionPreparation) {
 		long roundNumber = this.findRoundNumber(auctionPreparation);
 		int round = Math.toIntExact(roundNumber);
 		
@@ -124,7 +136,54 @@ public class BiddingService implements IBiddingService {
 			}
 			throw new DataMisMatchException("Round is closed");
 		}
-		return null;	
+		return null;
+	}
+	
+	private BiddingVO normalAuctionBid(BiddingVO biddingVO, AuctionPreparation auctionPreparation) {
+		int round = 0;
+		
+		biddingVO.setRound(""+(round+1));
+		LocalDateTime currentDateTime = LocalDateTime.now();
+		
+		Map<String, LocalDateTime> startEndDateTime = this.getAuctionStartAndEndDateTime(auctionPreparation, round+1);
+		LocalDateTime auctionStartDateTime = startEndDateTime.get("start");
+		LocalDateTime auctionFinishDateTime = startEndDateTime.get("end");
+	    
+		if(auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())
+		   && currentDateTime.isAfter(auctionStartDateTime)	 
+		   && currentDateTime.isBefore(auctionFinishDateTime)
+		   ) {
+			this.bid(biddingVO, auctionPreparation);
+			// adding auction extend history
+			boolean isFinishDateTimeExtend = this.updateAuctionDetails(auctionPreparation, currentDateTime, auctionFinishDateTime);
+			long difference = 0;
+			 long timeExtendCount = this.getAuctionExtendCount(auctionPreparation.getId(), round+1);
+			if(isFinishDateTimeExtend && auctionPreparation.getAuctionExtendLimit() > 0) {
+			     if(timeExtendCount < auctionPreparation.getAuctionExtendLimit()) {
+				    this.addAuctionRoundExtended(round+1, auctionPreparation);
+				    difference = difference+(auctionPreparation.getAuctionExtendMinutes()*(60*1000));
+				    biddingVO.setTimeExtendCount(timeExtendCount+1);
+			     }
+			}else {
+				 biddingVO.setTimeExtendCount(timeExtendCount);
+			}
+			biddingVO.setRemainingTime(LocalDateTime.now().until(auctionFinishDateTime, ChronoUnit.MILLIS)+difference);
+			biddingVO.setFinishTimeExtend(isFinishDateTimeExtend);
+		  return biddingVO;
+		}
+		else if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.SCHEDULED.getStatus())) {
+			throw new DataMisMatchException("Auction is not scheduled yet");
+		}
+		else if(!currentDateTime.isAfter(auctionPreparation.getAuctionStartDateTime())) {
+			throw new DataMisMatchException("Round is not started yet");
+		}
+		else if(currentDateTime.isAfter(auctionFinishDateTime)) {
+			if(this.biddingDao.countByAuctionPreparationAndRoundNo(auctionPreparation, String.valueOf(round+1)) == 0) {
+				this.concludedAuction(auctionPreparation);
+			}
+			throw new DataMisMatchException("Round is closed");
+		}
+		return null;
 	}
 	
 	private void concludedAuction(AuctionPreparation auctionPreparation) {
@@ -323,8 +382,8 @@ public class BiddingService implements IBiddingService {
     //	auctionStartDateTime = auctionStartDateTime.plusMinutes(
     //			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
-    	// update auction finish date time
     	
+    	// update auction finish date time
     	auctionFinishDateTime = auctionFinishDateTime.plusMinutes(
     			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? extendForRoundGreaterThanOne  : extendCount)));
     	System.out.println("Auction Finish Date Time :  "+auctionFinishDateTime);
@@ -386,13 +445,13 @@ public class BiddingService implements IBiddingService {
 	
 	@Override
 	public long closeAndConcludeAndReservePropertyForNormalAuction(AuctionPreparation auctionPreparation) {
-	    long remainingTime =	this.getAuctionRemainingTime(auctionPreparation,1);
+	    long remainingTime = this.getAuctionRemainingTime(auctionPreparation,1);
 	    if(remainingTime > 0)
 	    	return -1;
 	    Bidding bidding = this.findLastBidOfAuction(auctionPreparation);
-	    if(Objects.isNull(bidding))
-	    	 return -1;
-	    this.biddingDao.save(bidding); // round is closed
+	    if(!Objects.isNull(bidding)) {
+	       this.biddingDao.save(bidding); // round is closed
+	    }
         this.concludedAuction(auctionPreparation);  // concluded the auction
 	    return 1;
 	}

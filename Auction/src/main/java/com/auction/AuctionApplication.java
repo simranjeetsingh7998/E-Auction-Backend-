@@ -1,5 +1,7 @@
 package com.auction;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.bid.submission.placement.IBidSubmissionPlacementDao;
@@ -87,6 +91,26 @@ public class AuctionApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);
 	}
+	
+	@Bean
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+			  //  registry.addResourceHandler("/images/**").addResourceLocations("/images/");
+			    exposeDirectory("images", registry);
+			}
+		};
+	}
+	
+    private void exposeDirectory(String dirName, ResourceHandlerRegistry registry) {
+        Path uploadDir = Paths.get(dirName);
+        String uploadPath = uploadDir.toFile().getAbsolutePath();
+         
+        if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
+         
+        registry.addResourceHandler("/" + dirName + "/**").addResourceLocations("file:/"+ uploadPath + "/");
+    }
 	
 	
 	  @Bean public IMailSender mailSender() { return new MailSender(); }
