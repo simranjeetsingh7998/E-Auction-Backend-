@@ -175,7 +175,7 @@ public class UserService extends ControllerHelper implements IUserService {
 		 String otp = GenerateOtp.mobileOtp();
 		 UserVerification user= this.userVerificationDao.save(new UserVerification(to, otp, false, null));
 		 if(null!=user) {
-			 StringBuilder sms = new StringBuilder("Dear candidate, The otp for your transaction is ");
+			 StringBuilder sms = new StringBuilder("Dear user, The otp for your transaction is ");
 			 sms.append(user.getOtp());
 			 sms.append(". This otp is valid for 30 min - Regards Profices.");
 			 String smsStatus = SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
@@ -194,7 +194,7 @@ public class UserService extends ControllerHelper implements IUserService {
 		 System.out.println(otp);
 		 UserVerification user= this.userVerificationDao.save(new UserVerification(to, otp, false, null));
 		 if(null!=user) {
-			 StringBuilder sms = new StringBuilder("Dear candidate, The otp for your transaction is ");
+			 StringBuilder sms = new StringBuilder("Dear user, The otp for your transaction is ");
 			 sms.append(user.getOtp());
 			 sms.append(". This otp is valid for 30 min - Regards Profices.");
 			 String smsStatus = SMSUtility.sendSMS(sms.toString(),user.getPhoneEmail(),smsTemplateDao.findByTemplateName("proficesotptran").get().getTemplateId());
