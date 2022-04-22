@@ -111,8 +111,8 @@ public class MailSender implements IMailSender {
 						
 						URL url = new URL("https://hoteauction.s3.ap-south-1.amazonaws.com/logo_eauction.jpeg");
 						BufferedImage img = ImageIO.read(url);
-						File file = new File("logo.png");
-						ImageIO.write(img, "png", file);
+						File file = new File("logo_eauction");
+						ImageIO.write(img, "jpeg", file);
 						
 						 DataSource fds = new FileDataSource(file);
 			                messageHelper.addInline("image"+i, fds);
