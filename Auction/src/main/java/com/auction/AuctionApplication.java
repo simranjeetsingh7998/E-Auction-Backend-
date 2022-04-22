@@ -118,9 +118,9 @@ public class AuctionApplication {
 	    @Bean
 	    public JavaMailSender javaMailSender() {
 		    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		    mailSender.setHost("email-smtp.ap-south-1.amazonaws.com");
-		    mailSender.setUsername("AKIA6DYX4US5FL3F4VVY");
-		    mailSender.setPassword("BIDfzUGILi5Iog3AYSaocF/RGzi4R0ZZQE/hWesqs/+J");
+		    mailSender.setHost("email-smtp.us-east-1.amazonaws.com");
+		    mailSender.setUsername("AKIA6E2TNHXHG4ZGHYFS");
+		    mailSender.setPassword("BDJ1Lm297o2LOSz48n+bTIZKCQhf69aihuGWc+69FI0u");
 		    mailSender.setPort(465);
 		    mailSender.setProtocol("smtps");
 
