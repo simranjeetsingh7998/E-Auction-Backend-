@@ -90,10 +90,10 @@ public class UserVO {
 	private Date birthDay;
 	
 	@JsonProperty("marital_status")
-    @NotBlank(message = "{martial_status}")
+//    @NotBlank(message = "{martial_status}")
 	private String maritalStatus;
 	
-	@NotBlank(message = "{gender}")
+//	@NotBlank(message = "{gender}")
 	private String gender;
 	@JsonProperty("comapany_name")
 	private String companyFirmName;

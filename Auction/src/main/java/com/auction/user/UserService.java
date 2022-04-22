@@ -70,15 +70,17 @@ public class UserService extends ControllerHelper implements IUserService {
 			  Address address = addressVO.addressVOToAddress();
 			  user.addAddress(address);
 		});
-		//user.setBidderCategory(userVO.getBidderCategory().bidderCategoryVOToBidderCategory());
 		user.setBidderCategory(this.bidderCategoryDao.findAllByIsActiveTrueAndBidderTypeId(userVO.getBidderType().getId()).get(0));
 		Organization organization = this.organizationDao.findById(1).orElseThrow(() -> new ResourceNotFoundException("Organization not found"));
-//		Organization organization = userVO.getOrganization().organizationVOToOrganization();
-//		if(organization.getId()==0 || Objects.isNull(organization.getId())) {
-//			organization = this.organizationDao.save(organization);
-//		}
 		user.setOrganization(organization);
-		return this.userDao.save(user).userToUserVO();
+		User persistedUser=this.userDao.save(user);
+		if(CommonUtils.isNotEmpty(persistedUser)) {
+	        Map<String, EmailSetting> emails = getCompanyEmailSettings(persistedUser.getOrganization().getId());
+	        EmailSetting setting = emails.get("RegistrationEmail");
+	        sendFormEmail(persistedUser, CommonUtils.formatMessage(setting.getEmailMessage()), setting,
+	        		addEAuctionLogoToImagePath());
+		}
+		return persistedUser.userToUserVO();
 	}
 	
 	private void isVerified(String email, String phone) {
@@ -232,9 +234,13 @@ public class UserService extends ControllerHelper implements IUserService {
 		UserVerification userVerification = this.userVerificationDao.getOtpByMobileNumber(user.getMobileNumber());
 		if(setNewPasswordVO.getOtp().equalsIgnoreCase(userVerification.getOtp())){
 		  userVerification.setVerified(true);
+		  if(setNewPasswordVO.getNewPassword().equals(setNewPasswordVO.getConfirmpassword())) {
           user.setPassword(this.passwordEncoder.encode(setNewPasswordVO.getNewPassword()));
           this.userDao.save(user);
-        
+		  }
+		  else {
+			  throw new DataMisMatchException(" Your Password and confirmation password does not match");
+		  }
 		}else {
 			throw new DataMisMatchException("The OTP is incorrect");
 		}
