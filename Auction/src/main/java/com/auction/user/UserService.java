@@ -21,6 +21,7 @@ import com.auction.bidder.category.BidderCategory;
 import com.auction.bidder.category.BidderCategoryVO;
 import com.auction.bidder.category.IBidderCategoryDao;
 import com.auction.global.exception.DataMisMatchException;
+import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.global.exception.UserNotVerifiedException;
 import com.auction.mail.EmailSetting;
@@ -59,6 +60,7 @@ public class UserService extends ControllerHelper implements IUserService {
 	@Transactional
 	@Override
 	public UserVO createUser(UserVO userVO) {
+		this.userUniqueValidations(userVO);
 		if(userVO.getRole().getRole().equals(RoleEnum.BIDDER.getRole())) {
 			isVerified(userVO.getEmail(), userVO.getMobileNumber());
 		}
@@ -81,6 +83,17 @@ public class UserService extends ControllerHelper implements IUserService {
 	        		addEAuctionLogoToImagePath());
 		}
 		return persistedUser.userToUserVO();
+	}
+	
+	private void userUniqueValidations(UserVO userVO) {
+		 if(this.userDao.existsByEmail(userVO.getEmail()))
+			 throw new ResourceAlreadyExist("Email already exist");
+		 else if(this.userDao.existsByMobileNumber(userVO.getMobileNumber()))
+			 throw new ResourceAlreadyExist("Phone number already exist");
+		 else if(this.userDao.existsByAadharNumber(userVO.getAadharNumber()))
+			 throw new ResourceAlreadyExist("Aadhar number already exist");
+		 else if(this.userDao.existsByPanCardNumber(userVO.getPanCardNumber()))
+			 throw new ResourceAlreadyExist("Pan card number already exist");
 	}
 	
 	private void isVerified(String email, String phone) {
@@ -158,6 +171,7 @@ public class UserService extends ControllerHelper implements IUserService {
 	
 	@Override
 	public void sendPhoneOtp(String to) {
+		 if(!this.userDao.existsByMobileNumber(to)) {
 		 String otp = GenerateOtp.mobileOtp();
 		 UserVerification user= this.userVerificationDao.save(new UserVerification(to, otp, false, null));
 		 if(null!=user) {
@@ -169,6 +183,9 @@ public class UserService extends ControllerHelper implements IUserService {
 				 throw new ResourceNotFoundException("Error in sending SMS");
 			 }
 		 }
+		 return;
+		 }
+		 throw new ResourceAlreadyExist("Phone number already exists");
 	}
 	
 	@Override
@@ -193,6 +210,7 @@ public class UserService extends ControllerHelper implements IUserService {
 	@Transactional
 	@Override
 	public void sendEmailOtp(String to) throws Exception {
+		if(!this.userDao.existsByEmail(to)) {
         String otp = GenerateOtp.emailOtp();
         UserVerification verificationObj=this.userVerificationDao.save(new UserVerification(to, otp, false, null));
         User user=new User();
@@ -201,6 +219,10 @@ public class UserService extends ControllerHelper implements IUserService {
         EmailSetting setting = emails.get("BidderEmailVerificationOtpEmail");
         sendFormEmail(user, CommonUtils.formatMessage(setting.getEmailMessage(), verificationObj.getOtp()), setting,
         		addEAuctionLogoToImagePath());
+        return;
+		}
+		throw new ResourceAlreadyExist("Email already exists");
+		
 	}
 	
 	@Override

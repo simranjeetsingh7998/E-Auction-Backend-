@@ -100,7 +100,7 @@ public class BidderAuctionEnrollmentController {
 	@GetMapping("/auction/{id}/bidder/enrollment/details")
 	public ResponseEntity<ApiResponse> bidderEnrollmentByAuctionId(@PathVariable("id") Long auctionId){
 		return new ResponseEntity<>(
-				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("bidder.auction.enrollment.fetchs"), 
+				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("bidder.auction.enrollment.fetch"), 
 						this.auctionEnrollmentService.findByAuctionIdAndBidder(auctionId), null), HttpStatus.OK);
 	}
 

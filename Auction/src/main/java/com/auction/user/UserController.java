@@ -175,7 +175,6 @@ public class UserController {
 	    if (user == null) {
 	        throw new UsernameNotFoundException(userEmail);
 	    }else {
-	    	System.out.println(user.getMobileNumber());
 	    	this.userService.sendForgotOtp(user.getMobileNumber());
 	    	
 	    } 
