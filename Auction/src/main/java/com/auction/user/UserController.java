@@ -165,14 +165,14 @@ public class UserController {
 			  @RequestParam("email") String userEmail) {
 	    User user = userService.findUserByEmail(userEmail);
 	    if (user == null) {
-	        throw new UsernameNotFoundException(userEmail);
-	    }else {
-	    	System.out.println(user.getMobileNumber());
-	    	this.userService.sendForgotOtp(user.getMobileNumber());
+//	        throw new UsernameNotFoundException("User not found with -> username or Email:"+ userEmail);
+	        return new ResponseEntity<>(
+					new ApiResponse(HttpStatus.OK.value(), "User not found with username "+ userEmail, null, null), HttpStatus.OK);
+	    }
 	    	
-	    } 
-		return new ResponseEntity<>(
-				new ApiResponse(HttpStatus.OK.value(), "OTP is successfully sent on your Registred Mobile Number", null, null), HttpStatus.OK);
+	    this.userService.sendForgotOtp(user.getMobileNumber());
+	    return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK);
 	}
 	
 	@PostMapping("/user/changePassword")
