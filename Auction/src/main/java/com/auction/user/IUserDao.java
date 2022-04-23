@@ -17,8 +17,6 @@ public interface IUserDao extends JpaRepository<User, Long> {
 
 	User findUserByEmail(String userEmail);
 	
-	User findUserByMobileNumber(String userMobileNumber);
-	
 	boolean existsByEmail(String email);
 	
 	boolean existsByMobileNumber(String mobileNumber);
@@ -26,5 +24,7 @@ public interface IUserDao extends JpaRepository<User, Long> {
 	boolean existsByAadharNumber(String aadharNumber);
 	
 	boolean existsByPanCardNumber(String panCardNumber);
+
+	User findUserByMobileNumber(String mobileNumber);
 
 }

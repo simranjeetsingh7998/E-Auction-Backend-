@@ -83,6 +83,11 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Override
 	public AuctionPreparationVO save(AuctionPreparationVO auctionPreparationVO) {
 		AuctionPreparation auctionPreparation = auctionPreparationVO.auctionPreparationVOToAuctionPreparation();
+		if(!Objects.isNull(auctionPreparation.getRegistrationStartDateTime())
+			&& !Objects.isNull(auctionPreparation.getRegistrationEndDateTime())) {
+			 if(auctionPreparation.getRegistrationStartDateTime().isAfter(auctionPreparation.getRegistrationEndDateTime()))
+				      throw new DataMisMatchException("Registration start date time should be less than registration end date time");
+		}
 		// adding auction item to auction preparation
 //		  for(AuctionItemVO auctionItemVO : auctionPreparationVO.getAuctionItems()) {
 //			  AuctionItem auctionItem = auctionItemVO.auctionItemVOToAuctionItem();
