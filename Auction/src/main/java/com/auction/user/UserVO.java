@@ -85,26 +85,32 @@ public class UserVO {
 	@JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
 	@Schema(defaultValue = "1992-02-20", description = "enter date of birth of user")
 	@JsonProperty(value ="birth_day",required = false)
- //   @NotBlank(message = "{birth_day}")
+  //  @NotBlank(message = "{birth_day}")
 //	@Past(message = "{past_date}")
 	private Date birthDay;
 	
 	@JsonProperty("marital_status")
-//    @NotBlank(message = "{martial_status}")
+    @NotBlank(message = "{martial_status}")
 	private String maritalStatus;
 	
-//	@NotBlank(message = "{gender}")
+	@NotBlank(message = "{gender}")
 	private String gender;
+	
 	@JsonProperty("comapany_name")
 	private String companyFirmName;
+	
 	@NotBlank(message = "{pan_card_number}")
 	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
 	@JsonProperty("pan_number")
+	//@Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "{pan_card_number_regex}")
 	private String panCardNumber;
+	
 	@JsonProperty("pan_file")
 	private String panCardFile;
+	
 	@JsonProperty("legal_status")
 	private String legalStatus;
+	
 	private String designation;
 	
 	@Schema(defaultValue = "GFRJR34757334326", description = "enter gst number of user")

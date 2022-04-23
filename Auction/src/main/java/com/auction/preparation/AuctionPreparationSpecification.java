@@ -84,7 +84,8 @@ public class AuctionPreparationSpecification {
 			  root.fetch("auctionItems", JoinType.LEFT);
 			  return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					  ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
-					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime)
+					  builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
+					  builder.equal(listJoin.get("verified"), true)
 					//  ,builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime)
 					  );
 		  };
@@ -99,7 +100,8 @@ public class AuctionPreparationSpecification {
 			 return builder.and(builder.equal(listJoin.get("user"), LoggedInUser.getLoggedInUserDetails().getUser())
 					 ,builder.equal(root.get("auctionStatus"), AuctionStatus.SCHEDULED),
 					 inClause.value(auctionIds),
-					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime)
+					 builder.lessThanOrEqualTo(root.get("auctionStartDateTime"), currentDateTime),
+					 builder.equal(listJoin.get("verified"), true)
 					 //,builder.greaterThanOrEqualTo(root.get("auctionFinishTime"), currentDateTime)
 					 );
 		 };

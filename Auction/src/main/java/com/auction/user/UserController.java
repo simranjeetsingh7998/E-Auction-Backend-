@@ -3,6 +3,7 @@ package com.auction.user;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -51,6 +52,8 @@ public class UserController {
 	@Autowired
 	private IRoleService roleService;
 
+	@Autowired
+	private IUserLoginService userLoginService;
 	/*
 	 * @Autowired private JavaMailSender javaMailSender;
 	 */
@@ -88,8 +91,13 @@ public class UserController {
 				new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword(), null));
 		UserDetailImpl userDetails = this.userServiceDetailImpl.loadUserByUsername(login.getEmail());
 		String token = this.jwtTokenUtility.generateToken(userDetails);
+		UserLogin userLogin = new UserLogin();
+		userLogin.setUserId(userDetails.getId());
+		userLogin.setLoginUniqueId(UUID.randomUUID().toString());
+		this.userLoginService.addUniqueLoginTokenForUser(userLogin);
 		Map<String, Object> response = new HashMap<>(2);
 		response.put("access_token", token);
+		response.put("unique_login_token", userLogin.getLoginUniqueId());
 		User user = userDetails.getUser();
 		UserVO responseUser = user.userToUserVO();
 		responseUser.setRole(user.getRole().roleToRoleVO());

@@ -1,5 +1,7 @@
 package com.auction;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.auction.bid.submission.placement.BidSubmissionPlacement;
 import com.auction.bid.submission.placement.IBidSubmissionPlacementDao;
@@ -88,15 +92,35 @@ public class AuctionApplication {
 		SpringApplication.run(AuctionApplication.class, args);
 	}
 	
+	@Bean
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+			  //  registry.addResourceHandler("/images/**").addResourceLocations("/images/");
+			    exposeDirectory("images", registry);
+			}
+		};
+	}
+	
+    private void exposeDirectory(String dirName, ResourceHandlerRegistry registry) {
+        Path uploadDir = Paths.get(dirName);
+        String uploadPath = uploadDir.toFile().getAbsolutePath();
+         
+        if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
+         
+        registry.addResourceHandler("/" + dirName + "/**").addResourceLocations("file:/"+ uploadPath + "/");
+    }
+	
 	
 	  @Bean public IMailSender mailSender() { return new MailSender(); }
 	  
 	    @Bean
 	    public JavaMailSender javaMailSender() {
 		    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		    mailSender.setHost("email-smtp.ap-south-1.amazonaws.com");
-		    mailSender.setUsername("AKIA6DYX4US5FL3F4VVY");
-		    mailSender.setPassword("BIDfzUGILi5Iog3AYSaocF/RGzi4R0ZZQE/hWesqs/+J");
+		    mailSender.setHost("email-smtp.us-east-1.amazonaws.com");
+		    mailSender.setUsername("AKIA6E2TNHXHG4ZGHYFS");
+		    mailSender.setPassword("BDJ1Lm297o2LOSz48n+bTIZKCQhf69aihuGWc+69FI0u");
 		    mailSender.setPort(465);
 		    mailSender.setProtocol("smtps");
 

@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auction.user.IUserLoginService;
+import com.auction.user.UserLogin;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -29,20 +32,28 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 	
 	@Autowired
 	private UserServiceDetailImpl userServiceDetailImpl;
+	
+	@Autowired 
+	private IUserLoginService userLoginService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		String header = req.getHeader("Authorization");
-
-		if (header == null || !header.startsWith("Bearer")) {
+        String unqiueTokenHeader = req.getHeader("UniqueLoginToken");
+//		if (header == null || !header.startsWith("Bearer") || unqiueTokenHeader == null) {
+//			chain.doFilter(req, res);
+//			return;
+//		}
+        
+    	if (header == null || !header.startsWith("Bearer")) {
 			chain.doFilter(req, res);
 			return;
 		}
 
 		UsernamePasswordAuthenticationToken authentication = null;
 		try {
-			authentication = getAuthentication(req);
+			authentication = getAuthentication(req, unqiueTokenHeader);
 		} catch (SignatureException ex) {
 			System.out.println("Invalid JWT Signature");
 		} catch (MalformedJwtException ex) {
@@ -70,7 +81,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		chain.doFilter(req, res);
 	}
 
-	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request)
+	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request, String uniqueLoginToken)
 			throws SignatureException, MalformedJwtException, ExpiredJwtException, UnsupportedJwtException,
 			IllegalArgumentException, java.security.SignatureException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		String token = request.getHeader("Authorization");
@@ -83,9 +94,15 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 			String user = claims.get("username").toString();
 			if (user != null && SecurityContextHolder.getContext().getAuthentication()==null) {
 				UserDetailImpl userDetailImpl =   this.userServiceDetailImpl.loadUserByUsername(user);
+				System.out.println(isUserRequestFromLatestLogin(userDetailImpl.getId(), uniqueLoginToken));
 				return new UsernamePasswordAuthenticationToken(userDetailImpl, null, userDetailImpl.getAuthorities());
 			}
 		}
 		return null;
+	}
+	
+	private boolean isUserRequestFromLatestLogin(Long userId, String uniqueLoginToken) {
+		  UserLogin userLogin =  this.userLoginService.findLastUnqiueTokenForUser(userId);
+		  return (userLogin != null && userLogin.getLoginUniqueId().equals(uniqueLoginToken));
 	}
 }

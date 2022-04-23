@@ -12,5 +12,10 @@ public interface IBidderAuctionEnrollmentService {
 	List<BidderAuctionEnrollmentVO> findAllByAuctionPreparation(Long auctionPreparationId);
 	
 	void uploadBidderAuctionEnrollmentDocument(Long bidderAuctionEnrollmentId, String documentType, MultipartFile file) throws IOException;
+	
+	BidderAuctionEnrollmentVO updateBidderAuctionEnrollment(Long bidderAuctionEnrollmentId,
+			String bidderAuctionEnrollmentJson, MultipartFile document) throws IOException;
+	
+	BidderAuctionEnrollmentVO findByAuctionIdAndBidder(Long auctionId);
 
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,10 +35,10 @@ public class BidderAuctionEnrollmentController {
 	public ResponseEntity<ApiResponse> bidderAuctionEnrollment(@RequestPart("bidderAuctionEnrollment") String bidderAuctionEnrollmentVO,
 			@RequestPart("file") MultipartFile document
 			) throws IOException{
-		this.auctionEnrollmentService.save(bidderAuctionEnrollmentVO, document);
+		BidderAuctionEnrollmentVO enrollmentVO = this.auctionEnrollmentService.save(bidderAuctionEnrollmentVO, document);
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.create"),
-						null, null), HttpStatus.OK);
+						enrollmentVO, null), HttpStatus.OK);
 	}
 	
 	@PostMapping(value = "/auction/bidder/enrollment/{id}/{documentType}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,6 +51,18 @@ public class BidderAuctionEnrollmentController {
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.create"),
 						null, null), HttpStatus.OK);
+	}
+	
+	@PutMapping(value = "/auction/bidder/enrollment/{id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ApiResponse> modifyBidderAuctionEnrollment(
+			@PathVariable("id") Long bidderAuctionEnrollmentId,
+			@RequestPart("bidderAuctionEnrollment") String bidderAuctionEnrollmentVO,
+			@RequestPart(name =  "file", required = false) MultipartFile document
+			) throws IOException{
+		BidderAuctionEnrollmentVO enrollmentVO = this.auctionEnrollmentService.save(bidderAuctionEnrollmentVO, document);
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.create"),
+						enrollmentVO, null), HttpStatus.OK);
 	}
 	
 	@PostMapping("/auction/bidder/enrollment/{id}/joint/holder")
@@ -82,6 +95,13 @@ public class BidderAuctionEnrollmentController {
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("bidder.auction.enrollment.fetchs"), 
 						this.auctionEnrollmentService.findAllByAuctionPreparation(auctionId), null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/auction/{id}/bidder/enrollment/details")
+	public ResponseEntity<ApiResponse> bidderEnrollmentByAuctionId(@PathVariable("id") Long auctionId){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("bidder.auction.enrollment.fetch"), 
+						this.auctionEnrollmentService.findByAuctionIdAndBidder(auctionId), null), HttpStatus.OK);
 	}
 
 }

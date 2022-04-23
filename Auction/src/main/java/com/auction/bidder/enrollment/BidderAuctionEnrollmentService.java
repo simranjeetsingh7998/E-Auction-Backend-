@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +102,39 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 	}
 	
 	@Override
+	public BidderAuctionEnrollmentVO updateBidderAuctionEnrollment(Long bidderAuctionEnrollmentId, String bidderAuctionEnrollmentJson,
+			MultipartFile document) throws IOException {
+		 BidderAuctionEnrollment auctionEnrollment = this.bidderAuctionEnrollmentDao.findById(bidderAuctionEnrollmentId).orElseThrow(()
+				-> new ResourceNotFoundException("Bidder Auction Enrollment not found"));
+		ObjectMapper mapper = new ObjectMapper();
+		BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = mapper.readValue(bidderAuctionEnrollmentJson, BidderAuctionEnrollmentVO.class);
+		AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(bidderAuctionEnrollmentVO.getAuctionPreparation().getId())
+		 .orElseThrow(() -> new ResourceNotFoundException("Auction not found"));
+		User user = LoggedInUser.getLoggedInUserDetails().getUser();
+        bidderAuctionEnrollmentValidations(auctionPreparation, user);
+		BidderAuctionEnrollment bidderAuctionEnrollment = bidderAuctionEnrollmentVO.bidderAuctionEnrollmentVOToBidderAuctionEnrollment();
+		bidderAuctionEnrollment.setAuctionPreparation(auctionPreparation);
+		bidderAuctionEnrollment.setUser(user);
+		bidderAuctionEnrollment.setEmdAmount(auctionPreparation.getEmdFeeAmount()*bidderAuctionEnrollment.getEmdLimit());
+		bidderAuctionEnrollment.setEventProcessingFeeAmount(auctionPreparation.getEventProcessingFeeAmount()*bidderAuctionEnrollment.getEmdLimit());
+		for (JointHolderVO jointHolderVO : bidderAuctionEnrollmentVO.getJointHolderVOs()) {
+		    bidderAuctionEnrollment.addJointHolder(jointHolderVO.jointHolderVOToJointHolder());	
+		}
+		if(!Objects.isNull(document))
+		    bidderAuctionEnrollment.setAddressProof(uploadAndGetDocumentUrl(auctionPreparation.getId(), DocumentTypeEnum.ADDRESSPROOF.getDocumentType(), document));
+		else {
+			 bidderAuctionEnrollment.setAddressProof(auctionEnrollment.getAddressProof());
+			 bidderAuctionEnrollment.setTransactionProof(auctionEnrollment.getTransactionProof());
+		}
+		boolean isAuctionNormalAndOffline = isBidderAuctionEnrollmentVerified(auctionPreparation);
+		bidderAuctionEnrollment.setVerified(!isAuctionNormalAndOffline);
+	    Long id = this.bidderAuctionEnrollmentDao.save(bidderAuctionEnrollment).getId();	
+	    bidderAuctionEnrollmentVO.setId(id);
+	   return bidderAuctionEnrollmentVO; 
+	}
+	
+	
+	@Override
 	public void uploadBidderAuctionEnrollmentDocument(Long bidderAuctionEnrollmentId, String documentType,
 			MultipartFile file) throws IOException {
 		BidderAuctionEnrollment bidderAuctionEnrollment = this.bidderAuctionEnrollmentDao.findById(bidderAuctionEnrollmentId).orElseThrow(() -> new ResourceNotFoundException("Bidder Auction Enrollment not found"));
@@ -124,6 +158,16 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		auctionPreparation.setId(auctionPreparationId);
 		return this.bidderAuctionEnrollmentDao.findAllByAuctionPreparation(auctionPreparation)
 				.stream().map(BidderAuctionEnrollment::bidderAuctionEnrollmentToBidderAuctionEnrollmentVO).toList();
+	}
+	
+	@Override
+	public BidderAuctionEnrollmentVO findByAuctionIdAndBidder(Long auctionId) {
+		AuctionPreparation auctionPreparation = new AuctionPreparation();
+		auctionPreparation.setId(auctionId);
+	    BidderAuctionEnrollment bidderAuctionEnrollment =  this.bidderAuctionEnrollmentDao.findByAuctionPreparationAndUser(auctionPreparation, LoggedInUser.getLoggedInUserDetails().getUser()).orElse(new BidderAuctionEnrollment());
+		BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = bidderAuctionEnrollment.bidderAuctionEnrollmentToBidderAuctionEnrollmentVO();
+		bidderAuctionEnrollmentVO.getJointHolderVOs().addAll(bidderAuctionEnrollment.getJointHolders().stream().map(JointHolder::jointHolderToJointHolderVO).toList());
+	    return bidderAuctionEnrollmentVO;
 	}
 
 }

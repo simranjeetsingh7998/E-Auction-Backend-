@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.auction.organization.Organization;
-
 @Repository
 public interface IUserDao extends JpaRepository<User, Long> {
 
@@ -18,6 +16,14 @@ public interface IUserDao extends JpaRepository<User, Long> {
 	Optional<User> findFullUserDetailById(Long id);
 
 	User findUserByEmail(String userEmail);
+	
+	boolean existsByEmail(String email);
+	
+	boolean existsByMobileNumber(String mobileNumber);
+	
+	boolean existsByAadharNumber(String aadharNumber);
+	
+	boolean existsByPanCardNumber(String panCardNumber);
 
 	User findUserByMobileNumber(String mobileNumber);
 

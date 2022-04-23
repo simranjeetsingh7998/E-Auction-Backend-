@@ -1,6 +1,7 @@
 package com.auction.bidder.enrollment;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,5 +24,7 @@ public interface IBidderAuctionEnrollmentDao extends JpaRepository<BidderAuction
 	Long countByAuctionPreparation(AuctionPreparation auctionPreparation);
 	
 	boolean existsByAuctionPreparationAndUser(AuctionPreparation auctionPreparation, User participant);
+	
+	Optional<BidderAuctionEnrollment> findByAuctionPreparationAndUser(AuctionPreparation auctionPreparation, User participant);
 	
 }
