@@ -99,7 +99,7 @@ public class UserVO {
 	@JsonProperty("comapany_name")
 	private String companyFirmName;
 	
-	@NotBlank(message = "{pan_card_number}")
+
 	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
 	@JsonProperty("pan_number")
 	//@Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "{pan_card_number_regex}")
