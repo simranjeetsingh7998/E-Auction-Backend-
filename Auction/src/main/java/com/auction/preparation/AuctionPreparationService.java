@@ -336,7 +336,7 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	
 	@Override
 	public List<AuctionPreparationVO> findAllBidderUpcomingAuctions() {
-		return this.auctionPreparationDao.findAllByAuctionStatusAndRegistrationEndDateTimeBefore(AuctionStatus.PUBLISH, LocalDateTime.now())
+		return this.auctionPreparationDao.findAllByAuctionStatusAndRegistrationEndDateTimeAfter(AuctionStatus.PUBLISH, LocalDateTime.now())
 				.stream().map(AuctionPreparation::auctionPreparationToAuctionPreparationVO).toList();
 	}
 	

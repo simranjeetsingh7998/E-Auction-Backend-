@@ -25,7 +25,7 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	
 	List<AuctionPreparation> findAllByAuctionStatusAndAuctionFinishTimeBefore(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 	
-	List<AuctionPreparation> findAllByAuctionStatusAndRegistrationEndDateTimeBefore(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
+	List<AuctionPreparation> findAllByAuctionStatusAndRegistrationEndDateTimeAfter(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 
 	List<AuctionPreparation> findAllByAuctionStatusAndAuctionMethod(AuctionStatus auctionStatus, AuctionMethod auctionMethod);
 
