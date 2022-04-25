@@ -100,7 +100,7 @@ public class UserVO {
 	private String companyFirmName;
 	
 
-	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
+	//	@Size(min = 10, max = 10, message = "{pan_card_number_size}")
 	@JsonProperty("pan_number")
 	//@Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "{pan_card_number_regex}")
 	private String panCardNumber;
@@ -165,7 +165,7 @@ public class UserVO {
 		user.setCompanyFirmName(companyFirmName);
 		user.setPanCardNumber(panCardNumber);
 		user.setPanCardFile(panCardFile);
-		
+		user.setMaritalStatus(maritalStatus);
 		return user;
 	}
 
