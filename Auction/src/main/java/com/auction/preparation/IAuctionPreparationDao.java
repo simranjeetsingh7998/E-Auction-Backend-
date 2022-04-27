@@ -28,5 +28,8 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	List<AuctionPreparation> findAllByAuctionStatusAndRegistrationEndDateTimeAfter(AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 
 	List<AuctionPreparation> findAllByAuctionStatusAndAuctionMethod(AuctionStatus auctionStatus, AuctionMethod auctionMethod);
+	
+	@Query(value ="select ap.* from auction_preparation ap join admin_live_bidding_access alba on ap.id = alba.auction where alba.user = ?1 and ap.auction_status = ?2 and ap.auctionStartDateTime <= ?3", nativeQuery = true)
+	List<AuctionPreparation> findAllLiveAuctionOnAdmin(Long userId, AuctionStatus auctionStatus, LocalDateTime currentDateTime);
 
 }

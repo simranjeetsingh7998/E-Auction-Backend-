@@ -77,6 +77,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Autowired
 	private IAuctionMethodDao auctionMethodDao;
 	
+	@Autowired
+	private AdminLiveBiddingAccessDao adminLiveBiddingAccessDao;
+	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
 	@Transactional
@@ -258,6 +261,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	   }
 	}
 	
+	
+	
+	
 	@Transactional
 	@Override
 	public void schedule(Long id, AuctionScheduleVO auctionScheduleVO) {
@@ -285,6 +291,16 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 			    	return properties;
 			    }).toList();
 			    this.propertiesDao.saveAll(propertiesList);
+			    
+			  List<AdminLiveBiddingAccess> liveBiddingAccessList =  auctionScheduleVO.getUsersId().stream().map(userId ->{
+			    	 AdminLiveBiddingAccess access = new AdminLiveBiddingAccess();
+			    	 access.setAuction(id);
+			    	 access.setUser(userId);
+			    	return access; 
+			    }).toList();
+			  
+			  this.adminLiveBiddingAccessDao.saveAll(liveBiddingAccessList);
+			    
 		} else {
 			if(!auctionPreparation.getAuctionStatus().getStatus().equals(AuctionStatus.PUBLISH.getStatus()))
 			    throw new DataMisMatchException("Auction can't be scheduled because it's not published yet");
@@ -355,6 +371,12 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 				return this.biddingService.lastBidOfAuctionForBidder(auction);
 				}).toList();
 			}
+	}
+	
+	@Override
+	public List<BiddingVO> liveAuctionsOnAdmin() {
+		return this.auctionPreparationDao.findAllLiveAuctionOnAdmin(LoggedInUser.getLoggedInUserDetails().getId(), AuctionStatus.SCHEDULED, LocalDateTime.now())
+		.stream().distinct().map(auction -> this.biddingService.lastBidOfAuctionForBidder(auction)).toList();
 	}
 	
 	@Override

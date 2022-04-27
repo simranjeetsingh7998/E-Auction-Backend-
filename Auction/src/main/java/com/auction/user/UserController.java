@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -123,6 +122,12 @@ public class UserController {
 	public ResponseEntity<ApiResponse> getUsers() {
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), messageResolver.getMessage("user.controller.fetchs"),
 				this.userService.getAllUsers(), null), HttpStatus.OK);
+	}
+	
+	@GetMapping("/organization/{id}/users")
+	public ResponseEntity<ApiResponse> getUsersByOrganization(@PathVariable("id") Long organizationId) {
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), messageResolver.getMessage("user.controller.fetchs"),
+				this.userService.findAllUsersByOrganizationId(organizationId), null), HttpStatus.OK);
 	}
 
 	@PutMapping("/user/{id}/change/password")
