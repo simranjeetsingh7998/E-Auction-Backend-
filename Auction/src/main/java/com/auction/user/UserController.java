@@ -177,15 +177,14 @@ public class UserController {
 	public ResponseEntity<ApiResponse>forgetPassword(
 			  @RequestParam("email") String userEmail) {
 	    User user = userService.findUserByEmail(userEmail);
-	    if (user == null) {
-//	        throw new UsernameNotFoundException("User not found with -> username or Email:"+ userEmail);
-	        return new ResponseEntity<>(
-					new ApiResponse(HttpStatus.OK.value(), "User not found with username "+ userEmail, null, null), HttpStatus.OK);
+	    if (user != null) {
+	    	System.out.println(user.getMobileNumber());
+	    	 this.userService.sendForgotOtp(user.getMobileNumber());
+	 	    return new ResponseEntity<>(
+	 				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK); 
 	    }
-	    	
-	    this.userService.sendForgotOtp(user.getMobileNumber());
-	    return new ResponseEntity<>(
-				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK);
+	    throw new UsernameNotFoundException("User not found with username"+ userEmail);	
+	   
 	}
 	
 	@PostMapping("/user/changePassword")

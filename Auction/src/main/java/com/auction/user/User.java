@@ -32,7 +32,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "users", indexes =  { @Index(columnList = "email", unique = true),
 		@Index(columnList = "mobileNumber", unique = true),@Index(columnList = "aadharNumber", unique = true),
-		@Index(columnList = "panCardNumber", unique = true)})
+		})
 @Data
 @EqualsAndHashCode(of = {"id"})
 public class User implements Serializable {

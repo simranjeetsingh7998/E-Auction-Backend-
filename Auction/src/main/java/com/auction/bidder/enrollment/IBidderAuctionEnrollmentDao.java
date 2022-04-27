@@ -26,5 +26,12 @@ public interface IBidderAuctionEnrollmentDao extends JpaRepository<BidderAuction
 	boolean existsByAuctionPreparationAndUser(AuctionPreparation auctionPreparation, User participant);
 	
 	Optional<BidderAuctionEnrollment> findByAuctionPreparationAndUser(AuctionPreparation auctionPreparation, User participant);
+
+	void save(BidderAuctionEnrollmentVO bidder);
+
+	@Query(value = "Select * from bidder_auction_enrollment where auction_preparation_id=?1", nativeQuery= true)
+	List<BidderAuctionEnrollment> findAllByAuctionPreparationId(Long auctionPreparationId);
+
+	Optional<BidderAuctionEnrollment> findByAuctionPreparationIdAndId(Long auctionId, Long bidderEnrollmentId);
 	
 }

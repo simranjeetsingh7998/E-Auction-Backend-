@@ -93,8 +93,8 @@ public class UserService extends ControllerHelper implements IUserService {
 			 throw new ResourceAlreadyExist("Phone number already exist");
 		 else if(this.userDao.existsByAadharNumber(userVO.getAadharNumber()))
 			 throw new ResourceAlreadyExist("Aadhar number already exist");
-		 else if(this.userDao.existsByPanCardNumber(userVO.getPanCardNumber()))
-			 throw new ResourceAlreadyExist("Pan card number already exist");
+//		 else if(this.userDao.existsByPanCardNumber(userVO.getPanCardNumber()))
+//			 throw new ResourceAlreadyExist("Pan card number already exist");
 	}
 	
 	private void isVerified(String email, String phone) {
