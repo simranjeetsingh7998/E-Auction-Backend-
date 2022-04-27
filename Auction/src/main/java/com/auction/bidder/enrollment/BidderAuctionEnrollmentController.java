@@ -103,5 +103,15 @@ public class BidderAuctionEnrollmentController {
 				new ApiResponse(HttpStatus.OK.value(), this.messageResolver.getMessage("bidder.auction.enrollment.fetch"), 
 						this.auctionEnrollmentService.findByAuctionIdAndBidder(auctionId), null), HttpStatus.OK);
 	}
-
+	
+   @PutMapping("/auction/bidder/enrollment/verification")
+   public ResponseEntity<ApiResponse> bidderEnrollmentVerification(
+			@RequestBody BidderEnrollmentVerificationVO bidderEnrollmentVerificationVO)
+   {
+	   this.auctionEnrollmentService.bidderAuctionEnrollmentVerification(bidderEnrollmentVerificationVO);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Bidder Verified Successfully",
+				null, null), HttpStatus.OK);
+   
+   }
+   
 }

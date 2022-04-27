@@ -18,4 +18,7 @@ public interface IBidderAuctionEnrollmentService {
 	
 	BidderAuctionEnrollmentVO findByAuctionIdAndBidder(Long auctionId);
 
+	void bidderAuctionEnrollmentVerification(
+			BidderEnrollmentVerificationVO bidderEnrollmentVerificationVO);
+
 }
