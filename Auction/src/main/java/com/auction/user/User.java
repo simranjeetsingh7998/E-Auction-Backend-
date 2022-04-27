@@ -153,6 +153,7 @@ public class User implements Serializable {
 		userVO.setCompanyFirmName(companyFirmName);
 		userVO.setPanCardNumber(panCardNumber);
 		userVO.setPanCardFile(panCardFile);
+		userVO.setMaritalStatus(maritalStatus);
 		return userVO;
 	}
 
