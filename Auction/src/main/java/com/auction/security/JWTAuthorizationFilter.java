@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auction.global.exception.JwtExecption;
 import com.auction.user.IUserLoginService;
 import com.auction.user.UserLogin;
 
@@ -41,15 +42,17 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 			throws IOException, ServletException {
 		String header = req.getHeader("Authorization");
         String unqiueTokenHeader = req.getHeader("UniqueLoginToken");
-//		if (header == null || !header.startsWith("Bearer") || unqiueTokenHeader == null) {
-//			chain.doFilter(req, res);
-//			return;
-//		}
-        
-    	if (header == null || !header.startsWith("Bearer")) {
+//        System.out.println(header);
+//        System.out.println(unqiueTokenHeader);
+		if (header == null || !header.startsWith("Bearer") || unqiueTokenHeader == null) {
 			chain.doFilter(req, res);
 			return;
 		}
+        
+//    	if (header == null || !header.startsWith("Bearer")) {
+//			chain.doFilter(req, res);
+//			return;
+//		}
 
 		UsernamePasswordAuthenticationToken authentication = null;
 		try {
@@ -94,8 +97,11 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 			String user = claims.get("username").toString();
 			if (user != null && SecurityContextHolder.getContext().getAuthentication()==null) {
 				UserDetailImpl userDetailImpl =   this.userServiceDetailImpl.loadUserByUsername(user);
-				System.out.println(isUserRequestFromLatestLogin(userDetailImpl.getId(), uniqueLoginToken));
-				return new UsernamePasswordAuthenticationToken(userDetailImpl, null, userDetailImpl.getAuthorities());
+				//System.out.println(isUserRequestFromLatestLogin(userDetailImpl.getId(), uniqueLoginToken));
+				if(isUserRequestFromLatestLogin(userDetailImpl.getId(), uniqueLoginToken))
+				    return new UsernamePasswordAuthenticationToken(userDetailImpl, null, userDetailImpl.getAuthorities());
+				else
+					throw new JwtExecption("Unique login token is not valid");
 			}
 		}
 		return null;
@@ -105,4 +111,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		  UserLogin userLogin =  this.userLoginService.findLastUnqiueTokenForUser(userId);
 		  return (userLogin != null && userLogin.getLoginUniqueId().equals(uniqueLoginToken));
 	}
+	
+//	private void deleteUniqueTokenForUser(Long userId) {
+//		this.userLoginService.logoutFromOtherDevices(userId);
+//	}
 }

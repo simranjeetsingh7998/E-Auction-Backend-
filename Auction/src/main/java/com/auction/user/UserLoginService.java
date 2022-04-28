@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserLoginService implements IUserLoginService {
@@ -27,6 +28,16 @@ public class UserLoginService implements IUserLoginService {
 		return userLogin;
 	}
 	
+	@Transactional
+	@Override
+	public void logoutFromOtherDevices(Long userId) {
+		this.userLoginDao.deleteAllByUserId(userId);
+	}
 	
+	@Transactional
+	@Override
+	public void deleteUserByToken(String token) {
+		this.userLoginDao.deleteAllByLoginUniqueId(token);
+	}
 
 }

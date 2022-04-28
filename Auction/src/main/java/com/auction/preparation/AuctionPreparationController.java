@@ -178,8 +178,8 @@ public class AuctionPreparationController {
 	
 	@GetMapping("/auction/{id}/emdFeePaymentMode")
 	public ResponseEntity<ApiResponse> getAuctionEmdFeePaymentMode(@PathVariable("id") Long auctionId){
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction documents fetched successfully",
-				this.auctionPreparationService.findAllAuctionDocuments(), null), HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction emd payment mode fetched successfully",
+				this.auctionPreparationService.getEmdFeePaymentModeByAuction(auctionId), null), HttpStatus.OK);
 	}
 	
 
