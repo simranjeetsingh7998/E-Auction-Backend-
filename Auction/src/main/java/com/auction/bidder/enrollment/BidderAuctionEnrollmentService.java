@@ -106,9 +106,9 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 
 	private boolean isBidderAuctionEnrollmentVerified(AuctionPreparation auctionPreparation) {
 		return this.feePaymentModeDao.findAllByAuctionPreparations(auctionPreparation).get(0).getEmdfpMode()
-				.equals(EmdFeePaymentModeEnum.OFFLINE.getPaymentMode())
-				&& this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation).get(0).getMethod()
-						.equals(AuctionMethodEnum.NORMAL.getMethod());
+				.equals(EmdFeePaymentModeEnum.OFFLINE.getPaymentMode());
+//				&& this.auctionMethodDao.findAllByAuctionPreparations(auctionPreparation).get(0).getMethod()
+//						.equals(AuctionMethodEnum.NORMAL.getMethod());
 
 	}
 

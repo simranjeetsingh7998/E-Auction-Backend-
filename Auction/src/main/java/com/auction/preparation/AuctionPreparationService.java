@@ -22,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auction.bidder.enrollment.IBidderAuctionEnrollmentDao;
 import com.auction.bidding.BiddingVO;
 import com.auction.bidding.IBiddingService;
+import com.auction.emd.fee.payment.mode.EMDFeePaymentMode;
+import com.auction.emd.fee.payment.mode.EMDFeePaymentModeVO;
 import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.item.template.AuctionItemTemplate;
@@ -401,6 +403,14 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		auctionPreparationVO.setTotalEmd(!Objects.isNull(totalEmdSum) ? totalEmdSum : 0);
 		auctionPreparationVO.setTotalEnrollmentCount(!Objects.isNull(totalUserEmrollments) ? totalUserEmrollments : 0);
 		return auctionPreparationVO;
+	}
+	
+	@Override
+	public EMDFeePaymentModeVO getEmdFeePaymentModeByAuction(Long auctionId) {
+	    EMDFeePaymentMode emdFeePaymentMode = this.auctionPreparationDao.findById(auctionId).orElseThrow(() -> new ResourceNotFoundException(AUCTIONNOTFOUND)).getEmdFeePaymentMode();
+		if(!Objects.isNull(emdFeePaymentMode))
+			  return emdFeePaymentMode.emdFeePaymentModeToEMDFeePaymentModeVO();
+	    throw new ResourceNotFoundException("Emd Fee Payment not found for auction");
 	}
 	
 	private AuctionPreparationVO checkAndAddAssociation(AuctionPreparation auctionPreparation) {
