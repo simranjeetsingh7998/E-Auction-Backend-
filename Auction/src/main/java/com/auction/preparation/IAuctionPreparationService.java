@@ -42,5 +42,7 @@ public interface IAuctionPreparationService {
 	List<BiddingVO> userCurrentAuctions(List<Long> auctionIds);
 	
 	List<AuctionPreparationVO> findAllBidderUpcomingAuctions();
+	
+	List<BiddingVO> liveAuctionsOnAdmin();
 
 }

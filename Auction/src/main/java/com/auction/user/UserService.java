@@ -32,6 +32,7 @@ import com.auction.sms.SMSUtility;
 import com.auction.util.CommonUtils;
 import com.auction.util.FileUpload;
 import com.auction.util.GenerateOtp;
+import com.auction.util.LoggedInUser;
 
 @Service
 public class UserService extends ControllerHelper implements IUserService {
@@ -92,17 +93,17 @@ public class UserService extends ControllerHelper implements IUserService {
 			 throw new ResourceAlreadyExist("Phone number already exist");
 		 else if(this.userDao.existsByAadharNumber(userVO.getAadharNumber()))
 			 throw new ResourceAlreadyExist("Aadhar number already exist");
-		 else if(this.userDao.existsByPanCardNumber(userVO.getPanCardNumber()))
-			 throw new ResourceAlreadyExist("Pan card number already exist");
+//		 else if(this.userDao.existsByPanCardNumber(userVO.getPanCardNumber()))
+//			 throw new ResourceAlreadyExist("Pan card number already exist");
 	}
 	
 	private void isVerified(String email, String phone) {
 	    Optional<UserVerification> userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(phone);
 	    if(!userVerification.isPresent())
 	    	 throw new UserNotVerifiedException("Phone number is not verified");
-	     userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(email);
-	    if(!userVerification.isPresent())
-	    	 throw new UserNotVerifiedException("Email is not verified");
+//	     userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(email);
+//	    if(!userVerification.isPresent())
+//	    	 throw new UserNotVerifiedException("Email is not verified");
 	}
 	
 	@Transactional
@@ -132,6 +133,16 @@ public class UserService extends ControllerHelper implements IUserService {
 	@Override
 	public List<UserVO> getAllUsers() {
 		return this.userDao.findAll().stream().map(User::userToUserVO).toList();
+	}
+	
+	@Override
+	public List<UserVO> findAllUsersByOrganizationId(Long organizationId) {
+        Organization organization = new Organization();
+        organization.setId(organizationId.intValue());
+        if(this.userDao.existsByIdAndOrganization(LoggedInUser.getLoggedInUserDetails().getId(), organization)) {
+        	 return this.userDao.findAllByOrganization(organization).stream().map(User::userToUserVO).toList();
+        }
+		throw new DataMisMatchException("You do not belong to this organization");
 	}
 
 	@Override

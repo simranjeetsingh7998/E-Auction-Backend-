@@ -26,6 +26,9 @@ public class AuctionScheduleVO {
 	@JsonProperty("properties")
 	private List<AuctionItemProprtiesVO> auctionItemProprtiesVOs = new ArrayList<>();
 	
+	@JsonProperty("users")
+	private List<Long> usersId = new ArrayList<>();
+	
 	@Min(value = 1, message = "${auctionSchedule.auctionExtendTimeCondition}")
 	@JsonProperty("auction_extend_minute_before_end_time")
 	private Integer auctionExtendTimeCondition;
