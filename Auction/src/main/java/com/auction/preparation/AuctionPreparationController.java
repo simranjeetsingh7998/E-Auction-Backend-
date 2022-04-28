@@ -111,6 +111,12 @@ public class AuctionPreparationController {
 				null, null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/admin/live/auctions")
+	public ResponseEntity<ApiResponse> liveAuctionsOnAdmin(){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction return reasons fetched successfully",
+				this.auctionPreparationService.liveAuctionsOnAdmin(), null), HttpStatus.OK);
+	}
+	
 	@GetMapping("/auction/preparation/{id}/return/reasons")
 	public ResponseEntity<ApiResponse> returnReasonsByAuctionId(@PathVariable Long id){
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction return reasons fetched successfully",

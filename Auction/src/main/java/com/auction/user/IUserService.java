@@ -36,4 +36,6 @@ public interface IUserService {
 
 	void setNewPassword(SetNewPasswordVO setNewPasswordVO) throws Exception;
 
+	List<UserVO> findAllUsersByOrganizationId(Long organizationId);
+
 }

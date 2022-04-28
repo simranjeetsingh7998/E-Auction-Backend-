@@ -32,6 +32,7 @@ import com.auction.sms.SMSUtility;
 import com.auction.util.CommonUtils;
 import com.auction.util.FileUpload;
 import com.auction.util.GenerateOtp;
+import com.auction.util.LoggedInUser;
 
 @Service
 public class UserService extends ControllerHelper implements IUserService {
@@ -132,6 +133,16 @@ public class UserService extends ControllerHelper implements IUserService {
 	@Override
 	public List<UserVO> getAllUsers() {
 		return this.userDao.findAll().stream().map(User::userToUserVO).toList();
+	}
+	
+	@Override
+	public List<UserVO> findAllUsersByOrganizationId(Long organizationId) {
+        Organization organization = new Organization();
+        organization.setId(organizationId.intValue());
+        if(this.userDao.existsByIdAndOrganization(LoggedInUser.getLoggedInUserDetails().getId(), organization)) {
+        	 return this.userDao.findAllByOrganization(organization).stream().map(User::userToUserVO).toList();
+        }
+		throw new DataMisMatchException("You do not belong to this organization");
 	}
 
 	@Override
