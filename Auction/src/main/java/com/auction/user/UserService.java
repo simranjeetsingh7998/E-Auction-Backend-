@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class UserService extends ControllerHelper implements IUserService {
 	}
 	
 	private void userUniqueValidations(UserVO userVO) {
-		 if(this.userDao.existsByEmail(userVO.getEmail()))
+		 if(!Objects.isNull(userVO.getEmail()) && this.userDao.existsByEmail(userVO.getEmail()))
 			 throw new ResourceAlreadyExist("Email already exist");
 		 else if(this.userDao.existsByMobileNumber(userVO.getMobileNumber()))
 			 throw new ResourceAlreadyExist("Phone number already exist");

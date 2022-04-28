@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 @Configuration
 @EnableWebSecurity
@@ -46,7 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						"/user/send/mobile/otp/**","/user/verify/mobile/otp",
 						"/upload/document/user/**",
 						"/bidder/**","/images/**","/ws","/auction","/auction/preparation/status/**",
-						"/user/forgetPassword**","/user/changePassword").permitAll().and()
+						"/user/forgetPassword**","/user/changePassword","/unsecure/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

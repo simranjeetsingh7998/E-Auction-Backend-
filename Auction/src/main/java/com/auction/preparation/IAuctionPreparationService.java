@@ -44,5 +44,7 @@ public interface IAuctionPreparationService {
 	List<AuctionPreparationVO> findAllBidderUpcomingAuctions();
 	
 	List<BiddingVO> liveAuctionsOnAdmin();
+	
+	List<AuctionDocumentVO> findAllAuctionDocuments();
 
 }

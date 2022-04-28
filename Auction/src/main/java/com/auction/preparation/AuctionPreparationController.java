@@ -169,6 +169,12 @@ public class AuctionPreparationController {
 		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Current auctions fetched successfully",
 				this.auctionPreparationService.userCurrentAuctions(auctionIds), null), HttpStatus.OK);
 	}
+	
+	@GetMapping("/unsecure/auction/document")
+	public ResponseEntity<ApiResponse> unsecureAuctionDocuments(){
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction documents fetched successfully",
+				this.auctionPreparationService.findAllAuctionDocuments(), null), HttpStatus.OK);
+	}
 
 }
 

@@ -80,6 +80,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	@Autowired
 	private AdminLiveBiddingAccessDao adminLiveBiddingAccessDao;
 	
+	@Autowired
+	private IAuctionDocumentDao auctionDocumentDao;
+	
 	private static final String AUCTIONNOTFOUND = "Auction not found";
 	
 	@Transactional
@@ -377,6 +380,15 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	public List<BiddingVO> liveAuctionsOnAdmin() {
 		return this.auctionPreparationDao.findAllLiveAuctionOnAdmin(LoggedInUser.getLoggedInUserDetails().getId(), AuctionStatus.SCHEDULED, LocalDateTime.now())
 		.stream().distinct().map(auction -> this.biddingService.lastBidOfAuctionForBidder(auction)).toList();
+	}
+	
+	@Override
+	public List<AuctionDocumentVO> findAllAuctionDocuments() {
+		return this.auctionDocumentDao.findAllByIsShowTrue().stream().map(auctionDocument ->{
+			   AuctionDocumentVO auctionDocumentVO = new AuctionDocumentVO();
+			   auctionDocumentVO.setDocumentPath(auctionDocument.getDocumentPath());
+			   return auctionDocumentVO;
+		}).toList();
 	}
 	
 	@Override
