@@ -30,7 +30,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "users", indexes =  { // @Index(columnList = "email", unique = true),
+@Table(name = "users", indexes =  {  @Index(columnList = "email"),
 		@Index(columnList = "mobileNumber", unique = true),@Index(columnList = "aadharNumber", unique = true),
 		})
 @Data
