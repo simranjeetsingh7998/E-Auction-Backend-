@@ -73,7 +73,7 @@ public class UserVO {
 	private String nationality;
 
 	@Schema(defaultValue = "md@gmail.com", description = "enter email of user")
-	@NotBlank(message = "{email}")
+//	@NotBlank(message = "{email}")
 	@Email(message = "{email_pattern}")
 	private String email;
 

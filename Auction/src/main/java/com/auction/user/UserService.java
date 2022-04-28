@@ -100,9 +100,9 @@ public class UserService extends ControllerHelper implements IUserService {
 	    Optional<UserVerification> userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(phone);
 	    if(!userVerification.isPresent())
 	    	 throw new UserNotVerifiedException("Phone number is not verified");
-	     userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(email);
-	    if(!userVerification.isPresent())
-	    	 throw new UserNotVerifiedException("Email is not verified");
+//	     userVerification = this.userVerificationDao.findByPhoneEmailAndIsVerifiedTrue(email);
+//	    if(!userVerification.isPresent())
+//	    	 throw new UserNotVerifiedException("Email is not verified");
 	}
 	
 	@Transactional
