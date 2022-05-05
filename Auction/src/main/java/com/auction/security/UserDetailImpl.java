@@ -1,6 +1,7 @@
 package com.auction.security;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class UserDetailImpl implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return this.user.getEmail();
+		return  (Objects.isNull(user.getEmail()) || user.getEmail().isBlank()) ? user.getMobileNumber() : user.getEmail();
 	}
 
 	@Override

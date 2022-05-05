@@ -12,5 +12,9 @@ public interface IUserLoginDao extends JpaRepository<UserLogin, Long>{
 	
 	@Query("from UserLogin where userId=?1")
 	Optional<UserLogin> findByUserId(Long userId, PageRequest pageRequest);
+	
+	void deleteAllByUserId(Long userId);
+	
+	void deleteAllByLoginUniqueId(String token);
 
 }
