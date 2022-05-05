@@ -38,4 +38,6 @@ public interface IUserService {
 
 	List<UserVO> findAllUsersByOrganizationId(Long organizationId);
 
+	User findUserByMobileNumber(String mobileNumber);
+
 }

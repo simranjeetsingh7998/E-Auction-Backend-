@@ -174,17 +174,31 @@ public class UserController {
 					new ApiResponse(HttpStatus.OK.value(), "Mobile number verified Successfully", null, null), HttpStatus.OK);	 
 	}
 	
+//	@PostMapping("/user/forgetPassword")
+//	public ResponseEntity<ApiResponse>forgetPassword(
+//			  @RequestParam("email") String userEmail) {
+//	    User user = userService.findUserByEmail(userEmail);
+//	    if (user != null) {
+//	    	System.out.println(user.getMobileNumber());
+//	    	 this.userService.sendForgotOtp(user.getMobileNumber());
+//	 	    return new ResponseEntity<>(
+//	 				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK); 
+//	    }
+//	    throw new UsernameNotFoundException("User not found with username"+ userEmail);	
+//	   
+//	}
+	
 	@PostMapping("/user/forgetPassword")
 	public ResponseEntity<ApiResponse>forgetPassword(
-			  @RequestParam("email") String userEmail) {
-	    User user = userService.findUserByEmail(userEmail);
-	    if (user != null) {
+			  @RequestParam("mobileNumber") String mobileNumber) {
+	    User user = userService.findUserByMobileNumber(mobileNumber);
+	    if (user != null) {  
 	    	System.out.println(user.getMobileNumber());
 	    	 this.userService.sendForgotOtp(user.getMobileNumber());
 	 	    return new ResponseEntity<>(
 	 				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK); 
 	    }
-	    throw new UsernameNotFoundException("User not found with username"+ userEmail);	
+	    throw new UsernameNotFoundException("User not found with Mobile Number :"+ mobileNumber);	
 	   
 	}
 	
