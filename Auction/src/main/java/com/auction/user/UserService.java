@@ -272,11 +272,18 @@ public class UserService extends ControllerHelper implements IUserService {
 		
 		return this.userDao.findUserByEmail(userEmail);
 	}
+	
+	@Override
+	public User findUserByMobileNumber(String mobileNumber) {
+		
+		return this.userDao.findUserByMobileNumber(mobileNumber);
+	}
+
 
 	@Override
 	public void setNewPassword(SetNewPasswordVO setNewPasswordVO) throws Exception {
 		
-		User user = userDao.findUserByEmail(setNewPasswordVO.getEmail());
+		User user = userDao.findUserByMobileNumber(setNewPasswordVO.getMobile_number());
 		UserVerification userVerification = this.userVerificationDao.getOtpByMobileNumber(user.getMobileNumber());
 		if(setNewPasswordVO.getOtp().equalsIgnoreCase(userVerification.getOtp())){
 		  userVerification.setVerified(true);

@@ -10,8 +10,11 @@ public class SetNewPasswordVO {
 	@JsonProperty("new_password")
 	private String newPassword;
 	
-	@JsonProperty("email")
-	private String email;
+//	@JsonProperty("email")
+//	private String email;
+	
+	@JsonProperty("mobile_number")
+	private String mobile_number;
 	
 	@JsonProperty("otp")
 	private String otp;

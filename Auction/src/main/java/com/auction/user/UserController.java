@@ -3,7 +3,6 @@ package com.auction.user;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
@@ -97,24 +96,14 @@ public class UserController {
 		this.authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword(), null));
 		UserDetailImpl userDetails = this.userServiceDetailImpl.loadUserByUsername(login.getEmail());
-		if(login.isForceLogout()) {
-			 this.forceLogoutFromOtherDevices(userDetails.getId());
-		}
-		Map<String, Object> response = new HashMap<>(5);
-	    UserLogin alreadyLoginExist =	this.userLoginService.findLastUnqiueTokenForUser(userDetails.getId());
-	    if(!Objects.isNull(alreadyLoginExist)) {
-	    	response.put("force_logout", true);
-			return new ResponseEntity<>(
-					new ApiResponse(HttpStatus.OK.value(), "Already logged in please logout from other devices", response, null), HttpStatus.OK);
-	    }
 		String token = this.jwtTokenUtility.generateToken(userDetails);
 		UserLogin userLogin = new UserLogin();
 		userLogin.setUserId(userDetails.getId());
 		userLogin.setLoginUniqueId(UUID.randomUUID().toString());
 		this.userLoginService.addUniqueLoginTokenForUser(userLogin);
+		Map<String, Object> response = new HashMap<>(2);
 		response.put("access_token", token);
 		response.put("unique_login_token", userLogin.getLoginUniqueId());
-		response.put("force_logout", false);
 		User user = userDetails.getUser();
 		UserVO responseUser = user.userToUserVO();
 		responseUser.setRole(user.getRole().roleToRoleVO());
@@ -122,17 +111,6 @@ public class UserController {
 		response.put("user", responseUser);
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(), "Login Successfully", response, null), HttpStatus.OK);
-	}
-	
-	private void forceLogoutFromOtherDevices(Long userId) {
-		  this.userLoginService.logoutFromOtherDevices(userId);
-	}
-	
-	@DeleteMapping("/unsecure/user/logout/{uniqueLoginToken}")
-	public ResponseEntity<ApiResponse> logoutUser(@PathVariable("uniqueLoginToken") String uniqueLoginToken){
-		this.userLoginService.deleteUserByToken(uniqueLoginToken);
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),"User logout successfully",
-				null, null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/user/{id}")
@@ -203,17 +181,31 @@ public class UserController {
 					new ApiResponse(HttpStatus.OK.value(), "Mobile number verified Successfully", null, null), HttpStatus.OK);	 
 	}
 	
+//	@PostMapping("/user/forgetPassword")
+//	public ResponseEntity<ApiResponse>forgetPassword(
+//			  @RequestParam("email") String userEmail) {
+//	    User user = userService.findUserByEmail(userEmail);
+//	    if (user != null) {
+//	    	System.out.println(user.getMobileNumber());
+//	    	 this.userService.sendForgotOtp(user.getMobileNumber());
+//	 	    return new ResponseEntity<>(
+//	 				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK); 
+//	    }
+//	    throw new UsernameNotFoundException("User not found with username"+ userEmail);	
+//	   
+//	}
+	
 	@PostMapping("/user/forgetPassword")
 	public ResponseEntity<ApiResponse>forgetPassword(
-			  @RequestParam("email") String userEmail) {
-	    User user = userService.findUserByEmail(userEmail);
+			  @RequestParam("mobileNumber") String mobileNumber) {
+	    User user = userService.findUserByMobileNumber(mobileNumber);
 	    if (user != null) {
 	    	System.out.println(user.getMobileNumber());
 	    	 this.userService.sendForgotOtp(user.getMobileNumber());
 	 	    return new ResponseEntity<>(
 	 				new ApiResponse(HttpStatus.OK.value(), "OTP has been sent successfully on your registered mobile number.", null, null), HttpStatus.OK); 
 	    }
-	    throw new UsernameNotFoundException("User not found with username"+ userEmail);	
+	    throw new UsernameNotFoundException("User not found with Mobile Number :"+ mobileNumber);	
 	   
 	}
 	
