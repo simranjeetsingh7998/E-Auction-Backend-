@@ -29,6 +29,8 @@ public interface IUserService {
 	void verifyPhoneOtp(Map<String, String> verificationMap);
 	
 	void uploadDocument(Long userId, String documentType, MultipartFile multipartFile) throws IOException;
+	
+	Map<String, Object> getUserDocument(Long userId, String documentType);
 
 	User findUserByEmail(String userEmail);
 

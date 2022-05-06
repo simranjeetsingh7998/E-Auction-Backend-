@@ -130,6 +130,18 @@ public class UserService extends ControllerHelper implements IUserService {
 		}
 		this.userDao.save(user);
 	}
+	
+	@Override
+	public Map<String, Object> getUserDocument(Long userId, String documentType) {
+		String file = null;
+		if(UserDocumenType.AADHARCARD.name().equalsIgnoreCase(documentType))
+			 file = this.userDao.findAadharById(userId);
+		else if(UserDocumenType.PANCARD.name().equalsIgnoreCase(documentType))
+			 file = this.userDao.findPanCardById(userId);
+		if(!Objects.isNull(file))
+			 return this.fileUpload.encodeFileToBase64(file);
+		throw new ResourceNotFoundException(documentType+" not found");
+	}
 
 	@Override
 	public List<UserVO> getAllUsers() {

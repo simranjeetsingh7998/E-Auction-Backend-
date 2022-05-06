@@ -232,6 +232,18 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
+	public Map<String, Object> getAuctionDocument(Long auctionPreparationId, String documentType) {
+		String file = null;
+		if(AuctionDocumentType.AUCTION.name().equalsIgnoreCase(documentType))
+			file = this.auctionPreparationDao.findAuctionDocumentById(auctionPreparationId);
+		else if(AuctionDocumentType.NOTICE.name().equalsIgnoreCase(documentType))
+			file = this.auctionPreparationDao.findNoticeDocumentById(auctionPreparationId);
+	    if(!Objects.isNull(file))
+	    	return this.fileUpload.encodeFileToBase64(file);
+		throw new ResourceNotFoundException(documentType+" not found");
+	}
+	
+	@Override
 	public void mapToTemplate(Long id, Integer templateId) {
           AuctionPreparation auctionPreparation = this.auctionPreparationDao.findById(id).orElseThrow(() ->
           new ResourceNotFoundException(AUCTIONNOTFOUND));
@@ -379,9 +391,15 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 	}
 	
 	@Override
-	public List<BiddingVO> liveAuctionsOnAdmin() {
-		return this.auctionPreparationDao.findAllLiveAuctionOnAdmin(LoggedInUser.getLoggedInUserDetails().getId(), AuctionStatus.SCHEDULED, LocalDateTime.now())
-		.stream().distinct().map(auction -> this.biddingService.lastBidOfAuctionForBidder(auction)).toList();
+	public List<BiddingVO> liveAuctionsOnAdmin(List<Long> auctionsId) {
+		System.out.println(LocalDateTime.now());
+		List<AuctionPreparation> auctionPreparations = null;
+		if(Objects.isNull(auctionsId) || auctionsId.isEmpty())
+		   auctionPreparations =  this.auctionPreparationDao.findAllLiveAuctionOnAdmin(LoggedInUser.getLoggedInUserDetails().getId(), AuctionStatus.SCHEDULED.getStatus(), LocalDateTime.now());
+		else 
+			 auctionPreparations =  this.auctionPreparationDao.findAllLiveAuctionOnAdmin(LoggedInUser.getLoggedInUserDetails().getId(), AuctionStatus.SCHEDULED.getStatus(), LocalDateTime.now(), auctionsId);
+		System.out.println("Auctions  "+auctionPreparations.size());
+		return auctionPreparations.stream().distinct().map(auction -> this.biddingService.lastBidOfAuctionForBidder(auction)).toList();
 	}
 	
 	@Override

@@ -19,6 +19,8 @@ public interface IBiddingService {
 	long closeRound(AuctionPreparation auctionPreparation) throws ResourceNotFoundException;
 	
 	List<BidHistory> findBidHistoryByActionPreparation(Long auctionId);
+	
+	List<BidHistory> findBidHistoryByActionPreparationForAdmin(Long auctionId);
 
 	List<AuctionItemProprtiesVO> findUnsoldPropertiesForH1Bidder(Long auctionId);
 

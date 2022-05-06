@@ -65,10 +65,16 @@ public class AuctionPreparationController {
 	}
 	
 	@PostMapping(path = "/upload/document/auction/preparation/{id}/{documentType}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ApiResponse> addUserDocument(@PathVariable("id") Long auctionPreparationId, @PathVariable String documentType, 
+	public ResponseEntity<ApiResponse> uploadAuctionDocument(@PathVariable("id") Long auctionPreparationId, @PathVariable String documentType, 
 			@RequestPart("document") MultipartFile multipartFile) throws IOException{
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" uploaded successfully",
 					this.auctionPreparationService.uploadDocument(auctionPreparationId, documentType, multipartFile), null), HttpStatus.OK);
+	}
+	
+	@PostMapping("/get/document/auction/preparation/{id}/{documentType}")
+	public ResponseEntity<ApiResponse> getAuctionDocument(@PathVariable("id") Long auctionPreparationId, @PathVariable String documentType) {
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" fetched successfully",
+					this.auctionPreparationService.getAuctionDocument(auctionPreparationId, documentType), null), HttpStatus.OK);
 	}
 	
 	@PostMapping("/auction/preparation/template/mapping")
@@ -112,9 +118,17 @@ public class AuctionPreparationController {
 	}
 	
 	@GetMapping("/admin/live/auctions")
-	public ResponseEntity<ApiResponse> liveAuctionsOnAdmin(){
-		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Auction return reasons fetched successfully",
-				this.auctionPreparationService.liveAuctionsOnAdmin(), null), HttpStatus.OK);
+	public ResponseEntity<ApiResponse> liveAuctionsOnAdmin(@RequestParam(name =  "auctionsId", required = false) String auctions ){
+		List<Long> auctionsId = null;
+		if(!Objects.isNull(auctions)){
+            String [] auctionIdsArray = auctions.split(",");
+            auctionsId = new ArrayList<>();
+			  for(int i =0; i< auctionIdsArray.length; i++){
+				  auctionsId.add(Long.parseLong(auctionIdsArray[i]));
+			  }
+		}
+		return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Live auctions fetched successfully",
+				this.auctionPreparationService.liveAuctionsOnAdmin(auctionsId), null), HttpStatus.OK);
 	}
 	
 	@GetMapping("/auction/preparation/{id}/return/reasons")

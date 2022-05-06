@@ -33,5 +33,11 @@ public interface IUserDao extends JpaRepository<User, Long> {
 	boolean existsByIdAndOrganization(Long userId, Organization organization);
 	
 	List<User> findAllByOrganization(Organization organization);
+	
+	@Query("select u.aadharFile from User u where u.id = ?1")
+	String findAadharById(Long userId);
+	
+	@Query("select u.panCardFile from User u where u.id = ?1")
+	String findPanCardById(Long userId);
 
 }

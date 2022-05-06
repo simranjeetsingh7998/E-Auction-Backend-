@@ -53,6 +53,16 @@ public class BidderAuctionEnrollmentController {
 						null, null), HttpStatus.OK);
 	}
 	
+	@GetMapping(value = "/auction/{auctionId}/bidder/{id}/enrollment/document/{documentType}")
+	public ResponseEntity<ApiResponse> getBidderAuctionEnrollmentDocument( 
+			@PathVariable("auctionId") Long auctionId,
+			@PathVariable("id") Long bidderId, 
+            @PathVariable("documentType") String documentType){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.CREATED.value(), this.messageResolver.getMessage("bidder.auction.enrollment.document.fetch"),
+						this.auctionEnrollmentService.getDocumentForBidder(auctionId, bidderId, documentType), null), HttpStatus.OK);
+	}
+	
 	@PutMapping(value = "/auction/bidder/enrollment/{id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ApiResponse> modifyBidderAuctionEnrollment(
 			@PathVariable("id") Long bidderAuctionEnrollmentId,

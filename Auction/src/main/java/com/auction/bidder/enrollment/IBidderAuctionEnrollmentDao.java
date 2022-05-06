@@ -34,4 +34,10 @@ public interface IBidderAuctionEnrollmentDao extends JpaRepository<BidderAuction
 
 	Optional<BidderAuctionEnrollment> findByAuctionPreparationIdAndId(Long auctionId, Long bidderEnrollmentId);
 	
+	@Query("select bae.addressProof from BidderAuctionEnrollment bae where bae.user.id = ?2 and bae.auctionPreparation.id =?1")
+	String findAddressProofByParticipantId(Long auctionId, Long userId);
+	
+	@Query("select bae.transactionProof from BidderAuctionEnrollment bae where bae.user.id = ?2 and bae.auctionPreparation.id =?1")
+	String findTransactionProofByParticipantId(Long auctionId, Long userId);
+	
 }

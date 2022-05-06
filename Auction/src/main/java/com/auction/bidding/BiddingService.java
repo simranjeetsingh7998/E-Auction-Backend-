@@ -415,7 +415,19 @@ public class BiddingService implements IBiddingService {
 	public List<BidHistory> findBidHistoryByActionPreparation(Long auctionId) {
 		return this.biddingDao.findBidHistoryByAuctionPreparation(auctionId, LoggedInUser.getLoggedInUserDetails().getId())
 				.stream().map(tuple -> {
-				//   Object	tuple.get("round");
+					 BidHistory bidHistory = new BidHistory();
+					 bidHistory.setBidder(tuple.get("firstName").toString().concat(" ").concat(tuple.get("lastName").toString()));
+					 bidHistory.setAmount(Double.parseDouble(tuple.get("amount").toString()));
+					 bidHistory.setRound(tuple.get("round", String.class));
+					 bidHistory.setBidAt(tuple.get("bidAt").toString());
+					 return bidHistory;
+				}).toList();
+	}
+	
+	@Override
+	public List<BidHistory> findBidHistoryByActionPreparationForAdmin(Long auctionId) {
+		return this.biddingDao.findBidHistoryByAuctionPreparationForAdmin(auctionId)
+				.stream().map(tuple -> {
 					 BidHistory bidHistory = new BidHistory();
 					 bidHistory.setBidder(tuple.get("firstName").toString().concat(" ").concat(tuple.get("lastName").toString()));
 					 bidHistory.setAmount(Double.parseDouble(tuple.get("amount").toString()));

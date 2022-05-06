@@ -36,6 +36,8 @@ public interface IAuctionPreparationService {
 	
 	Map<String, String> uploadDocument(Long auctionPreparationId, String documentType, MultipartFile multipartFile) throws IOException;
 	
+	Map<String, Object> getAuctionDocument(Long auctionPreparationId, String documentType);
+	
 	List<AuctionPreparationVO> findAuctionByStatus(String status);
 	
 	Map<Integer, OrganizationItemVO> findOrganizationItemsByAuctionIdAndItemId(Long auctionId, Long itemId);
@@ -44,10 +46,10 @@ public interface IAuctionPreparationService {
 	
 	List<AuctionPreparationVO> findAllBidderUpcomingAuctions();
 	
-	List<BiddingVO> liveAuctionsOnAdmin();
-	
 	List<AuctionDocumentVO> findAllAuctionDocuments();
 	
 	EMDFeePaymentModeVO getEmdFeePaymentModeByAuction(Long auctionId);
+
+	List<BiddingVO> liveAuctionsOnAdmin(List<Long> auctionsId);
 
 }

@@ -56,6 +56,14 @@ public class BiddingController {
 				this.biddingService.findBidHistoryByActionPreparation(auctionId), null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/admin/auction/{id}/bid/history")
+	public ResponseEntity<ApiResponse> bidHistoryForAdmin(@PathVariable("id") Long auctionId){
+		return new ResponseEntity<>(
+				new ApiResponse(HttpStatus.OK.value(),
+				this.messageResolver.getMessage("bidding.history"),
+				this.biddingService.findBidHistoryByActionPreparationForAdmin(auctionId), null), HttpStatus.OK);
+	}
+	
 	@PostMapping("/auction/{id}/close/round")
 	public ResponseEntity<ApiResponse> closeAuctionRound(@PathVariable("id") Long auctionId){
 		 long closedRoundNumber = this.biddingService.closeRoundByAuctionPreparation(auctionId);

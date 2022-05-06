@@ -84,6 +84,12 @@ public class UserController {
 					null, null), HttpStatus.OK);
 	}
 	
+	@GetMapping("/get/document/user/{id}/{documentType}")
+	public ResponseEntity<ApiResponse> getUserDocument(@PathVariable("id") Long userId, @PathVariable String documentType){
+		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" fetched successfully",
+					this.userService.getUserDocument(userId, documentType), null), HttpStatus.OK);
+	}
+	
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse> userLogin(@RequestBody Login login) {
@@ -112,6 +118,7 @@ public class UserController {
 		User user = userDetails.getUser();
 		UserVO responseUser = user.userToUserVO();
 		responseUser.setRole(user.getRole().roleToRoleVO());
+		responseUser.setOrganization(user.getOrganization().organizationToOrganizationVO());
 		response.put("user", responseUser);
 		return new ResponseEntity<>(
 				new ApiResponse(HttpStatus.OK.value(), "Login Successfully", response, null), HttpStatus.OK);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +20,6 @@ import com.auction.global.exception.DataMisMatchException;
 import com.auction.global.exception.ResourceAlreadyExist;
 import com.auction.global.exception.ResourceNotFoundException;
 import com.auction.method.IAuctionMethodDao;
-import com.auction.preparation.AuctionMethodEnum;
 import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
@@ -149,6 +149,23 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		bidderAuctionEnrollmentVO.setId(id);
 		return bidderAuctionEnrollmentVO;
 	}
+	
+	@Override
+	public Map<String, Object> getDocumentForBidder(Long auctionId, Long bidderId, String documentType) {
+		String file = null;
+	    if(DocumentTypeEnum.TRANSACTIONPROOF.getDocumentType().equals(documentType)) {
+	        file =	 this.bidderAuctionEnrollmentDao.findTransactionProofByParticipantId(auctionId, bidderId);
+	    }
+	    else if(DocumentTypeEnum.ADDRESSPROOF.getDocumentType().equals(documentType)) {
+	        file =	this.bidderAuctionEnrollmentDao.findAddressProofByParticipantId(auctionId, bidderId);
+	    }
+	    if(!Objects.isNull(file)) {
+	        return this.fileUpload.encodeFileToBase64(file);
+	    }
+	    throw new ResourceNotFoundException("Document not found");
+	}
+	
+	
 
 	@Override
 	public void uploadBidderAuctionEnrollmentDocument(Long bidderAuctionEnrollmentId, String documentType,

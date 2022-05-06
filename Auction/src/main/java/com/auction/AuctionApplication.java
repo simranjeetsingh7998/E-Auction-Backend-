@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -87,6 +88,9 @@ public class AuctionApplication {
 	private IEMDFeePaymentModeDao feePaymentModeDao;
 	
 	private static final  String URL = "/v3/api-docs";
+	
+	@Value(value = "${files.resources}")
+	private String filePath;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);
@@ -105,8 +109,8 @@ public class AuctionApplication {
 	
     private void exposeDirectory(String dirName, ResourceHandlerRegistry registry) {
         Path uploadDir = Paths.get(dirName);
-        String uploadPath = uploadDir.toFile().getAbsolutePath();
-         
+        String uploadPath = filePath;
+        System.out.println(uploadPath); 
         if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
          
         registry.addResourceHandler("/" + dirName + "/**").addResourceLocations("file:/"+ uploadPath + "/");

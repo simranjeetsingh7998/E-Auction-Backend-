@@ -29,7 +29,16 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 
 	List<AuctionPreparation> findAllByAuctionStatusAndAuctionMethod(AuctionStatus auctionStatus, AuctionMethod auctionMethod);
 	
-	@Query(value ="select ap.* from auction_preparation ap join admin_live_bidding_access alba on ap.id = alba.auction where alba.user = ?1 and ap.auction_status = ?2 and ap.auctionStartDateTime <= ?3", nativeQuery = true)
-	List<AuctionPreparation> findAllLiveAuctionOnAdmin(Long userId, AuctionStatus auctionStatus, LocalDateTime currentDateTime);
+	@Query(value ="select ap.* from auction_preparation ap join admin_live_bidding_access alba on ap.id = alba.auction where alba.user = ?1 and ap.auction_status = ?2 and ap.auction_start_date_time <= ?3", nativeQuery = true)
+	List<AuctionPreparation> findAllLiveAuctionOnAdmin(Long userId, String status, LocalDateTime currentDateTime);
+	
+	@Query(value ="select ap.* from auction_preparation ap join admin_live_bidding_access alba on ap.id = alba.auction where alba.user = ?1 and ap.auction_status = ?2 and ap.auction_start_date_time <= ?3 and ap.id in(?4)", nativeQuery = true)
+	List<AuctionPreparation> findAllLiveAuctionOnAdmin(Long userId, String status, LocalDateTime currentDateTime, List<Long> auctionsId);
+	
+	@Query("select a.auctionDocument from AuctionPreparation a where a.id = ?1")
+	String findAuctionDocumentById(Long auctionId);
+	
+	@Query("select a.noticeDocument from AuctionPreparation a where a.id = ?1")
+	String findNoticeDocumentById(Long auctionId);
 
 }

@@ -2,6 +2,7 @@ package com.auction.bidder.enrollment;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,5 +21,7 @@ public interface IBidderAuctionEnrollmentService {
 
 	void bidderAuctionEnrollmentVerification(
 			BidderEnrollmentVerificationVO bidderEnrollmentVerificationVO);
+	
+	Map<String, Object> getDocumentForBidder(Long auctionId, Long bidderId, String documentType);
 
 }
