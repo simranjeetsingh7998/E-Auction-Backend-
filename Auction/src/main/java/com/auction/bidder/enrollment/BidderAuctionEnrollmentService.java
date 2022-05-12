@@ -24,6 +24,7 @@ import com.auction.preparation.AuctionPreparation;
 import com.auction.preparation.AuctionStatus;
 import com.auction.preparation.IAuctionPreparationDao;
 import com.auction.user.User;
+import com.auction.user.UserVO;
 import com.auction.util.FileUpload;
 import com.auction.util.LoggedInUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -193,7 +194,15 @@ public class BidderAuctionEnrollmentService implements IBidderAuctionEnrollmentS
 		AuctionPreparation auctionPreparation = new AuctionPreparation();
 		auctionPreparation.setId(auctionPreparationId);
 		return this.bidderAuctionEnrollmentDao.findAllByAuctionPreparation(auctionPreparation).stream()
-				.map(BidderAuctionEnrollment::bidderAuctionEnrollmentToBidderAuctionEnrollmentVO).toList();
+				.map(bidderAuctionEnrollment -> {
+					BidderAuctionEnrollmentVO bidderAuctionEnrollmentVO = bidderAuctionEnrollment.bidderAuctionEnrollmentToBidderAuctionEnrollmentVO();
+					User user = bidderAuctionEnrollment.getUser();
+					UserVO userVO = new UserVO();
+					userVO.setId(user.getId());
+					userVO.setFirstName(user.getFirstName());
+					bidderAuctionEnrollmentVO.setParticipant(userVO);
+					return bidderAuctionEnrollmentVO;
+				}).toList();
 	}
 
 	@Override

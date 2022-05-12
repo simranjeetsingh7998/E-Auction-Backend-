@@ -71,7 +71,7 @@ public class AuctionPreparationController {
 					this.auctionPreparationService.uploadDocument(auctionPreparationId, documentType, multipartFile), null), HttpStatus.OK);
 	}
 	
-	@PostMapping("/get/document/auction/preparation/{id}/{documentType}")
+	@GetMapping("/unsecure/get/document/auction/preparation/{id}/{documentType}")
 	public ResponseEntity<ApiResponse> getAuctionDocument(@PathVariable("id") Long auctionPreparationId, @PathVariable String documentType) {
 		 return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), documentType+" fetched successfully",
 					this.auctionPreparationService.getAuctionDocument(auctionPreparationId, documentType), null), HttpStatus.OK);
