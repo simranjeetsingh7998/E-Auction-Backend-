@@ -301,7 +301,7 @@ public class BiddingService implements IBiddingService {
 		auctionPreparationVO.setAuctionScheduleVO(auctionPreparation.getAuctionScheduleVO());
 		int roundNumber = 0;
 		long remainingTime = 0;
-		long roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60*1000;
+		long roundStartRemainingTime = auctionPreparation.getIntervalInMinutes()*60000;
 		UserVO userVO = new UserVO();
 		if(optionalBidding.isPresent() && Objects.isNull(optionalBidding.get().getRoundClosedAt())) {
 			Bidding bidding = optionalBidding.get();
@@ -361,6 +361,7 @@ public class BiddingService implements IBiddingService {
 	}
 	
 	private Map<String, LocalDateTime> getAuctionStartAndEndDateTime(AuctionPreparation auctionPreparation, int round){
+		System.out.println("Round  "+round);
 		Map<String, LocalDateTime> startEndDateTimeMap = new HashMap<>();
 		LocalDateTime auctionStartDateTime = auctionPreparation.getAuctionStartDateTime();
     	LocalDateTime auctionEndDateTime = auctionPreparation.getAuctionEndDateTime();
@@ -378,9 +379,11 @@ public class BiddingService implements IBiddingService {
     	System.out.println("Auction Interval in Minutes :  "+auctionPreparation.getIntervalInMinutes());
     	System.out.println("Minute Duration :  "+minutesDuration);
         Integer extendCount = this.getAuctionExtend(auctionPreparation.getId(), round);
+        System.out.println("Extend Count "+ extendCount);
         Integer extendForRoundGreaterThanOne = (extendCount > 0 ? extendCount : 1);
-    //	auctionStartDateTime = auctionStartDateTime.plusMinutes(
-    //			((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
+        System.out.println("Auction Extenf For Round Greater than one  "+extendForRoundGreaterThanOne);
+    	//auctionStartDateTime = auctionStartDateTime.plusMinutes(
+    	//		((interValInMinutes*(round-1))+minutesDuration)+ (auctionExtendMinutes *(round>1 ? (extendCount > 0 ? extendCount : 1) : extendCount)));
     	System.out.println("Auction Start Date Time :  "+auctionStartDateTime);
     	
     	// update auction finish date time
