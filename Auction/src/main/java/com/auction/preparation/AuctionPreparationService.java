@@ -467,4 +467,9 @@ public class AuctionPreparationService implements IAuctionPreparationService {
 		  return auctionPreparationVO;  
 	}
 	
+	@Override
+	public String findAuctionMethodByAuctionId(Long auctionId) {
+		return this.auctionPreparationDao.findAuctionMethodById(auctionId);
+	}
+	
 }

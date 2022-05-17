@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.Tuple;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -40,5 +42,12 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	
 	@Query("select a.noticeDocument from AuctionPreparation a where a.id = ?1")
 	String findNoticeDocumentById(Long auctionId);
+	
+	@Query(value="select a.description as description, a.auctionStartDateTime as startDateTime, a.auctionEndDateTime as endDateTime, ai.reservedPrice as basePrice,ai.modifierValue as incrementValue from AuctionPreparation a join a.auctionItems ai where a.id = ?1")
+	List<Tuple> findAuctionDetailForReport(Long auctionId);
+	
+	@Query("select am.method  from AuctionPreparation a join a.auctionMethod am where a.id = ?1")
+	String findAuctionMethodById(Long auctionId);
+	
 
 }

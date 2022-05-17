@@ -51,5 +51,7 @@ public interface IAuctionPreparationService {
 	EMDFeePaymentModeVO getEmdFeePaymentModeByAuction(Long auctionId);
 
 	List<BiddingVO> liveAuctionsOnAdmin(List<Long> auctionsId);
+	
+	String findAuctionMethodByAuctionId(Long auctionId);
 
 }
