@@ -33,8 +33,11 @@ public interface IBiddingDao extends JpaRepository<Bidding, Long> {
 	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1", nativeQuery = true)
 	List<Tuple> findBidHistoryByAuctionPreparationForAdmin(Long auctionId);
 	
-	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1 order by b.id desc", nativeQuery = true)
+	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt, b.round_closed_at as closeAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1 order by b.id desc", nativeQuery = true)
 	List<Tuple> findBidHistoryByAuctionPreparationForReport(Long auctionId);
+	
+	@Query(value =  "select u.first_name as firstName,u.last_name as lastName, b.bidding_amount as amount,b.round_no as round, b.bidding_at as bidAt, b.round_closed_at as closeAt from bidding b join users u on  b.bidder_id= u.id where b.auction_preparation_id = ?1 and b.bidder_id= ?2 order by b.id desc", nativeQuery = true)
+	List<Tuple> findBidHistoryByAuctionPreparationForBidderReport(Long auctionId, Long bidderId);
 	
 	long countByAuctionPreparationAndRoundNo(AuctionPreparation auctionPreparation, String roundNumber);
 

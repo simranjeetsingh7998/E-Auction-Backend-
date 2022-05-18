@@ -34,12 +34,30 @@ public class ReportController {
 		       }
 		       response.setContentType("application/octet-stream");
 		        String headerKey = "Content-Disposition";
-		        String headerValue = "attachment; filename=users.xlsx";
+		        String headerValue = "attachment; filename=auctionnumber_"+auctionId+"_bidding.xlsx";
 		        response.setHeader(headerKey, headerValue);
 		        if(auctionMethod.equalsIgnoreCase(AuctionMethodEnum.NORMAL.getMethod()))
 		              this.auctionBiddingReport.export(response, auctionId);
 		        else if(auctionMethod.equalsIgnoreCase(AuctionMethodEnum.ROUNDWISE.getMethod()))
 		        	 this.auctionBiddingReport.export(response, auctionId);
+		      return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
+		    		  "Report Generated successfully", null, null), HttpStatus.OK);  
+	}
+	
+	@GetMapping("/auction/{id}/bidder/bidding/report")
+	public ResponseEntity<ApiResponse> getBiddingHistoryAuctionForBidder(@PathVariable("id") Long auctionId, HttpServletResponse response) throws IOException{
+		       String auctionMethod = this.auctionPreparationService.findAuctionMethodByAuctionId(auctionId); 
+		       if(Objects.isNull(auctionMethod)) {
+				      throw new ResourceNotFoundException("Auction method not found");
+		       }
+		       response.setContentType("application/octet-stream");
+		        String headerKey = "Content-Disposition";
+		        String headerValue = "attachment; filename=auctionnumber_"+auctionId+"_bidding.xlsx";
+		        response.setHeader(headerKey, headerValue);
+		        if(auctionMethod.equalsIgnoreCase(AuctionMethodEnum.NORMAL.getMethod()))
+		              this.auctionBiddingReport.exportForBidder(response, auctionId);
+		        else if(auctionMethod.equalsIgnoreCase(AuctionMethodEnum.ROUNDWISE.getMethod()))
+		        	 this.auctionBiddingReport.exportForBidder(response, auctionId);
 		      return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(),
 		    		  "Report Generated successfully", null, null), HttpStatus.OK);  
 	}

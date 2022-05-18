@@ -49,5 +49,8 @@ public interface IAuctionPreparationDao extends JpaRepository<AuctionPreparation
 	@Query("select am.method  from AuctionPreparation a join a.auctionMethod am where a.id = ?1")
 	String findAuctionMethodById(Long auctionId);
 	
+	@Query("select a.auctionName from AuctionPreparation a where a.id = ?1")
+	String findAuctionNameById(Long auctionId);
+	
 
 }
