@@ -57,11 +57,11 @@ public class JwtTokenUtil {
 //	}
 	
 	
-	private String secret = "$2y$12$eUovJt3tV2DxfQEspaPxcucmYcPYPBGGojGoiI1vt4Oic3hfm62w6";
+	private static final String SECRET = "$2y$12$eUovJt3tV2DxfQEspaPxcucmYcPYPBGGojGoiI1vt4Oic3hfm62w6";
 
 	public Jws<Claims> getAllClaimsFromToken(String token) throws SignatureException, MalformedJwtException,
 			ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException {
-		Key key = Keys.hmacShaKeyFor(secret.getBytes());
+		Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 	}
 
@@ -70,7 +70,7 @@ public class JwtTokenUtil {
 	}
 
 	private String doGenerateToken(UserDetails userDetails) {
-		Key key = Keys.hmacShaKeyFor(secret.getBytes());
+		Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 		long currentTimeInMillSeconds = System.currentTimeMillis();
 		long expireTimeInMillSeconds = currentTimeInMillSeconds + (1000 * 60 * 60 * 24);
 		Date date = new Date(currentTimeInMillSeconds);

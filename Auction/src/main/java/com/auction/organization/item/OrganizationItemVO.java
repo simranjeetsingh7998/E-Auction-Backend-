@@ -18,6 +18,10 @@ public class OrganizationItemVO {
 	private String itemValue;
 	@JsonProperty("parent_item_id")
 	private Long itemId;
+	@JsonProperty("reserve_price")
+    private Double reservePrice;
+	@JsonProperty("emd")
+    private Double emd;
     
 	@JsonProperty("item_label_master")
 	private ItemLabelMasterVO itemLabelMasterVO;

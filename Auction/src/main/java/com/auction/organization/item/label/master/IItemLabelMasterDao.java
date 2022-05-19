@@ -19,5 +19,7 @@ public interface IItemLabelMasterDao extends JpaRepository<ItemLabelMaster, Inte
 	List<ItemLabelMaster> findAllByOrganizationIdAndIsActiveTrue(Integer organizationId, Sort orderBy);
 	
 	boolean existsByIdAndOrganization(Integer id, Organization organization);
+	
+	boolean existsByItemLabelAndOrganizationAndIsActiveTrue(String itemLabel, Organization organization);
 
 }

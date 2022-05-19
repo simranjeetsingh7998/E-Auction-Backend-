@@ -20,6 +20,7 @@ import com.auction.preparation.AuctionItem;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "organizationItem")
@@ -38,7 +39,10 @@ public class OrganizationItem implements Serializable {
 	@Column(length = 50)
 	private String itemValue;
     private Long itemId;
+    private Double reservePrice;
+    private Double emd;
 	@ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@Exclude
 	private ItemLabelMaster itemLabelMaster;
 	
 	@OneToMany(mappedBy = "organizationItem", cascade = CascadeType.ALL, orphanRemoval = false)
@@ -52,6 +56,8 @@ public class OrganizationItem implements Serializable {
    	 organizationItemVO.setItemValue(itemValue);
    	 organizationItemVO.setId(id);
    	 organizationItemVO.setItemId(itemId);
+   	 organizationItemVO.setReservePrice(reservePrice);
+   	 organizationItemVO.setEmd(emd);
    	return organizationItemVO; 
    }
 
